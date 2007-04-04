@@ -16,6 +16,13 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.JToolBar;
+import javax.swing.JButton;
+import javax.swing.BoxLayout;
+import javax.swing.JTextPane;
+import java.awt.GridLayout;
+import java.awt.CardLayout;
+import java.awt.FlowLayout;
 
 /**
  * Ein Objekt der Klasse stellt alle Objekte zur Verfuegung, die zur
@@ -70,6 +77,14 @@ public class Hauptfenster extends JFrame {
 
   private SuchPanel pSuche = null;
 
+  private JToolBar tbWerkzeugleiste = null;
+
+  private JButton bNormalansicht = null;
+
+  private JButton bGroszanzeige = null;
+
+  private JTextPane tpKommentar = null;
+
   /**
    * This is the default constructor
    */
@@ -105,6 +120,7 @@ public class Hauptfenster extends JFrame {
       mDatei.setMnemonic(KeyEvent.VK_D);
       mDatei.add(getMiImport());
       mDatei.add(getMiBeenden());
+      mDatei.add(getTbWerkzeugleiste());
     }
     return mDatei;
   }
@@ -143,12 +159,12 @@ public class Hauptfenster extends JFrame {
     
     if (pBedienung == null) {
       pBedienung = new JPanel();
-      pBedienung.setLayout(new BorderLayout());
+      pBedienung.setLayout(new BoxLayout(getBedienPanel(), BoxLayout.Y_AXIS));
       pBedienung.setPreferredSize(new Dimension(300, 300));
       pBedienung.setMinimumSize(new Dimension(300, 300));
-      pBedienung.add(getSuchPanel(), BorderLayout.NORTH);
-      pBedienung.add(getPInformationen(), BorderLayout.CENTER);
-      pBedienung.add(getPVorschau(), BorderLayout.SOUTH);
+      pBedienung.add(getSuchPanel(), null);
+      pBedienung.add(getPVorschau(), null);
+      pBedienung.add(getPInformationen(), null);
     }
     return pBedienung;
   }
@@ -161,8 +177,12 @@ public class Hauptfenster extends JFrame {
   private JTabbedPane getPInformationen() {
     if (pInformationen == null) {
       pInformationen = new JTabbedPane();
+      pInformationen.setName("pInformationen");
       pInformationen.addTab("Bildinformation", null,
           getPBildinformationen(), "Enthält alle physischen Daten des Bildes.");
+      pInformationen.addTab("Kommentar", null, getTpKommentar(), "Diese " +
+          "Informationen werden verwendet, um eine Suche gewährleisten " +
+          "zu können.");
     }
     return pInformationen;
   }
@@ -312,6 +332,7 @@ public class Hauptfenster extends JFrame {
     if (pVorschau == null) {
       pVorschau = new Vorschaupanel();
       pVorschau.setLayout(new GridBagLayout());
+      pVorschau.setName("pVorschau");
     }
     return pVorschau;
   }
@@ -336,8 +357,62 @@ public class Hauptfenster extends JFrame {
   private SuchPanel getSuchPanel() {
     if (pSuche == null) {
       pSuche = new SuchPanel();
+      pSuche.setPreferredSize(new Dimension(316, 147));
+      pSuche.setName("pSuche");
     }
     return pSuche;
+  }
+
+  /**
+   * This method initializes tbWerkzeugleiste	
+   * 	
+   * @return javax.swing.JToolBar	
+   */
+  private JToolBar getTbWerkzeugleiste() {
+    if (tbWerkzeugleiste == null) {
+      tbWerkzeugleiste = new JToolBar();
+      tbWerkzeugleiste.add(getBNormalansicht());
+      tbWerkzeugleiste.add(getBGroszanzeige());
+    }
+    return tbWerkzeugleiste;
+  }
+
+  /**
+   * This method initializes bNormalansicht	
+   * 	
+   * @return javax.swing.JButton	
+   */
+  private JButton getBNormalansicht() {
+    if (bNormalansicht == null) {
+      bNormalansicht = new JButton();
+      bNormalansicht.setText("Normalansicht");
+    }
+    return bNormalansicht;
+  }
+
+  /**
+   * This method initializes bGroszanzeige	
+   * 	
+   * @return javax.swing.JButton	
+   */
+  private JButton getBGroszanzeige() {
+    if (bGroszanzeige == null) {
+      bGroszanzeige = new JButton();
+      bGroszanzeige.setText("Bild anzeigen");
+    }
+    return bGroszanzeige;
+  }
+
+  /**
+   * This method initializes tpKommentar	
+   * 	
+   * @return javax.swing.JTextPane	
+   */
+  private JTextPane getTpKommentar() {
+    if (tpKommentar == null) {
+      tpKommentar = new JTextPane();
+    }
+    return tpKommentar;
   }
 
   /**
@@ -379,6 +454,7 @@ public class Hauptfenster extends JFrame {
       inhaltsflaeche = new JPanel();
       inhaltsflaeche.setLayout(new BorderLayout());
       inhaltsflaeche.add(getJSplitPane(), BorderLayout.CENTER);
+      inhaltsflaeche.add(getTbWerkzeugleiste(), BorderLayout.NORTH);
     }
     return inhaltsflaeche;
   }

@@ -129,11 +129,10 @@ public class SuchPanel extends JPanel {
     lSuchen.setText("Suchbegriff");
     
     // Dieses Panel
-    this.setSize(STD_BREITE, STD_HOEHE);
+    this.setSize(new Dimension(316, 147));
     this.setLayout(new GridBagLayout());
-    this.setBorder(BorderFactory.createTitledBorder(null, "Bildsuche",
-        TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, 
-        new Font("Dialog", Font.BOLD, 12), new Color(51, 51, 51)));
+    this.setBorder(BorderFactory.createTitledBorder(null, "Bildsuche", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Dialog", Font.BOLD, 12), new Color(51, 51, 51)));
+    this.setBackground(new Color(238, 238, 238));
     this.add(lSuchen, gridBagConstraints);
     this.add(getTfSuchFeld(), gridBagConstraints1);
     this.add(lGroesse, gridBagConstraints2);
