@@ -5,6 +5,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.KeyEvent;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -15,14 +17,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.SwingUtilities;
-import javax.swing.JToolBar;
-import javax.swing.JButton;
-import javax.swing.BoxLayout;
 import javax.swing.JTextPane;
-import java.awt.GridLayout;
-import java.awt.CardLayout;
-import java.awt.FlowLayout;
+import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 
 /**
  * Ein Objekt der Klasse stellt alle Objekte zur Verfuegung, die zur
