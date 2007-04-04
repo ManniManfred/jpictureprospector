@@ -355,6 +355,7 @@ public class Hauptfenster extends JFrame {
     if (pSuche == null) {
       pSuche = new SuchPanel();
       pSuche.setPreferredSize(new Dimension(316, 147));
+      pSuche.setMinimumSize(new Dimension(176, 147));
       pSuche.setName("pSuche");
     }
     return pSuche;
