@@ -38,6 +38,11 @@ public class Vorschaupanel extends JPanel {
     this.repaint();
   }
   
+  /**
+   * Zeichnet Elemente auf dieses Objekt.
+   * 
+   * @param g
+   */
   public void paintComponent(Graphics g) {
     
     Image image = Toolkit.getDefaultToolkit()
@@ -45,10 +50,20 @@ public class Vorschaupanel extends JPanel {
     double hoeheBild = image.getHeight(this);
     double breiteBild = image.getWidth(this);
     double dieseBreite = getWidth();
+    double dieseHoehe = getHeight();
     g.setColor(new Color(238, 238, 238));
     g.fillRect(0, 0, getWidth(), getHeight());
     
-    g.drawImage(image, 5, 15, (int) dieseBreite - 10,
-        (int) (hoeheBild * (dieseBreite / breiteBild) - 10), this);
+    // Anpassung der Größe an dieses Objekt
+    if (Math.abs(dieseBreite / breiteBild) < Math.abs(dieseHoehe / hoeheBild)) {
+      
+      g.drawImage(image, 5, 15, (int) dieseBreite - 20,
+          (int) (hoeheBild * (dieseBreite / breiteBild)) - 20, this);
+    } else {
+      
+      g.drawImage(image, 5, 15,
+          (int) (breiteBild * (dieseHoehe / hoeheBild)) - 20,
+          (int) dieseHoehe - 20, this);
+    }
   }
 }
