@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.JList;
+import java.awt.FlowLayout;
 
 /**
  * Ein Objekt der Klasse repraesentiert ein Feld in dem Werte zur Suche
@@ -43,14 +44,6 @@ public class SuchPanel extends JPanel {
   
   private JLabel lSuchen = null;
 
-  private JLabel lGroesse = null;
-
-  private JComboBox cbGroesze = null;
-
-  private JLabel lBildtyp = null;
-
-  private JList lDateiformate = null;
-
   /**
    * Erstellt ein Objekt der Klasse mit den entsprechenden Elementen.
    */
@@ -65,80 +58,17 @@ public class SuchPanel extends JPanel {
    */
   private void initialize() {
     
-    GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
-    gridBagConstraints5.fill = GridBagConstraints.BOTH;
-    gridBagConstraints5.gridy = 2;
-    gridBagConstraints5.weightx = 1.0;
-    gridBagConstraints5.weighty = 1.0;
-    gridBagConstraints5.insets = new Insets(STD_ABS_OBEN, STD_ABS_LINKS, 
-        STD_ABS_UNTEN, STD_ABS_RECHTS);
-    gridBagConstraints5.fill = GridBagConstraints.HORIZONTAL;
-    gridBagConstraints5.anchor = GridBagConstraints.NORTHWEST;
-    gridBagConstraints5.gridx = 1;
-    
-    // Label für die Dateiartauswahl
-    GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
-    gridBagConstraints4.gridx = 0;
-    gridBagConstraints4.gridy = 2;
-    gridBagConstraints4.anchor = GridBagConstraints.NORTH;
-    gridBagConstraints4.insets = new Insets(STD_ABS_OBEN, STD_ABS_LINKS, 
-        STD_ABS_UNTEN, STD_ABS_RECHTS);
-    lBildtyp = new JLabel();
-    lBildtyp.setText("Dateiart");
-    
-    // Combobox für die Bildgröße
-    GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-    gridBagConstraints3.fill = GridBagConstraints.BOTH;
-    gridBagConstraints3.gridy = 1;
-    gridBagConstraints3.weightx = 1.0;
-    gridBagConstraints3.insets = new Insets(STD_ABS_OBEN, STD_ABS_LINKS, 
-        STD_ABS_UNTEN, STD_ABS_RECHTS);
-    gridBagConstraints3.anchor = GridBagConstraints.WEST;
-    gridBagConstraints3.fill = GridBagConstraints.HORIZONTAL;
-    gridBagConstraints3.anchor = GridBagConstraints.NORTHWEST;
-    gridBagConstraints3.gridx = 1;
-    
-    // Label für das Feld der Größe
-    GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-    gridBagConstraints2.gridx = 0;
-    gridBagConstraints2.gridy = 1;
-    gridBagConstraints2.insets = new Insets(STD_ABS_OBEN, STD_ABS_LINKS, 
-        STD_ABS_UNTEN, STD_ABS_RECHTS);
-    lGroesse = new JLabel();
-    lGroesse.setText("Größe");
-    
-    // Textfeld für den Suchbegriff
-    GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-    gridBagConstraints1.fill = GridBagConstraints.BOTH;
-    gridBagConstraints1.gridx = 1;
-    gridBagConstraints1.gridy = 0;
-    gridBagConstraints1.weightx = 1.0;
-    gridBagConstraints1.anchor = GridBagConstraints.WEST;
-    gridBagConstraints1.fill = GridBagConstraints.HORIZONTAL;
-    gridBagConstraints1.anchor = GridBagConstraints.NORTHWEST;
-    gridBagConstraints1.insets = new Insets(STD_ABS_OBEN, STD_ABS_LINKS, 
-        STD_ABS_UNTEN, STD_ABS_RECHTS);
-    
     // Label des Suchbegriffsfelds
-    GridBagConstraints gridBagConstraints = new GridBagConstraints();
-    gridBagConstraints.insets = new Insets(STD_ABS_OBEN, STD_ABS_LINKS, 
-        STD_ABS_UNTEN, STD_ABS_RECHTS);
-    gridBagConstraints.gridy = 0;
-    gridBagConstraints.gridx = 0;
     lSuchen = new JLabel();
-    lSuchen.setText("Suchbegriff");
+    lSuchen.setText("Suchbegriff  ");
+    lSuchen.setFont(new Font("Dialog", Font.BOLD, 18));
     
     // Dieses Panel
-    this.setSize(new Dimension(316, 147));
-    this.setLayout(new GridBagLayout());
-    this.setBorder(BorderFactory.createTitledBorder(null, "Bildsuche", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Dialog", Font.BOLD, 12), new Color(51, 51, 51)));
+    this.setLayout(new FlowLayout());
     this.setBackground(new Color(238, 238, 238));
-    this.add(lSuchen, gridBagConstraints);
-    this.add(getTfSuchFeld(), gridBagConstraints1);
-    this.add(lGroesse, gridBagConstraints2);
-    this.add(getCbGroesze(), gridBagConstraints3);
-    this.add(lBildtyp, gridBagConstraints4);
-    this.add(getLDateiformate(), gridBagConstraints5);
+    this.setSize(new Dimension(500, 30));
+    this.add(lSuchen, null);
+    this.add(getTfSuchFeld(), null);
   }
 
   /**
@@ -149,42 +79,9 @@ public class SuchPanel extends JPanel {
   private JTextField getTfSuchFeld() {
     if (tfSuchFeld == null) {
       tfSuchFeld = new JTextField();
-      tfSuchFeld.setPreferredSize(new Dimension(200, 20));
+      tfSuchFeld.setPreferredSize(new Dimension(300, 25));
     }
     return tfSuchFeld;
   }
 
-  /**
-   * This method initializes cbGroesze	
-   * 	
-   * @return javax.swing.JComboBox	
-   */
-  private JComboBox getCbGroesze() {
-    if (cbGroesze == null) {
-      cbGroesze = new JComboBox();
-      cbGroesze.setPreferredSize(new Dimension(200, 25));
-      cbGroesze.addItem("");
-      cbGroesze.addItem("klein");
-      cbGroesze.addItem("mittel");
-      cbGroesze.addItem("groß");
-    }
-    return cbGroesze;
-  }
-
-  /**
-   * This method initializes lDateiformate	
-   * 	
-   * @return javax.swing.JList	
-   */
-  private JList getLDateiformate() {
-    
-    Object[] dateiformate = new Object[]{"bmp", "jpg", "tiff", "png", "gif"};
-    if (lDateiformate == null) {
-      lDateiformate = new JList();
-      lDateiformate.setBorder(BorderFactory.createLineBorder(Color.black, 1));
-      lDateiformate.setListData(dateiformate);
-    }
-    return lDateiformate;
-  }
-
-}
+}  //  @jve:decl-index=0:visual-constraint="10,10"
