@@ -1,12 +1,14 @@
 package ui;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.KeyEvent;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -20,6 +22,10 @@ import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.border.LineBorder;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.JLabel;
+import javax.swing.ImageIcon;
 
 /**
  * Ein Objekt der Klasse stellt alle Objekte zur Verfuegung, die zur
@@ -46,8 +52,6 @@ public class Hauptfenster extends JFrame {
 
   private JMenuItem miBeenden = null;
 
-  private JPanel pBedienung = null;
-
   private JTabbedPane pInformationen = null;
 
   private JPanel pBildinformationen = null;
@@ -64,13 +68,9 @@ public class Hauptfenster extends JFrame {
 
   private JMenuItem miInfo = null;
 
-  private JMenuItem miPfadBearbeiten = null;
-
   private JMenuItem miGrundeinstellungen = null;
 
   private Vorschaupanel pVorschau = null;
-
-  private JScrollPane spThumbnails = null;
 
   private SuchPanel pSuche = null;
 
@@ -81,6 +81,16 @@ public class Hauptfenster extends JFrame {
   private JButton bGroszanzeige = null;
 
   private JTextPane tpKommentar = null;
+
+  private JPanel pThumbnails = null;
+
+  private JScrollPane spThumbnails = null;
+
+  private JSplitPane spVorschauBildinfo = null;
+
+  private JLabel lLetztesBild = null;
+
+  private JLabel lNaechstesBild = null;
 
   /**
    * This is the default constructor
@@ -117,7 +127,6 @@ public class Hauptfenster extends JFrame {
       mDatei.setMnemonic(KeyEvent.VK_D);
       mDatei.add(getMiImport());
       mDatei.add(getMiBeenden());
-      mDatei.add(getTbWerkzeugleiste());
     }
     return mDatei;
   }
@@ -145,25 +154,6 @@ public class Hauptfenster extends JFrame {
       });
     }
     return miBeenden;
-  }
-
-  /**
-   * This method initializes bedienPanel	
-   * 	
-   * @return javax.swing.JPanel	
-   */
-  private JPanel getBedienPanel() {
-    
-    if (pBedienung == null) {
-      pBedienung = new JPanel();
-      pBedienung.setLayout(new BoxLayout(getBedienPanel(), BoxLayout.Y_AXIS));
-      pBedienung.setPreferredSize(new Dimension(300, 300));
-      pBedienung.setMinimumSize(new Dimension(300, 300));
-      pBedienung.add(getSuchPanel(), null);
-      pBedienung.add(getPVorschau(), null);
-      pBedienung.add(getPInformationen(), null);
-    }
-    return pBedienung;
   }
 
   /**
@@ -224,8 +214,9 @@ public class Hauptfenster extends JFrame {
     if (jSplitPane == null) {
       jSplitPane = new JSplitPane();
       jSplitPane.setOneTouchExpandable(true);
-      jSplitPane.setLeftComponent(getBedienPanel());
-      jSplitPane.setRightComponent(getSpThumbnails());
+      jSplitPane.setDividerSize(7);
+      jSplitPane.setRightComponent(getPThumbnails());
+      jSplitPane.setLeftComponent(getSpVorschauBildinfo());
     }
     return jSplitPane;
   }
@@ -239,6 +230,14 @@ public class Hauptfenster extends JFrame {
     if (miImport == null) {
       miImport = new JMenuItem();
       miImport.setText("Importieren");
+      miImport.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+          JFileChooser dateiauswahl = new JFileChooser();
+          FileFilter filter = new Bildfilter();
+          dateiauswahl.setFileFilter(filter);
+          dateiauswahl.showOpenDialog(inhaltsflaeche);
+        }
+      });
     }
     return miImport;
   }
@@ -253,7 +252,6 @@ public class Hauptfenster extends JFrame {
       mEinstellungen = new JMenu();
       mEinstellungen.setText("Einstellungen");
       mEinstellungen.setMnemonic(KeyEvent.VK_E);
-      mEinstellungen.add(getMiPfadBearbeiten());
       mEinstellungen.add(getMiGrundeinstellungen());
     }
     return mEinstellungen;
@@ -295,19 +293,6 @@ public class Hauptfenster extends JFrame {
   }
 
   /**
-   * This method initializes miPfadBearbeiten	
-   * 	
-   * @return javax.swing.JMenuItem	
-   */
-  private JMenuItem getMiPfadBearbeiten() {
-    if (miPfadBearbeiten == null) {
-      miPfadBearbeiten = new JMenuItem();
-      miPfadBearbeiten.setText("Pfade bearbeiten");
-    }
-    return miPfadBearbeiten;
-  }
-
-  /**
    * This method initializes miGrundeinstellungen	
    * 	
    * @return javax.swing.JMenuItem	
@@ -335,18 +320,6 @@ public class Hauptfenster extends JFrame {
   }
 
   /**
-   * This method initializes spThumbnails	
-   * 	
-   * @return javax.swing.JScrollPane	
-   */
-  private JScrollPane getSpThumbnails() {
-    if (spThumbnails == null) {
-      spThumbnails = new JScrollPane();
-    }
-    return spThumbnails;
-  }
-
-  /**
    * This method initializes suchPanel	
    * 	
    * @return ui.SuchPanel	
@@ -354,8 +327,6 @@ public class Hauptfenster extends JFrame {
   private SuchPanel getSuchPanel() {
     if (pSuche == null) {
       pSuche = new SuchPanel();
-      pSuche.setPreferredSize(new Dimension(316, 147));
-      pSuche.setMinimumSize(new Dimension(176, 147));
       pSuche.setName("pSuche");
     }
     return pSuche;
@@ -368,9 +339,40 @@ public class Hauptfenster extends JFrame {
    */
   private JToolBar getTbWerkzeugleiste() {
     if (tbWerkzeugleiste == null) {
+      lNaechstesBild = new JLabel();
+      lNaechstesBild.setText("");
+      lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("/imgs/pfeilrechts.png")));
+      lNaechstesBild.setSize(new Dimension(32, 32));
+      lNaechstesBild.addMouseListener(new java.awt.event.MouseAdapter() {   
+      	public void mouseExited(java.awt.event.MouseEvent e) {    
+          lNaechstesBild.removeAll();
+          lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("/imgs/pfeilrechts.png")));
+      	}
+        public void mouseEntered(java.awt.event.MouseEvent e) {
+          lNaechstesBild.removeAll();
+          lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("/imgs/pfeilrechtsKlick.png")));
+        }
+      });
+      lLetztesBild = new JLabel();
+      lLetztesBild.setText("");
+      lLetztesBild.setIcon(new ImageIcon(getClass().getResource("/imgs/pfeillinks.png")));
+      lLetztesBild.setSize(new Dimension(32, 32));
+      lLetztesBild.addMouseListener(new java.awt.event.MouseAdapter() {   
+      	public void mouseExited(java.awt.event.MouseEvent e) {    
+          lLetztesBild.removeAll();
+          lLetztesBild.setIcon(new ImageIcon(getClass().getResource("/imgs/pfeillinks.png")));
+      	}
+        public void mouseEntered(java.awt.event.MouseEvent e) {
+          lLetztesBild.removeAll();
+          lLetztesBild.setIcon(new ImageIcon(getClass().getResource("/imgs/pfeillinksKlick.png")));
+        }
+      });
       tbWerkzeugleiste = new JToolBar();
       tbWerkzeugleiste.add(getBNormalansicht());
       tbWerkzeugleiste.add(getBGroszanzeige());
+      tbWerkzeugleiste.add(lLetztesBild);
+      tbWerkzeugleiste.add(lNaechstesBild);
+      
     }
     return tbWerkzeugleiste;
   }
@@ -414,6 +416,53 @@ public class Hauptfenster extends JFrame {
   }
 
   /**
+   * This method initializes pThumbnails	
+   * 	
+   * @return javax.swing.JPanel	
+   */
+  private JPanel getPThumbnails() {
+    if (pThumbnails == null) {
+      pThumbnails = new JPanel();
+      pThumbnails.setLayout(new BorderLayout());
+      pThumbnails.add(getTbWerkzeugleiste(), BorderLayout.NORTH);
+      pThumbnails.add(getSpThumbnails(), BorderLayout.CENTER);
+    }
+    return pThumbnails;
+  }
+
+  /**
+   * This method initializes spThumbnails	
+   * 	
+   * @return javax.swing.JScrollPane	
+   */
+  private JScrollPane getSpThumbnails() {
+    if (spThumbnails == null) {
+      spThumbnails = new JScrollPane();
+    }
+    return spThumbnails;
+  }
+
+  /**
+   * This method initializes spVorschauBildinfo	
+   * 	
+   * @return javax.swing.JSplitPane	
+   */
+  private JSplitPane getSpVorschauBildinfo() {
+    if (spVorschauBildinfo == null) {
+      spVorschauBildinfo = new JSplitPane();
+      spVorschauBildinfo.setOrientation(JSplitPane.VERTICAL_SPLIT);
+      spVorschauBildinfo.setDividerLocation(400);
+      spVorschauBildinfo.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+      spVorschauBildinfo.setDividerSize(7);
+      spVorschauBildinfo.setMinimumSize(new Dimension(300, 245));
+      spVorschauBildinfo.setPreferredSize(new Dimension(300, 245));
+      spVorschauBildinfo.setBottomComponent(getPInformationen());
+      spVorschauBildinfo.setTopComponent(getPVorschau());
+    }
+    return spVorschauBildinfo;
+  }
+
+  /**
    * @param args
    */
   public static void main(String[] args) {
@@ -452,7 +501,7 @@ public class Hauptfenster extends JFrame {
       inhaltsflaeche = new JPanel();
       inhaltsflaeche.setLayout(new BorderLayout());
       inhaltsflaeche.add(getJSplitPane(), BorderLayout.CENTER);
-      inhaltsflaeche.add(getTbWerkzeugleiste(), BorderLayout.NORTH);
+      inhaltsflaeche.add(getSuchPanel(), BorderLayout.NORTH);
     }
     return inhaltsflaeche;
   }
