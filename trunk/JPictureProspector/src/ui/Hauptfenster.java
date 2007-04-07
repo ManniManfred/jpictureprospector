@@ -1,15 +1,16 @@
 package ui;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.KeyEvent;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -22,10 +23,7 @@ import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
-import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.JLabel;
-import javax.swing.ImageIcon;
 
 /**
  * Ein Objekt der Klasse stellt alle Objekte zur Verfuegung, die zur
