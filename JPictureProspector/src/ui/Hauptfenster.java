@@ -24,6 +24,8 @@ import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.KeyStroke;
+import java.awt.Event;
 
 /**
  * Ein Objekt der Klasse stellt alle Objekte zur Verfuegung, die zur
@@ -90,6 +92,8 @@ public class Hauptfenster extends JFrame {
 
   private JLabel lNaechstesBild = null;
 
+  private JLabel lLoeschen = null;
+
   /**
    * This is the default constructor
    */
@@ -138,6 +142,7 @@ public class Hauptfenster extends JFrame {
     if (miBeenden == null) {
       miBeenden = new JMenuItem();
       miBeenden.setText("Beenden");
+      miBeenden.setMnemonic(KeyEvent.VK_B);
       miBeenden.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
           
@@ -228,6 +233,8 @@ public class Hauptfenster extends JFrame {
     if (miImport == null) {
       miImport = new JMenuItem();
       miImport.setText("Importieren");
+      miImport.setMnemonic(KeyEvent.VK_I);
+      miImport.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, Event.CTRL_MASK, false));
       miImport.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
           JFileChooser dateiauswahl = new JFileChooser();
@@ -279,6 +286,7 @@ public class Hauptfenster extends JFrame {
     if (miInfo == null) {
       miInfo = new JMenuItem();
       miInfo.setText("Info");
+      miInfo.setMnemonic(KeyEvent.VK_I);
       miInfo.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
           JOptionPane.showMessageDialog(inhaltsflaeche, "Programmierprojekt " +
@@ -299,6 +307,7 @@ public class Hauptfenster extends JFrame {
     if (miGrundeinstellungen == null) {
       miGrundeinstellungen = new JMenuItem();
       miGrundeinstellungen.setText("Grundeinstellungen");
+      miGrundeinstellungen.setMnemonic(KeyEvent.VK_G);
     }
     return miGrundeinstellungen;
   }
@@ -337,6 +346,10 @@ public class Hauptfenster extends JFrame {
    */
   private JToolBar getTbWerkzeugleiste() {
     if (tbWerkzeugleiste == null) {
+      lLoeschen = new JLabel();
+      lLoeschen.setText("");
+      lLoeschen.setIcon(new ImageIcon(getClass().getResource("/imgs/loeschen.png")));
+      lLoeschen.setSize(new Dimension(32, 32));
       lNaechstesBild = new JLabel();
       lNaechstesBild.setText("");
       lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("/imgs/pfeilrechts.png")));
@@ -370,6 +383,7 @@ public class Hauptfenster extends JFrame {
       tbWerkzeugleiste.add(getBGroszanzeige());
       tbWerkzeugleiste.add(lLetztesBild);
       tbWerkzeugleiste.add(lNaechstesBild);
+      tbWerkzeugleiste.add(lLoeschen);
       
     }
     return tbWerkzeugleiste;
