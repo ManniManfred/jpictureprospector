@@ -11,7 +11,7 @@ public class SVNDemo {
 		System.out.println(12 + 13);
 	}
 	public void sub() {
-		System.out.println("sub");
+		System.out.println("super");
 	}
 	public static void main(String[] args) {
 		new SVNDemo();
