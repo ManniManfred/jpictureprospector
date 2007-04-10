@@ -8,6 +8,7 @@ public class SVNDemo {
 	
 	public void addiere(int zahl1, int zahl2) {
 		System.out.println(zahl1 + zahl2);
+		System.out.println(12 + 13);
 	}
 	public void sub() {
 		System.out.println("sub");
