@@ -57,11 +57,11 @@ public class Vorschaupanel extends JPanel {
     // Anpassung der Größe an dieses Objekt
     if (Math.abs(dieseBreite / breiteBild) < Math.abs(dieseHoehe / hoeheBild)) {
       
-      g.drawImage(image, 5, 15, (int) dieseBreite - 20,
+      g.drawImage(image, 5, 20, (int) dieseBreite - 20,
           (int) (hoeheBild * (dieseBreite / breiteBild)) - 20, this);
     } else {
       
-      g.drawImage(image, 5, 15,
+      g.drawImage(image, 5, 20,
           (int) (breiteBild * (dieseHoehe / hoeheBild)) - 20,
           (int) dieseHoehe - 20, this);
     }
