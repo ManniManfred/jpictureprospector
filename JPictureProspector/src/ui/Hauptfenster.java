@@ -23,6 +23,7 @@ import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.KeyStroke;
 import java.awt.Event;
@@ -76,8 +77,6 @@ public class Hauptfenster extends JFrame {
 
   private JToolBar tbWerkzeugleiste = null;
 
-  private JButton bNormalansicht = null;
-
   private JButton bGroszanzeige = null;
 
   private JTextPane tpKommentar = null;
@@ -93,6 +92,10 @@ public class Hauptfenster extends JFrame {
   private JLabel lNaechstesBild = null;
 
   private JLabel lLoeschen = null;
+
+  private JButton bSuchen = null;
+
+  private JButton bNormalansicht = null;
 
   /**
    * This is the default constructor
@@ -335,6 +338,7 @@ public class Hauptfenster extends JFrame {
     if (pSuche == null) {
       pSuche = new SuchPanel();
       pSuche.setName("pSuche");
+      pSuche.add(getBSuchen(), null);
     }
     return pSuche;
   }
@@ -350,6 +354,16 @@ public class Hauptfenster extends JFrame {
       lLoeschen.setText("");
       lLoeschen.setIcon(new ImageIcon(getClass().getResource("/imgs/loeschen.png")));
       lLoeschen.setSize(new Dimension(32, 32));
+      lLoeschen.addMouseListener(new java.awt.event.MouseAdapter() {   
+      	public void mouseExited(java.awt.event.MouseEvent e) {    
+          lLoeschen.removeAll();
+          lLoeschen.setIcon(new ImageIcon(getClass().getResource("/imgs/loeschen.png")));
+      	}
+        public void mouseEntered(java.awt.event.MouseEvent e) {
+          lLoeschen.removeAll();
+          lLoeschen.setIcon(new ImageIcon(getClass().getResource("/imgs/loeschenKlick.png")));
+        }
+      });
       lNaechstesBild = new JLabel();
       lNaechstesBild.setText("");
       lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("/imgs/pfeilrechts.png")));
@@ -387,19 +401,6 @@ public class Hauptfenster extends JFrame {
       
     }
     return tbWerkzeugleiste;
-  }
-
-  /**
-   * This method initializes bNormalansicht	
-   * 	
-   * @return javax.swing.JButton	
-   */
-  private JButton getBNormalansicht() {
-    if (bNormalansicht == null) {
-      bNormalansicht = new JButton();
-      bNormalansicht.setText("Normalansicht");
-    }
-    return bNormalansicht;
   }
 
   /**
@@ -475,6 +476,32 @@ public class Hauptfenster extends JFrame {
   }
 
   /**
+   * This method initializes bSuchen	
+   * 	
+   * @return javax.swing.JButton	
+   */
+  private JButton getBSuchen() {
+    if (bSuchen == null) {
+      bSuchen = new JButton();
+      bSuchen.setText("Suchen");
+    }
+    return bSuchen;
+  }
+
+  /**
+   * This method initializes bNormalansicht	
+   * 	
+   * @return javax.swing.JButton	
+   */
+  private JButton getBNormalansicht() {
+    if (bNormalansicht == null) {
+      bNormalansicht = new JButton();
+      bNormalansicht.setText("Normalansicht");
+    }
+    return bNormalansicht;
+  }
+
+  /**
    * @param args
    */
   public static void main(String[] args) {
@@ -482,6 +509,11 @@ public class Hauptfenster extends JFrame {
 
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
+        try { 
+          UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); 
+        } catch (Exception e) { 
+          e.printStackTrace(); 
+        }
         Hauptfenster hauptfenster = new Hauptfenster();
         hauptfenster.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         hauptfenster.setVisible(true);
