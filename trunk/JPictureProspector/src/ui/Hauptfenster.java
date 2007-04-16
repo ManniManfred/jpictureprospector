@@ -44,7 +44,7 @@ public class Hauptfenster extends JFrame {
   private static final long serialVersionUID = 1L;
 
   /** Enthaelt die Inhaltsflaeche dieses Objekts. */
-  private JPanel inhaltsflaeche = null;
+  private JPanel pInhaltsflaeche = null;
 
   /** Enthaelt das Hauptmenue dieses Objektes. */
   private JMenuBar hauptmenu = null;
@@ -59,7 +59,7 @@ public class Hauptfenster extends JFrame {
 
   private JTable tBildinformationen = null;
 
-  private JSplitPane jSplitPane = null;
+  private JSplitPane spAnzeige = null;
 
   private JMenuItem miImport = null;
 
@@ -149,7 +149,7 @@ public class Hauptfenster extends JFrame {
       miBeenden.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
           
-          int ergebnis = JOptionPane.showConfirmDialog(inhaltsflaeche, 
+          int ergebnis = JOptionPane.showConfirmDialog(pInhaltsflaeche, 
               "Wollen Sie das Programm beenden?", "Beenden", 
               JOptionPane.OK_CANCEL_OPTION);
           if (ergebnis == JOptionPane.OK_OPTION) {
@@ -216,15 +216,15 @@ public class Hauptfenster extends JFrame {
    * 	
    * @return javax.swing.JSplitPane	
    */
-  private JSplitPane getJSplitPane() {
-    if (jSplitPane == null) {
-      jSplitPane = new JSplitPane();
-      jSplitPane.setOneTouchExpandable(true);
-      jSplitPane.setDividerSize(7);
-      jSplitPane.setRightComponent(getPThumbnails());
-      jSplitPane.setLeftComponent(getSpVorschauBildinfo());
+  private JSplitPane getSpAnzeige() {
+    if (spAnzeige == null) {
+      spAnzeige = new JSplitPane();
+      spAnzeige.setOneTouchExpandable(true);
+      spAnzeige.setDividerSize(7);
+      spAnzeige.setRightComponent(getPThumbnails());
+      spAnzeige.setLeftComponent(getSpVorschauBildinfo());
     }
-    return jSplitPane;
+    return spAnzeige;
   }
 
   /**
@@ -243,7 +243,7 @@ public class Hauptfenster extends JFrame {
           JFileChooser dateiauswahl = new JFileChooser();
           FileFilter filter = new Bildfilter();
           dateiauswahl.setFileFilter(filter);
-          dateiauswahl.showOpenDialog(inhaltsflaeche);
+          dateiauswahl.showOpenDialog(pInhaltsflaeche);
         }
       });
     }
@@ -292,7 +292,7 @@ public class Hauptfenster extends JFrame {
       miInfo.setMnemonic(KeyEvent.VK_I);
       miInfo.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
-          JOptionPane.showMessageDialog(inhaltsflaeche, "Programmierprojekt " +
+          JOptionPane.showMessageDialog(pInhaltsflaeche, "Programmierprojekt " +
               "der FH Gelsenkirchen\n\nJPictureProspector\n\nv0.1",
               "Info", JOptionPane.INFORMATION_MESSAGE);
         }
@@ -541,13 +541,13 @@ public class Hauptfenster extends JFrame {
    * @return javax.swing.JPanel
    */
   private JPanel getJContentPane() {
-    if (inhaltsflaeche == null) {
-      inhaltsflaeche = new JPanel();
-      inhaltsflaeche.setLayout(new BorderLayout());
-      inhaltsflaeche.add(getJSplitPane(), BorderLayout.CENTER);
-      inhaltsflaeche.add(getSuchPanel(), BorderLayout.NORTH);
+    if (pInhaltsflaeche == null) {
+      pInhaltsflaeche = new JPanel();
+      pInhaltsflaeche.setLayout(new BorderLayout());
+      pInhaltsflaeche.add(getSuchPanel(), BorderLayout.NORTH);
+      pInhaltsflaeche.add(getSpAnzeige(), BorderLayout.CENTER);
     }
-    return inhaltsflaeche;
+    return pInhaltsflaeche;
   }
 
 }
