@@ -10,6 +10,7 @@
 package merkmalprototyp;
 
 import java.io.File;
+import merkmalprototyp.merkmale.BildbreiteMerkmal;
 import merkmalprototyp.merkmale.BildhoeheMerkmal;
 import merkmalprototyp.merkmale.DateigroesseMerkmal;
 import merkmalprototyp.merkmale.DateinameMerkmal;
@@ -66,7 +67,7 @@ public class MerkmaleTest {
 	               "Wert: " + hoehe.getWert());   
     
     // Bildbreite
-    Merkmal breite = new BildhoeheMerkmal();
+    Merkmal breite = new BildbreiteMerkmal();
     breite.liesMerkmal(bilddatei);    
     System.out.println("Name: " + breite.getName() + "\t" + 
 	               "Wert: " + breite.getWert());   
