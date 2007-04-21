@@ -26,7 +26,7 @@ public class BildhoeheMerkmal implements Merkmal {
   
   /** Creates a new instance of DateinameMerkmal */
   public BildhoeheMerkmal() {
-    this.name = "Bildhöhe";
+    this.name = "Bildhoehe";
   }
   
   public void liesMerkmal(File datei){
