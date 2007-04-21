@@ -24,7 +24,7 @@ public class DateigroesseMerkmal implements Merkmal {
   
   /** Creates a new instance of DateinameMerkmal */
   public DateigroesseMerkmal() {
-    this.name = "Dateigröße";
+    this.name = "Dateigroesse";
   }
   
   public void liesMerkmal(File datei){
