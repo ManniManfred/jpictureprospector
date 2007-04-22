@@ -42,7 +42,7 @@ public class MerkmaleTest {
 	private static final String VERZEICHNISPFAD =
 	// "F:\\Studium\\4
 	// Semester\\PPR\\JPP\\src\\merkmalprototyp\\zollverein.jpg";
-	"/windows/daten/quatsch/";
+	"/daten/quatsch/";
 
 	private Map<String, Double> wertung;
 	
@@ -66,6 +66,8 @@ public class MerkmaleTest {
 			System.out.println(m + ": " + (wertung.get(m) / dauer * 100) + " %");
 		}
 		
+                File v = new File(".");
+                System.out.println("Working Directory: " + v.getAbsolutePath());
 	}
 
 	private void importVerzeichnis(String verzeichnis) {

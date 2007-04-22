@@ -26,7 +26,7 @@ public class ThumbnailMerkmal implements Merkmal {
   private String name;
   private Object wert;
   
-  // Maximale Höhe und Breite des Thumbnails
+  // Maximale Hoehe und Breite des Thumbnails
   private static final int MAX_HOEHE = 100;
   private static final int MAX_BREITE = 100;
   
@@ -44,13 +44,13 @@ public class ThumbnailMerkmal implements Merkmal {
       bild = ImageIO.read(datei);
       if (bild.getWidth() > bild.getHeight()) {
 	
-      /* Bild ist im Querformat, Thumbnail bekommt maximale Breite, Höhe
+      /* Bild ist im Querformat, Thumbnail bekommt maximale Breite, Hoehe
        * wird proportional zur Breite berechnet
        */
 	thumbnail = bild.getScaledInstance(MAX_BREITE, -1, bild.SCALE_DEFAULT);
       } else {
 	
-      /* Bild ist im Hochformat, Thumbnail bekommt maximale Höhe, Breite
+      /* Bild ist im Hochformat, Thumbnail bekommt maximale Hoehe, Breite
        * wird proportional zur Breite berechnet
        */
 	thumbnail = bild.getScaledInstance(-1, MAX_HOEHE, bild.SCALE_DEFAULT);
