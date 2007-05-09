@@ -2,6 +2,7 @@
 package core;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Ein Objekt dieser Klasse stellt die Hauptaufgaben dieser JPictureProspector
@@ -18,10 +19,11 @@ public class JPPCore {
   
   /**
    * Importiert eine Bilddatei in diese Anwendung.
+   * 
    * @param datei  Bilddatei, die importiert werden soll
    * @return die importierte Bilddatei als BildDokument 
    */
-  public BildDokument importiere(File datei) {
+  public BildDokument importiere(File datei) throws IOException {
     BildDokument dokument = BildDokument.erzeugeAusDatei(datei);
     
     /* BildDokument Lucene hinzufuegen */
@@ -34,6 +36,7 @@ public class JPPCore {
   /**
    * Suche in allen importierten Bilder nach dem Suchtext und gibt eine 
    * entsprechende Trefferliste mit den Suchergebnissen zurueck.
+   * 
    * @param suchtext  Suchtext, nach dem gesucht wird
    * @return Trefferliste mit den Suchergebnissen
    */
@@ -46,6 +49,7 @@ public class JPPCore {
   /**
    * Uebernimmt die Aenderungen, die an dem BildDokument gemacht wurden, wie
    * z.B. das Hinzufuegen von Schluesselwoerter.
+   * 
    * @param bild  Bilddokument, von dem die Aenderungen uebernommen werden
    */
   public void aendere(BildDokument bild) {
