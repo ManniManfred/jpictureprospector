@@ -13,7 +13,12 @@ import core.BildDokument;
 import core.JPPCore;
 import core.Trefferliste;
 
-
+/**
+ * Ein Objekt der Klasse testet Objekte der Klasse <code>JPPCore</code> auf
+ * ihre Funktionalitaet.
+ * 
+ * @author Nils Verheyen
+ */
 public class JPPCoreTest {
   
   /** Enthalten die Dateien fuer die Tests. */
