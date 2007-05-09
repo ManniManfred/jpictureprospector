@@ -16,6 +16,13 @@ import java.util.Map;
  */
 public class BildDokument {
  
+  public static final String DATEIGROESSE = "dateigroesse";
+  public static final String BESCHREIBUNG = "beschreibung";
+  public static final String SCHLUESSELWOERTER = "schluesselworter";
+  public static final String BILDHOEHE = "bildhoehe";
+  public static final String BILDBREITE = "bildbreite";
+  public static final String BILDTYP = "bildtyp";
+  
   /** 
    * Zuordnung des Merkmalsnamen zu einem Merkmal dieses BildDokumentes,
    * wie z.B die Bildhoehe oder Bildbreite. 
@@ -105,5 +112,17 @@ public class BildDokument {
    */
   public Merkmal getMerkmal(String merkmalName) {
     return merkmale.get(merkmalName);
+  }
+  
+  /**
+   * Liefert zu diesem <code>BildDokument</code> das geoeffnete Bild.
+   * 
+   * @return  das geoeffnete Bild
+   * @throws IOException  wirft eine Fehlermeldung, wenn das
+   *         geoeffnete Bild ungueltig ist
+   */
+  public GeoeffnetesBild getGeoeffnetesBild() throws IOException {
+    /* TODO muss noch vernuenftig implementiert werden */
+    return new GeoeffnetesBild(new File("/test/img/kuchen.bmp"));
   }
 }

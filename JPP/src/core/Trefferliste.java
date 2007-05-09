@@ -40,6 +40,7 @@ public class Trefferliste {
   
   /**
    * Gibt den Treffer mit der Nummer <code>treffernummer</code> zurueck.
+   * 
    * @param treffernummer  Nummer des Treffers
    * @return BildDokument dieser Trefferlist an der Stelle treffernummer
    */
@@ -57,6 +58,7 @@ public class Trefferliste {
    * Gibt die Treffergenauigkeit mit der Nummer <code>treffernummer</code> 
    * zurueck. Die Treffergenauigkeit liegt zwischen 1 und 0, wobei 1 die beste
    * Treffergenauigkeit angibt. -1 wird bei einem Fehler zurueckgegeben.
+   * 
    * @param treffernummer  Nummer des Treffers
    * @return  Treffergenauigkeit des Treffers mit der Nummer 
    *      <code>treffernummer</code>
