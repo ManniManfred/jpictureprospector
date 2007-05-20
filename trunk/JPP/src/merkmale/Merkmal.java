@@ -1,6 +1,7 @@
 
-package core;
+package merkmale;
 
+import core.*;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
@@ -11,16 +12,16 @@ import org.apache.lucene.document.Field;
  * 
  * @author Nils Verheyen
  * @author Manfred Rosskamp
+ * @author Marion Mecking
  */
 public abstract class Merkmal {
   
   /** Enthaelt den Namen dieses Merkmals. */
-  private String name;
+  protected String name;
   
   /** Enthaelt den Wert dieses Merkmals. */
-  private Object wert;
-  
-  
+  protected Object wert;
+   
   /** 
    * Erzeugt ein neues Merkmal mit einem eindeutig identifiezierenden Namen.
    * @param name  Name dieses Merkmals, z.B "Bildhoehe"
@@ -36,8 +37,7 @@ public abstract class Merkmal {
   public String getName() {
     return name;
   }
-
-  
+ 
   /**
    * Gibt den Wert dieses Merkmals zurueck.
    * @return Wert dieses Merkmals
@@ -68,7 +68,6 @@ public abstract class Merkmal {
    *    gehoerigen Field der Wert ausgelesen wird
    */
   public abstract void leseMerkmalAusLuceneDocument(Document doc);
-  
   
   /**
    * Erzeuge aus diesem Merkmal ein entsprechendes Lucene-Field.
