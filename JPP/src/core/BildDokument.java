@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import merkmale.Merkmal;
 
 import org.apache.lucene.document.Document;
 
