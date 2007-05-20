@@ -14,7 +14,7 @@ import org.apache.lucene.document.Field;
 public class SchluesselWoerterMerkmal extends Merkmal {
     
   /** Name des Lucene-Feldes für dieses Merkmal. */
-  private static final String FELDNAME = "Schlüsselwörter";
+  private static final String FELDNAME = "Schl\u00fcsselw\u00f6rter";
   
   /** 
    * Erzeugt ein neues BeschreibungMerkmal.

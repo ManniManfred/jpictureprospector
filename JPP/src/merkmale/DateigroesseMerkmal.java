@@ -13,7 +13,7 @@ import org.apache.lucene.document.Field;
 public class DateigroesseMerkmal extends Merkmal {
    
   /** Name des Lucene-Feldes für dieses Merkmal. */
-  private static final String FELDNAME = "Dateigroesse";
+  private static final String FELDNAME = "Dateigr\u00f6sse";
   
   /** Konstante zur Umrechnung von Byte in kB. */
   private static final int KILO = 1024;
