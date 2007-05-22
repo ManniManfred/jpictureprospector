@@ -36,6 +36,11 @@ public class GeoeffnetesBild {
     /* Bild oeffnen */
     bild = ImageIO.read(datei);
     
+    if (bild == null) {
+      throw new IOException("Konnte das Bild \"" + datei.getAbsolutePath() 
+          + " nicht einlesen.");
+    }
+    
     /* Format aus dem Dateinamen bestimmen */
     String dateiname = datei.getName();
     format = dateiname.substring(dateiname.lastIndexOf(".") + 1).toLowerCase();
