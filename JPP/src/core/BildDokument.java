@@ -19,11 +19,6 @@ import org.apache.lucene.document.Document;
  */
 public class BildDokument {
  
-  /**
-   * Enthaelt den Pfad zur Merkmalsdatei, in der eine Liste mit allen
-   * zu verwendenen Merkmalen steht.
-   */
-  private static final String MERKMAL_DATEI = "merkmale";
   
   
   /** 
@@ -46,7 +41,8 @@ public class BildDokument {
    * @param datei  Datei, aus der ein neues BildDokument erzeugt wird
    * @return das neu erzeugte BildDokument
    */
-  public static BildDokument erzeugeAusDatei(File datei) {
+  public static BildDokument erzeugeAusDatei(File datei)
+      throws ErzeugeBildDokumentException {
     return erzeugeAusDatei(datei, null);
   }
 
@@ -57,7 +53,8 @@ public class BildDokument {
    * @param doc  Document aus Lucene
    * @return das zum Lucene-Document entsprechende BildDokument 
    */
-  public static BildDokument erzeugeAusLucene(Document doc) {
+  public static BildDokument erzeugeAusLucene(Document doc) 
+      throws ErzeugeBildDokumentException {
     return erzeugeAusDatei(null, doc);
   }
 
@@ -102,11 +99,18 @@ public class BildDokument {
    * @param doc  Lucene-Document, aus der das BildDokument erzeugt wird
    * @return das entweder aus der Bilddatei oder dem Lucene-Document erzeugtem
    *    BildDokument
+   * @throws ErzeugeBildDokumentException 
    */
-  private static BildDokument erzeugeAusDatei(File datei, Document doc) {
+  private static BildDokument erzeugeAusDatei(File datei, Document doc) 
+      throws ErzeugeBildDokumentException {
     
 	  BildDokument neu = new BildDokument();
     
+
+    /* Klassenname der jeweiligen Merkmale, die aus der Merkmalsdatei gelesen
+     * wurde.
+     */
+    String merkmalsKlassenname = "";
     
     try {
       
@@ -123,11 +127,10 @@ public class BildDokument {
       
       /* Datei mit der Merkmalsliste oeffnen. */
       BufferedReader reader = new BufferedReader(
-          new FileReader(MERKMAL_DATEI));
+          new FileReader(Einstellungen.MERKMAL_DATEI));
       
       
       /* Alle Merkmale aus der Merkmalsliste durchgehen */
-      String merkmalsKlassenname;
       while ((merkmalsKlassenname = reader.readLine()) != null) {
         
         /* Ein Objekt des entsprechenden Merkmals erzeugen */
@@ -156,20 +159,21 @@ public class BildDokument {
       }
       reader.close();
     } catch (FileNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new ErzeugeBildDokumentException("Merkmalsdatei \"" 
+          + Einstellungen.MERKMAL_DATEI
+          + "\" existiert nicht.", e); 
     } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new ErzeugeBildDokumentException("Bilddatei " 
+          + datei.getAbsolutePath() + " konnte nicht gelesen werden.", e);
     } catch (InstantiationException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new ErzeugeBildDokumentException("Konnte keine Instance der "
+          + "Merkmalsklasse \"" + merkmalsKlassenname + "\" erzeugen.", e);
     } catch (IllegalAccessException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new ErzeugeBildDokumentException("Konnte keine Instance der "
+          + "Merkmalsklasse \"" + merkmalsKlassenname + "\" erzeugen.", e);
     } catch (ClassNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new ErzeugeBildDokumentException("Konnte keine Instance der "
+          + "Merkmalsklasse \"" + merkmalsKlassenname + "\" erzeugen.", e);
     }
     return neu;
   }

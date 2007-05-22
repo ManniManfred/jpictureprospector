@@ -33,12 +33,15 @@ public class Trefferliste {
   
   /**
    * Gibt den Treffer mit der Nummer <code>treffernummer</code> zurueck.
-   * @param treffernummer  Nummer des Treffers
+   * @param treffernummer  Nummer des Treffers beginnend mit 0 bis maximal
+   *    <code>getAnzahlTreffer()</code> - 1
    * @return BildDokument dieser Trefferlist an der Stelle treffernummer
    */
   public BildDokument getBildDokument(int treffernummer) {
     try {
       return BildDokument.erzeugeAusLucene(treffer.doc(treffernummer));
+    } catch (ErzeugeBildDokumentException e) {
+      System.out.println(e);
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
