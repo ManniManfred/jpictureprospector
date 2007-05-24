@@ -15,13 +15,16 @@ import org.apache.lucene.document.Field;
  */
 public class ThumbnailMerkmal extends Merkmal {
    
-  /** Name des Lucene-Feldes für dieses Merkmal. */
-  private static final String FELDNAME = "Thumbnail";
+  /** Name des Lucene-Feldes fuer dieses Merkmal. Sollte die Konstante
+   * geaendert werden, muss auch in der Klasse 
+   * <code>ThumbnailAnzeigePanel</code> die Konstante
+   * <code>THUMBNAILMERKMALSNAME</code> entsprechend angepasst werden. */
+  public static final String FELDNAME = "Thumbnail";
   
   /** Konstante zur Umrechnung von Byte in kB. */
   private Image thumbnail;
   
-  /** Maximale Höhe des Thumbnails in Pixeln. */
+  /** Maximale Hoehe des Thumbnails in Pixeln. */
   private static final int MAXHOEHE = 100;
 
   /** Maximale Breite des Thumbnails in Pixeln. */
@@ -45,13 +48,13 @@ public class ThumbnailMerkmal extends Merkmal {
     
     if (foto.getWidth() > foto.getHeight()) {
       
-      /* Bild ist im Querformat, Thumbnail bekommt maximale Breite, Höhe
+      /* Bild ist im Querformat, Thumbnail bekommt maximale Breite, Hï¿½he
        * wird proportional zur Breite berechnet
        */
       thumbnail = foto.getScaledInstance(MAXBREITE, -1, foto.SCALE_DEFAULT);
     } else {
       
-      /* Bild ist im Hochformat, Thumbnail bekommt maximale Höhe, Breite
+      /* Bild ist im Hochformat, Thumbnail bekommt maximale Hï¿½he, Breite
        * wird proportional zur Breite berechnet
        */
       thumbnail = foto.getScaledInstance(-1, MAXHOEHE, foto.SCALE_DEFAULT);

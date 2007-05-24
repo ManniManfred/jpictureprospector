@@ -13,34 +13,36 @@ import javax.swing.JPanel;
  * 
  * @author Nils Verheyen
  */
-public class Thumbnail extends JPanel {
+public class ThumbnailAnzeige extends JPanel {
+  
+  private static final int STD_GROESZE = 150;
 
   /** Enthaelt das Thumbnail. */
   private Image thumbnail = null;
   
   /** Enthaelt die Groesze in der das Thumbnail angezeigt werden soll. */
-  private Dimension groesze = null;
+  private int groesze;
   
   /**
    * Erzeugt ein neues Objekt der Klasse.
    * 
    * @param thumbnail  enthaelt das anzuzeigende Thumbnail
    */
-  public Thumbnail(Image thumbnail) {
+  public ThumbnailAnzeige(Image thumbnail) {
     
-    init(thumbnail, new Dimension(75, 75));
+    init(thumbnail, STD_GROESZE);
   }
   
-  public void setzeGroesze(Dimension groesze) {
+  public void setzeGroesze(int groesze) {
     this.groesze = groesze;
   }
   
-  public void init(Image thumbnail, Dimension groesze) {
+  public void init(Image thumbnail, int groesze) {
     
     this.thumbnail = thumbnail;
     this.groesze = groesze;
     this.setLayout(new BorderLayout());
-    this.setSize(this.groesze);
+    this.setSize(groesze, groesze);
     this.repaint();
   }
   

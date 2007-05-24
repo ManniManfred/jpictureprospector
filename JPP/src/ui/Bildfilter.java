@@ -5,10 +5,21 @@ import java.util.ArrayList;
 
 import javax.swing.filechooser.FileFilter;
 
+/**
+ * Ein Objekt der Klasse repraesentiert einen Dateifilter, der bestimmte
+ * Dateitypen akzeptiert, die Bilder sind.
+ * 
+ * @author  Nils Verheyen
+ */
 public class Bildfilter extends FileFilter {
   
+  /** Enthaelt die zu akzeptierenden Dateitypen. */
   private static ArrayList<String> dateitypen = null;
   
+  /**
+   * Erstellt ein neues Objekt der Klasse mit den entsprechenden
+   * Dateitypen, die akzeptiert werden sollen.
+   */
   public Bildfilter() {
     
     dateitypen = new ArrayList<String>();
@@ -21,6 +32,14 @@ public class Bildfilter extends FileFilter {
     dateitypen.add("png");
   }
 
+  /**
+   * Gibt an welche Dateien von diesem Filter akzeptiert werden und welche
+   * nicht. Verzeichnisse werden vom Filter automatisch geoeffnet, es ist
+   * also nicht moeglich Verzeichnisse als Quelle anzugeben.
+   * 
+   * @param f  Die Datei, die akzeptiert werden soll
+   * @return  <code>true</code> wenn die Datei dem Filter entspricht
+   */
   @Override
   public boolean accept(File f) {
     
@@ -45,6 +64,12 @@ public class Bildfilter extends FileFilter {
     }
   }
 
+  /**
+   * Liefert die Beschreibung die dem Benutzer angezeigt wird,
+   * wenn er Dateien importiert.
+   * 
+   * @return  die Beschreibung fuer alle Bilddateien
+   */
   @Override
   public String getDescription() {
     
