@@ -8,6 +8,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -35,11 +37,15 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
+import core.BildDokument;
+import core.ImportException;
 import core.JPPCore;
+import java.awt.FlowLayout;
 
 /**
- * Ein Objekt der Klasse stellt alle Objekte zur Verfuegung, die zur
- * Suche und Anzeige von Bildern auf dem System noetig sind.
+ * Ein Objekt der Klasse stellt das Hauptanzeigefenster der Software zur
+ * Verfuegung. Im Hauptfenster kann der Anwender alle Aktionen die
+ * zur Suche und Anzeige der Bilder notwendig sind ausfuehren.
  */
 public class Hauptfenster extends JFrame {
   
@@ -64,9 +70,12 @@ public class Hauptfenster extends JFrame {
   private static final long serialVersionUID = 1L;
   
   /** Enthaelt den Kern der Software mit dem operiert wird. */
-  private JPPCore core;
+  private JPPCore kern;
   
-  private List<ThumbnailPanel> thumbnails;
+  /** Enthaelt eine Liste an Paneln die zustaendig fuer die Anzeige der
+   * Thumbnails sind.
+   */
+  private List<ThumbnailAnzeigePanel> anzeigePanel = null;
 
   /** Enthaelt die Inhaltsflaeche dieses Objekts. */
   private JPanel pInhaltsflaeche = null;
@@ -96,7 +105,7 @@ public class Hauptfenster extends JFrame {
 
   private JButton bGroszanzeige = null;
 
-  private JPanel pThumbnails = null;
+  private JPanel pThumbnailSteuerung = null;
 
   private JSplitPane spVorschauBildinfo = null;
 
@@ -120,25 +129,90 @@ public class Hauptfenster extends JFrame {
 
   private JPanel pBildinformationen = null;
 
-private JPanel pBildinfoSchluesselBeschr = null;
+  private JPanel pBildinfoSchluesselBeschr = null;
+  
+  private JLabel lSchluesselwoerter = null;
+  
+  private JLabel lBildbeschreibung = null;
+  
+  private JTextPane taBildbeschreibung = null;
+  
+  private JScrollPane spBilddetails = null;
+  
+  private JTable tBilddetails = null;
 
-private JLabel lSchluesselwoerter = null;
+  private JPanel pThumbnails = null;
 
-private JLabel lBildbeschreibung = null;
-
-private JTextPane taBildbeschreibung = null;
-
-private JScrollPane spBilddetails = null;
-
-private JTable tBilddetails = null;
-
-/**
-   * This is the default constructor
+  /**
+   * Erstellt ein neues Objekt der Klasse.
    */
   public Hauptfenster() {
     super();
     initialize();
-    core = new JPPCore();
+    kern = new JPPCore();
+  }
+  
+  /**
+   * Importiert in den Kern des Programms eine ausgewaehlte Anzahl
+   * an Dateien.
+   */
+  private void importiereDateien() {
+    
+    JFileChooser dateiauswahl = new JFileChooser();
+    FileFilter filter = new Bildfilter();
+    File[] files;
+    dateiauswahl.setFileFilter(filter);
+    dateiauswahl.showOpenDialog(pInhaltsflaeche);
+    files = dateiauswahl.getSelectedFiles();
+    for (int i = 0; i < files.length; i++) {
+      try {
+        BildDokument dok = kern.importiere(files[i]);
+        if (this.anzeigePanel == null) {
+          this.anzeigePanel = new ArrayList<ThumbnailAnzeigePanel>();
+        } else {
+          this.anzeigePanel.clear();
+        }
+        ThumbnailAnzeigePanel tap = new ThumbnailAnzeigePanel(dok,
+            this.sGroesze.getValue());
+        tap.setzeText(files[i].getName());
+        tap.setVisible(true);
+        this.anzeigePanel.add(tap);
+      } catch (ImportException ie) {
+        zeigeFehlermeldung("Importfehler",
+            "Die Datei(-en) konnten nicht importiert werden.\n" + 
+            ie.getMessage());
+      }
+    }
+    zeigeBilderAn(sGroesze.getValue());
+  }
+  
+  /**
+   * Zeigt die Liste der importierten oder gesuchten Bilder innerhalb
+   * der Fensters an.
+   */
+  private void zeigeBilderAn(int groesze) {
+    
+    if (this.anzeigePanel != null) {
+      
+      for (ThumbnailAnzeigePanel panel : this.anzeigePanel) {
+        panel.setzeGroesze(groesze);
+        panel.setVisible(true);
+        this.pThumbnails.add(panel);
+      }
+    }
+    
+  }
+  
+  /**
+   * Zeigt dem Benutzer eine Fehlermeldung an.
+   * 
+   * @param titel  der Titel der Fehlermeldung
+   * @param meldung  die Fehlermeldung
+   */
+  private void zeigeFehlermeldung(String titel, String meldung) {
+    
+    JOptionPane.showMessageDialog(this.getParent(), meldung, titel,
+        JOptionPane.ERROR_MESSAGE);
   }
   
   /**
@@ -208,7 +282,7 @@ private JTable tBilddetails = null;
       spAnzeige = new JSplitPane();
       spAnzeige.setOneTouchExpandable(true);
       spAnzeige.setDividerSize(TRENNBALKEN_GROESZE);
-      spAnzeige.setRightComponent(getPThumbnails());
+      spAnzeige.setRightComponent(getPThumbnailSteuerung());
       spAnzeige.setLeftComponent(getSpVorschauBildinfo());
     }
     return spAnzeige;
@@ -224,13 +298,11 @@ private JTable tBilddetails = null;
       miImport = new JMenuItem();
       miImport.setText("Importieren");
       miImport.setMnemonic(KeyEvent.VK_I);
-      miImport.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, Event.CTRL_MASK, false));
+      miImport.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I,
+                                Event.CTRL_MASK, false));
       miImport.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
-          JFileChooser dateiauswahl = new JFileChooser();
-          FileFilter filter = new Bildfilter();
-          dateiauswahl.setFileFilter(filter);
-          dateiauswahl.showOpenDialog(pInhaltsflaeche);
+          importiereDateien();
         }
       });
     }
@@ -392,18 +464,18 @@ private JTable tBilddetails = null;
   }
 
   /**
-   * This method initializes pThumbnails	
+   * This method initializes pThumbnailSteuerung	
    * 	
    * @return javax.swing.JPanel	
    */
-  private JPanel getPThumbnails() {
-    if (pThumbnails == null) {
-      pThumbnails = new JPanel();
-      pThumbnails.setLayout(new BorderLayout());
-      pThumbnails.add(getTbWerkzeugleiste(), BorderLayout.NORTH);
-      pThumbnails.add(getSpThumbnails(), BorderLayout.CENTER);
+  private JPanel getPThumbnailSteuerung() {
+    if (pThumbnailSteuerung == null) {
+      pThumbnailSteuerung = new JPanel();
+      pThumbnailSteuerung.setLayout(new BorderLayout());
+      pThumbnailSteuerung.add(getTbWerkzeugleiste(), BorderLayout.NORTH);
+      pThumbnailSteuerung.add(getSpThumbnails(), BorderLayout.CENTER);
     }
-    return pThumbnails;
+    return pThumbnailSteuerung;
   }
 
   /**
@@ -474,17 +546,14 @@ private JTable tBilddetails = null;
   private JSlider getSGroesze() {
     if (sGroesze == null) {
       sGroesze = new JSlider();
-      sGroesze.setValue(100);
-      sGroesze.setMaximum(250);
+      sGroesze.setValue(150);
+      sGroesze.setMaximum(256);
       sGroesze.setMaximumSize(new Dimension(200, 16));
-      sGroesze.setMinimum(50);
-      sGroesze.addChangeListener(new javax.swing.event.ChangeListener() {
-        public void stateChanged(javax.swing.event.ChangeEvent e) {
-          if (thumbnails != null) {
-            for (ThumbnailPanel tp : thumbnails) {
-              tp.setzeGroesze(new Dimension(sGroesze.getValue(),
-                  (int) (sGroesze.getValue() * (3.0 / 4))));
-            }
+      sGroesze.setMinimum(48);
+      sGroesze.addMouseListener(new java.awt.event.MouseAdapter() {
+        public void mouseReleased(java.awt.event.MouseEvent e) {
+          for (ThumbnailAnzeigePanel tap : anzeigePanel) {
+            tap.setzeGroesze(sGroesze.getValue());
           }
         }
       });
@@ -514,6 +583,7 @@ private JTable tBilddetails = null;
   private JScrollPane getSpThumbnails() {
   	if (spThumbnails == null) {
   		spThumbnails = new JScrollPane();
+  		spThumbnails.setViewportView(getPThumbnails());
   	}
   	return spThumbnails;
   }
@@ -575,14 +645,14 @@ private JTable tBilddetails = null;
       
       // Bedingungen fuer Label "Schluesselwoerter"
       GridBagConstraints gridBagConstraints = new GridBagConstraints();
-      gridBagConstraints.insets = new Insets(0, STD_INSETS, STD_INSETS, 0);
+      gridBagConstraints.insets = new Insets(STD_INSETS, STD_INSETS, STD_INSETS, 0);
       gridBagConstraints.gridy = 0;
       gridBagConstraints.ipadx = MIN_BREITE_BILDINFO;
       gridBagConstraints.ipady = 5;
       gridBagConstraints.anchor = GridBagConstraints.WEST;
       gridBagConstraints.gridx = 0;
       
-      
+      // Erstellen der Komponenten und hinzufuegen zum Layout
       lBildbeschreibung = new JLabel();
       lBildbeschreibung.setText("Bildbeschreibung");
       lSchluesselwoerter = new JLabel();
@@ -641,6 +711,19 @@ private JTable getTBilddetails() {
   }
   return tBilddetails;
 }
+
+  /**
+   * This method initializes pThumbnails	
+   * 	
+   * @return javax.swing.JPanel	
+   */
+  private JPanel getPThumbnails() {
+    if (pThumbnails == null) {
+      pThumbnails = new JPanel();
+      pThumbnails.setLayout(new FlowLayout());
+    }
+    return pThumbnails;
+  }
 
 /**
    * @param args
