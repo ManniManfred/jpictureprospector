@@ -3,16 +3,26 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
+
+import javax.imageio.ImageIO;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import core.AendereException;
 import core.BildDokument;
+import core.EntferneException;
 import core.ErzeugeBildDokumentException;
 import core.ImportException;
 import core.JPPCore;
+import core.SucheException;
 import core.Trefferliste;
 
 /**
@@ -29,7 +39,7 @@ public class JPPCoreTest {
   private static final String DATEI_SPRUNG = "sprung.jpg";
   private static final String DATEI_WAND = "wand.gif";
   private static final String DATEI_ZZOLLVEREIN = "zeche_zollverein.jpg";
-  private static final String DATEI_LINUX = "zeche_zollverein.jpg";//"THINK_LINUXII.tiff";
+  private static final String DATEI_LINUX = "THINK_LINUXII.tiff";
   
   /** Pfad zu den Bilddateien. */
   private static final String PFAD = "test" + File.separator + "img" 
@@ -46,9 +56,7 @@ public class JPPCoreTest {
    */
   @Before
   public void setUp() throws Exception {
-    
     core = new JPPCore();
-    importiereDateien();
   }
 
   /**
@@ -59,51 +67,51 @@ public class JPPCoreTest {
    */
   @After
   public void tearDown() throws Exception {
-    
     core = null;
   }
   
   /**
-   * Imporiert eine Anzahl an Dateien in den Kern des Programms.
-   */
-  private void importiereDateien() throws ImportException {
-    
-    //try {
-      
-      core.importiere(new File(PFAD + DATEI_KUCHEN));
-      core.importiere(new File(PFAD + DATEI_LANDSCHAFT));
-      core.importiere(new File(PFAD + DATEI_SPRUNG));
-      core.importiere(new File(PFAD + DATEI_WAND));
-      core.importiere(new File(PFAD + DATEI_ZZOLLVEREIN));
-      core.importiere(new File(PFAD + DATEI_LINUX));
-      
-//    } catch (ImportException e) {
-//      //System.out.println(e);
-//      e.printStackTrace();
-//    }
-  }
-  
-  /**
    * Testet die Methode <code>importiere</code> des Kernobjektes.
+   * @throws ImportException 
    */
   @Test
-  public void testImportiere() {
+  public void testImportiere() throws ImportException {
+
+    /* importiere einige gueltige Dateien */
+    core.importiere(new File(PFAD + DATEI_KUCHEN));
+    core.importiere(new File(PFAD + DATEI_LANDSCHAFT));
+    core.importiere(new File(PFAD + DATEI_SPRUNG));
+    core.importiere(new File(PFAD + DATEI_WAND));
+    core.importiere(new File(PFAD + DATEI_ZZOLLVEREIN));
+    
+    /* importiere eine Tiff-Datei nur, wenn das 
+     * zusaetliche Java Advanced Imaging Image I/O installiert wurde
+     */
+    String[] bildtypen = ImageIO.getReaderFormatNames();
+    
+    if (Arrays.asList(bildtypen).contains("tiff")) {
+      core.importiere(new File(PFAD + DATEI_LINUX));
+      System.out.println("Es koennen auch tiff-Bilder importiert werden.");
+    } else {
+      System.out.println("Tiff-Bilder werden nicht unterstuetzt.");
+    }
     
     try {
-      
       core.importiere(new File(""));
       fail("Es wurde keine Exception geworfen fuer den Import einer" +
           "ungueltigen Datei");
     } catch (ImportException e) {
-      System.out.println(e);
+      /* Alles ok, die Exception wud richtig geworfen */
     }
+    
   }
 
   /**
    * Testet die Methode <code>suche</code> des Kernobjekts.
+   * @throws SucheException 
    */
   @Test
-  public void testSuche() {
+  public void testSuche() throws SucheException {
     
     Trefferliste trefferliste;
     trefferliste = core.suche("437");
@@ -132,55 +140,109 @@ public class JPPCoreTest {
 
   /**
    * Testet die Methode <code>aendere</code> des Kernobjekts.
+   * @throws AendereException 
+   * @throws SucheException 
+   * @throws ImportException 
    */
   @Test
-  public void testAendere() {
+  public void testAendere() throws AendereException, SucheException, ImportException {
 
-    /* Muss noch vernuenftig implementiert werden, da Aenderungen ueber
-     * die GUI getaetigt werden */
-    BildDokument dok;
-    try {
-      dok = BildDokument.erzeugeAusDatei(new File(PFAD + DATEI_LINUX));
-      core.aendere(dok);
-    } catch (ErzeugeBildDokumentException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+    /* Importiere ein Bild */
+    BildDokument dok = core.importiere(new File(PFAD + DATEI_WAND));
+    
+    /* Aendere dieses Bild, indem einige Keywords hinzugefuegt werden */
+    dok.getMerkmal("Schl\u00fcsselw\u00f6rter").setWert("Urlaub 2007 Wild");
+    
+    core.aendere(dok);
+    
+//    String anfrage = PFAD + DATEI_WAND;
+//    System.out.println("Anfrage= " + anfrage);
+//    anfrage = anfrage.replaceAll("\\\\", "\\\\\\\\");
+//    System.out.println("Anfrage= " + anfrage);
+    
+    /* Aenderungen ueberpruefen */
+    BildDokument dok2 = core.suche("Urlaub").getBildDokument(0);
+    assertEquals(dok, dok2);
     
   }
 
   /**
    * Testet die Methode <code>entferne</code> des Kernobjekts.
+   * @throws ImportException 
+   * @throws EntferneException 
+   * @throws SucheException 
    */
   @Test
-  public void testEntferne() {
-
-    BildDokument dok;
+  public void testEntferne() throws ImportException, EntferneException, SucheException {
+    
+    /* Erstelle Kopie einer Datei, die dann spaeter entfernt wird. */
+    File datei = new File(PFAD + DATEI_ZZOLLVEREIN);
+    File kopie = new File(PFAD + "zollkopie.jpg");
     try {
-      dok = BildDokument.erzeugeAusDatei(new File(PFAD + DATEI_LANDSCHAFT));
-
-      Trefferliste trefferliste;
+      copyFile(datei, kopie, 1024, true);
       
-      core.entferne(dok, false);
+      /* fuege die Kopie der Anwendung hinzu */
+      BildDokument doc = core.importiere(kopie);
       
-      // Wird leider unfreiwillig mitgetestet
-      trefferliste = core.suche("landschaft");
+      /* und entferne diese wieder */
+      core.entferne(doc, true);
       
-      assertEquals(0, trefferliste.getAnzahlTreffer());
+      /* ueberpruefe, ob die Datei noch existiert */
+      assertEquals(false, kopie.isFile());
       
-      try {
-        core.importiere(new File(PFAD + DATEI_LANDSCHAFT));
-        core.entferne(dok, true);
-        core.importiere(new File(PFAD + DATEI_LANDSCHAFT));
-        fail("Keine Exception geworfen fuer den Import einer ungueltigen Datei.");
-      } catch (ImportException e) {
-        System.out.println(e);
-      }
-    } catch (ErzeugeBildDokumentException e1) {
+      /* ueberpruefe, ob das Bild noch in der Anwendung ist. */
+      Trefferliste treffer = core.suche(PFAD + "zollkopie.jpg");
+      assertEquals(0, treffer.getAnzahlTreffer());
+      
+    } catch (IOException e) {
       // TODO Auto-generated catch block
-      e1.printStackTrace();
+      e.printStackTrace();
     }
+    
     
   }
 
+  private static void copyFile(File src, File dest, int bufSize,
+      boolean force) throws IOException {
+  if(dest.exists()) {
+      if(force) {
+          dest.delete();
+      } else {
+          throw new IOException(
+                  "Cannot overwrite existing file: " + dest.getName());
+      }
+  }
+  byte[] buffer = new byte[bufSize];
+  int read = 0;
+  InputStream in = null;
+  OutputStream out = null;
+  try {
+      in = new FileInputStream(src);
+      out = new FileOutputStream(dest);
+      while(true) {
+          read = in.read(buffer);
+          if (read == -1) {
+              //-1 bedeutet EOF
+              break;
+          }
+          out.write(buffer, 0, read);
+      }
+  } finally {
+      // Sicherstellen, dass die Streams auch
+      // bei einem throw geschlossen werden.
+      // Falls in null ist, ist out auch null!
+      if (in != null) {
+          //Falls tatsächlich in.close() und out.close()
+          //Exceptions werfen, die jenige von 'out' geworfen wird.
+          try {
+              in.close();
+          }
+          finally {
+              if (out != null) {
+                  out.close();
+              }
+          }
+      }
+  }
+}
 }

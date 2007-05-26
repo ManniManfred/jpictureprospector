@@ -2,7 +2,10 @@
 package core;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.lucene.analysis.LengthFilter;
 import org.apache.lucene.search.Hits;
 
 /**
@@ -13,14 +16,39 @@ import org.apache.lucene.search.Hits;
  */
 public class Trefferliste {
   
-  /** Enthaelt die Trefferliste, der Lucenesuche. */
-  private Hits treffer;
+  /** Enthaelt eine Liste mit allen Treffern dieser Trefferliste. */
+  private List<BildDokument> bildDokumente;
+  
+  /** Enthaelt zu jedem BildDokument die Treffergenauigkeit. */
+  private List<Float> score;
   
   /**
-   * Erzeugt eine neue Trefferliste
+   * Erzeugt eine leere Trefferliste
+   */
+  public Trefferliste() {
+    bildDokumente = new ArrayList<BildDokument>();
+    score = new ArrayList<Float>();
+  }
+  
+  /**
+   * Erzeugt eine neue Trefferliste aus der Lucene-Trefferliste
+   * @param treffer  Trefferliste aus Lucene, aus der diese erzeugt wird
    */
   public Trefferliste(Hits treffer) {
-    this.treffer = treffer;
+    bildDokumente = new ArrayList<BildDokument>();
+    score = new ArrayList<Float>();
+    
+    /* erzeuge aus der Lucene Trefferliste eine liste mit BildDokumenten */
+    try {
+      for (int i = 0; i < treffer.length(); i++) {
+        bildDokumente.add(i, BildDokument.erzeugeAusLucene(treffer.doc(i)));
+        score.add(treffer.score(i));
+      }
+    } catch(ErzeugeBildDokumentException e) {
+      e.printStackTrace();
+    } catch(IOException e) {
+      e.printStackTrace();
+    }
   }
   
   /**
@@ -28,25 +56,20 @@ public class Trefferliste {
    * @return Anzahl der Treffer
    */
   public int getAnzahlTreffer() {
-    return treffer.length();
+    return bildDokumente.size();
   }
   
   /**
    * Gibt den Treffer mit der Nummer <code>treffernummer</code> zurueck.
    * @param treffernummer  Nummer des Treffers beginnend mit 0 bis maximal
    *    <code>getAnzahlTreffer()</code> - 1
-   * @return BildDokument dieser Trefferlist an der Stelle treffernummer
+   * @return BildDokument dieser Trefferliste an der Stelle treffernummer oder
+   *    null, falls an die treffernummer ungueltig ist
    */
   public BildDokument getBildDokument(int treffernummer) {
-    try {
-      return BildDokument.erzeugeAusLucene(treffer.doc(treffernummer));
-    } catch (ErzeugeBildDokumentException e) {
-      System.out.println(e);
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    return null;
+    return (treffernummer < getAnzahlTreffer() && treffernummer >= 0) 
+              ? bildDokumente.get(treffernummer)
+              : null;
   }
   
   /**
@@ -58,12 +81,6 @@ public class Trefferliste {
    *      <code>treffernummer</code>
    */
   public float getTrefferGenauigkeit(int treffernummer) {
-    try {
-      return treffer.score(treffernummer);
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    return -1;
+    return score.get(treffernummer);
   }
 }

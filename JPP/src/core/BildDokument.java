@@ -78,6 +78,28 @@ public class BildDokument {
     return doc;
   }
 
+  public int hashCode() {
+    return 23;
+  }
+  
+  public boolean equals(Object obj) {
+    if (obj instanceof BildDokument) {
+      BildDokument b2 = (BildDokument) obj;
+      /* TODO Wann sind zwei BildDokumente gleich?
+       * Entweder, wenn nur die Pfadangabe uebereinstimmt, oder wenn alle
+       * Merkmale uebereinstimmen?
+       */
+      
+      for (Merkmal m : merkmale.values()) {
+        if (!m.equals(b2.getMerkmal(m.getName()))) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+  
   /**
    * Gibt das Merkmal mit dem <code>merkmalName</code> zu diesem BildDokument 
    * @param name
@@ -124,18 +146,14 @@ public class BildDokument {
         gBild = new GeoeffnetesBild(datei);
       }
       
-      
-      /* Datei mit der Merkmalsliste oeffnen. */
-      BufferedReader reader = new BufferedReader(
-          new FileReader(Einstellungen.MERKMAL_DATEI));
-      
-      
       /* Alle Merkmale aus der Merkmalsliste durchgehen */
-      while ((merkmalsKlassenname = reader.readLine()) != null) {
+      for (Class klasse : JPPCore.getMerkmalsKlassen()) {
+        
+        /* Nur zu Informationszwecken bei einer Exception */
+        merkmalsKlassenname = klasse.getName();
         
         /* Ein Objekt des entsprechenden Merkmals erzeugen */
-        Merkmal m = (Merkmal) Class.forName(merkmalsKlassenname)
-            .newInstance();
+        Merkmal m = (Merkmal) klasse.newInstance();
         
         if (datei != null) {
           /* den Merkmalswert aus dem geoeffnetem Bild vom Merkaml selber lesen
@@ -152,12 +170,10 @@ public class BildDokument {
           m.leseMerkmalAusLuceneDocument(doc);
         }
         
-        
         /* das erzeugte Merkmal diesem BildDokument hinzufuegen */
         neu.addMerkmal(m);
         
       }
-      reader.close();
     } catch (FileNotFoundException e) {
       throw new ErzeugeBildDokumentException("Merkmalsdatei \"" 
           + Einstellungen.MERKMAL_DATEI
@@ -172,8 +188,8 @@ public class BildDokument {
       throw new ErzeugeBildDokumentException("Konnte keine Instance der "
           + "Merkmalsklasse \"" + merkmalsKlassenname + "\" erzeugen.", e);
     } catch (ClassNotFoundException e) {
-      throw new ErzeugeBildDokumentException("Konnte keine Instance der "
-          + "Merkmalsklasse \"" + merkmalsKlassenname + "\" erzeugen.", e);
+      throw new ErzeugeBildDokumentException("Konnte keine Instance von einer "
+          + "Merkmalsklasse erzeugen.", e);
     }
     return neu;
   }

@@ -49,7 +49,7 @@ public class BeschreibungMerkmal extends Merkmal {
    */
   public Field erzeugeLuceneField() {
     return new Field(FELDNAME, this.getWert().toString(), Field.Store.YES, 
-      Field.Index.UN_TOKENIZED);
+      Field.Index.TOKENIZED);
   }
   
   /**
