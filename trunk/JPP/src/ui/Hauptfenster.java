@@ -38,6 +38,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
 import core.BildDokument;
+import core.ErzeugeException;
 import core.ImportException;
 import core.JPPCore;
 import java.awt.FlowLayout;
@@ -149,7 +150,12 @@ public class Hauptfenster extends JFrame {
   public Hauptfenster() {
     super();
     initialize();
-    kern = new JPPCore();
+    try {
+      kern = new JPPCore();
+    } catch (ErzeugeException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
   
   /**

@@ -38,6 +38,14 @@ public abstract class Merkmal {
     return name;
   }
  
+  public boolean equals(Object obj) {
+    if (obj instanceof Merkmal) {
+      Merkmal m = (Merkmal) obj;
+      return getName().equals(m.getName()) && getWert().equals(m.getWert());
+    }
+    return false;
+  }
+  
   /**
    * Gibt den Wert dieses Merkmals zurueck.
    * @return Wert dieses Merkmals

@@ -3,21 +3,21 @@ package core;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import merkmale.Merkmal;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.de.GermanAnalyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Searcher;
@@ -29,6 +29,9 @@ import org.apache.lucene.search.Searcher;
  */
 public class JPPCore {
   
+  /** Enthaelt eine Liste mit den Klassen aller zu verwendenen Merkmale. */
+  private static List<Class> merkmalsklassen;
+  
   /** Enthaelt den Pfad zu dem Index-Verzeichnis von Lucene. */
   private static final String INDEX_DIR = "imageIndex";
 
@@ -39,15 +42,15 @@ public class JPPCore {
   /** 
    * Erstellt ein neues JPPCore-Objekt.
    */
-  public JPPCore() {
+  public JPPCore() throws ErzeugeException {
+    
     
     /* Namen aller möglichen Merkmale herausfinden */
     String[] namen = null;
     try {
       namen = getMerkmalsnamen();
     } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new ErzeugeException("Konnte die Merkmale nicht erzeugen.", e);
     }
     
 
@@ -57,28 +60,49 @@ public class JPPCore {
     parser = new MultiFieldQueryParser(namen, 
         new GermanAnalyzer());
   }
+
+  /**
+   * Gibt eine Liste mit allen Merkmalsklassen zurueck, die in der Merkmalsdatei
+   * angegeben sind.
+   * @return Liste mit allen Merkmalsklassen
+   * @throws ClassNotFoundException  wenn ein Klasse, die in der Merkmalsdatei
+   *    angegeben ist nicht gefunden wurde.
+   * @throws IOException  wenn die Merkamlsdatei nicht gelesen werden konnte
+   */
+  public static List<Class> getMerkmalsKlassen() throws IOException, 
+          ClassNotFoundException {
+    if (merkmalsklassen == null) {
+      merkmalsklassen = new ArrayList<Class>();
+      
+      /* Datei mit der Merkmalsliste oeffnen. */
+      BufferedReader reader = new BufferedReader(
+          new FileReader(Einstellungen.MERKMAL_DATEI));
+      
+      String merkmalsKlassenname;
+      
+      /* Alle Merkmale aus der Merkmalsliste durchgehen */
+      while ((merkmalsKlassenname = reader.readLine()) != null) {
+        merkmalsklassen.add(Class.forName(merkmalsKlassenname));
+      }
+      
+      reader.close();
+    }
+    return merkmalsklassen;
+  }
+  
   
   /**
    * Gibt ein Array mit allen Namen der möglichen Merkmale zurueck.
    * @return Array mit allen Namen der möglichen Merkmale
    * TODO Folgendes sollte noch geaendert werden:
-   * @throws Exception Falls irgendein Fehler auftritt
+   * @throws IllegalAccessException 
+   * @throws InstantiationException 
    */
   private String[] getMerkmalsnamen() throws Exception {
     ArrayList<String> namen = new ArrayList<String>();
     
-    String merkmalsKlassenname = "";
-    
-    /* Datei mit der Merkmalsliste oeffnen. */
-    BufferedReader reader = new BufferedReader(
-        new FileReader(Einstellungen.MERKMAL_DATEI));
-    
-    /* Alle Merkmale aus der Merkmalsliste durchgehen */
-    while ((merkmalsKlassenname = reader.readLine()) != null) {
-      
-      /* Ein Objekt des entsprechenden Merkmals erzeugen */
-      Merkmal m = (Merkmal) Class.forName(merkmalsKlassenname)
-          .newInstance();
+    for (Class klasse : getMerkmalsKlassen()) {
+      Merkmal m = (Merkmal) klasse.newInstance();
       
       /* Den Namen aus dem Object holen und in der Liste einfuegen */
       namen.add(m.getName());
@@ -94,6 +118,13 @@ public class JPPCore {
    */
   public BildDokument importiere(File datei) throws ImportException {
     
+    /* TODO ueberpruefen, ob das Bild bereits im Index vorhanden ist. 
+     * Wenn ja, dann eine ImportException werfen.
+     */
+    
+    
+    
+    /* Lasse das BildDokument aus der Datei erzeugen */
     BildDokument dokument;
     try {
       dokument = BildDokument.erzeugeAusDatei(datei);
@@ -102,7 +133,18 @@ public class JPPCore {
           + datei.getAbsolutePath() + "\" erzeugen.");
     }
     
-
+    importInLucene(dokument);
+    
+    return dokument;
+  }
+  
+  /**
+   * Fuegt das uebergebenen BildDokument dem Luceneindex hinzu.
+   * @param dokument
+   * @throws ImportException
+   */
+  private void importInLucene(BildDokument dokument) throws ImportException {
+    
     /* Wird verwendet, um Text vorzubearbeiten. Z.B werden
      * alle Woerter (Tokens) in klein Buchstaben umgewandelt,
      * oder es werden triviale Woerter weggelassen.
@@ -114,7 +156,9 @@ public class JPPCore {
       IndexWriter writer = new IndexWriter(INDEX_DIR, analyzer);
   
       /* BildDokument dem Lucene-Index hinzufuegen */
-      writer.addDocument(dokument.erzeugeLuceneDocument());
+      Document doc = dokument.erzeugeLuceneDocument();
+      writer.addDocument(doc);
+      
       
       /* IndexWriter schliessen */
       writer.close();
@@ -122,8 +166,6 @@ public class JPPCore {
       throw new ImportException("Es konnte der Lucene-Index nicht erstellt "
           + "werden", e);
     }
-    
-    return dokument;
   }
   
   /**
@@ -131,27 +173,27 @@ public class JPPCore {
    * entsprechende Trefferliste mit den Suchergebnissen zurueck.
    * @param suchtext  Suchtext, nach dem gesucht wird
    * @return Trefferliste mit den Suchergebnissen
+   * @throws SucheException 
    */
-  public Trefferliste suche(String suchtext) {
-    
-    /* Anfrage aufbauen */
-    Query anfrage = null;
-    try {
-      anfrage = parser.parse(suchtext);
-    } catch (ParseException e) {
-      e.printStackTrace();
-    }
+  public Trefferliste suche(String suchtext) throws SucheException {
 
-    
-    /* Suche durchfuehren */
-    Trefferliste treffer = null;
+    Trefferliste treffer;
     try {
+
+      /* Anfrage aufbauen */
+      Query anfrage = parser.parse(suchtext);
+
+      /* Suche durchfuehren */
       Searcher sucher = new IndexSearcher(INDEX_DIR);
       treffer = new Trefferliste(sucher.search(anfrage));
       sucher.close();
+      
+    } catch (ParseException e) {
+      /* Bei einer ParseException ein leere Trefferliste zurueckgeben */
+      treffer = new Trefferliste();
     } catch (IOException e) {
-      e.printStackTrace();
-    }
+      throw new SucheException("Konnte den Index nicht öffnen.", e);
+    }    
     
     /* Trefferliste aus dem Lucene SuchErgebnis erzeugen und zurueckgeben */
     return treffer;
@@ -162,10 +204,18 @@ public class JPPCore {
    * Uebernimmt die Aenderungen, die an dem BildDokument gemacht wurden, wie
    * z.B. das Hinzufuegen von Schluesselwoerter.
    * @param bild  Bilddokument, von dem die Aenderungen uebernommen werden
+   * @throws AendereException 
    */
-  public void aendere(BildDokument bild) {
-    /* TODO bilddokument wirklich aendern. */
-    //IndexReader.deleteDocument  IndexWriter.addDocument
+  public void aendere(BildDokument bild) throws AendereException {
+    /* BildDokument durch entfernen und neu hinzufuegen aendern */
+    try {
+      entferne(bild, false);
+      importInLucene(bild);
+    } catch (EntferneException e) {
+      throw new AendereException("Ändern hat nicht funktioniert.", e);
+    } catch (ImportException e) {
+      throw new AendereException("Ändern hat nicht funktioniert.", e);
+    }
   }
   
   
@@ -175,23 +225,39 @@ public class JPPCore {
    * @param bild  BildDokument, welches entfernt werden soll
    * @param auchVonFestplatte  gibt an, ob das Bild auch von der Festplatte
    *      entfernt werden soll
+   * @throws EntferneException 
    */
-  public void entferne(BildDokument bild, boolean auchVonFestplatte) {
+  public void entferne(BildDokument bild, boolean auchVonFestplatte) 
+          throws EntferneException {
     /* TODO bilddokument aus dieser Anwendung entfernen und evtl. auch von
      * der Festplatte
      */
-    //IndexReader.deleteDocument(bild.getDocId);
-    // oder IndexWriter.deleteDocuments(new Term("Dateipfad", bild.get("Dateipfad")))
+    IndexReader reader;
+    String pfad;
+    try {
+      reader = IndexReader.open(INDEX_DIR);
+      
+      /* Da die Pfadangabe eindeutig ist, entferne das Document mit dem Pfad,
+       * der aus dem BildDokument gelesen wurde.
+       */
+      pfad = bild.getMerkmal("Dateipfad").getWert().toString();
+      reader.deleteDocuments(new Term("Dateipfad", pfad));
+      reader.close();
+    } catch (IOException e) {
+      throw new EntferneException("Konnte das BildDokument nicht entfernen.");
+    }
     
-    String pfad = null;
+    
     
     /* Evtl. Bilddatei von der Festplatte entfernen. */
     if (auchVonFestplatte) {
       File datei = new File(pfad);
-      if (!datei.delete()) {
-        /* TODO Fehlerbehandlung, falls das Loeschen misslang */
-        System.out.println("Entfernen von der Festplatte misslang.");
-      }
+      System.out.println(datei);
+      datei.delete();
+      //if (!datei.delete()) {
+        /* Fehlerbehandlung, falls das Loeschen misslang */
+        //throw new EntferneException("Das Entfernen von der Festplatte misslang.");
+      //}
       
     }
   }
