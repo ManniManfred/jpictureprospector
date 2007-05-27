@@ -29,6 +29,8 @@ public class ThumbnailAnzeigePanel extends JPanel {
 
   private JLabel lDateiname = null;
   
+  private String dateiname = null;
+  
   private ThumbnailAnzeige thumbnailAnzeige = null;
   
   private int groesze;
@@ -56,10 +58,11 @@ public class ThumbnailAnzeigePanel extends JPanel {
     
     this.istFokussiert = istFokussiert;
     if (this.istFokussiert) {
-      this.setBorder(new LineBorder(Color.GREEN, 2, true));
+      this.setBorder(new LineBorder(Color.GREEN, 2));
     } else {
-      this.setBorder(null);
+      this.setBorder(new LineBorder(Color.GRAY, 1));
     }
+    this.thumbnailAnzeige.repaint();
   }
   
   /**
@@ -69,7 +72,9 @@ public class ThumbnailAnzeigePanel extends JPanel {
    */
   public void setzeGroesze(int groesze) {
     this.setSize(groesze, groesze + 20);
+    this.thumbnailAnzeige.setPreferredSize(new Dimension(groesze, groesze));
     this.thumbnailAnzeige.setzeGroesze(groesze);
+    this.revalidate();
   }
   
   /**
@@ -77,8 +82,9 @@ public class ThumbnailAnzeigePanel extends JPanel {
    * 
    * @param text  der Text des Textfeldes
    */
-  public void setzeText(String text) {
-    this.lDateiname.setText(text);
+  public void setzeDateinamen(String dateiname) {
+    this.dateiname = dateiname;
+    this.lDateiname.setText(this.dateiname);
   }
   
   public Image gibBild() {
@@ -99,12 +105,17 @@ public class ThumbnailAnzeigePanel extends JPanel {
     lDateiname.setHorizontalAlignment(SwingConstants.CENTER);
     this.setLayout(new BorderLayout());
     this.setSize(new Dimension(groesze, groesze + 20));
-    this.add(lDateiname, BorderLayout.SOUTH);
+    this.setBorder(new LineBorder(Color.GRAY, 1));
     this.addMouseListener(new java.awt.event.MouseAdapter() {
       public void mouseClicked(java.awt.event.MouseEvent e) {
-        setzeFokus(true);
+        if (istFokussiert) {
+          setzeFokus(false);
+        } else {
+          setzeFokus(true);
+        }
       }
     });
     this.add(this.thumbnailAnzeige, BorderLayout.CENTER);
+    this.add(lDateiname, BorderLayout.SOUTH);
   }
 }

@@ -9,6 +9,7 @@ import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ import core.ImportException;
 import core.JPPCore;
 import core.SucheException;
 import core.Trefferliste;
+import javax.swing.JScrollBar;
 
 /**
  * Ein Objekt der Klasse stellt das Hauptanzeigefenster der Software zur
@@ -79,7 +81,7 @@ public class Hauptfenster extends JFrame {
   /** Enthaelt eine Liste an Paneln die zustaendig fuer die Anzeige der
    * Thumbnails sind.
    */
-  private List<ThumbnailAnzeigePanel> anzeigePanel = null;
+  private List<ThumbnailAnzeigePanel> listeAnzeigePanel = null;
 
   /** Enthaelt die Trefferliste nach einer ausgeführten Suche. */
   private Trefferliste trefferliste = null;  //  @jve:decl-index=0:
@@ -132,8 +134,6 @@ public class Hauptfenster extends JFrame {
 
   private JTextField tfSchluesselwoerter = null;
 
-  private JScrollPane spThumbnails = null;
-
   private JPanel pBildinformationen = null;
 
   private JPanel pBildinfoSchluesselBeschr = null;
@@ -150,7 +150,7 @@ public class Hauptfenster extends JFrame {
 
   private JPanel pThumbnails = null;
 
-  /**
+/**
    * Erstellt ein neues Objekt der Klasse.
    */
   public Hauptfenster() {
@@ -176,39 +176,22 @@ public class Hauptfenster extends JFrame {
     dateiauswahl.setFileFilter(filter);
     dateiauswahl.showOpenDialog(pInhaltsflaeche);
     files = dateiauswahl.getSelectedFiles();
-    if (this.anzeigePanel == null) {
-      this.anzeigePanel = new ArrayList<ThumbnailAnzeigePanel>();
+    if (this.listeAnzeigePanel == null) {
+      this.listeAnzeigePanel = new ArrayList<ThumbnailAnzeigePanel>();
     } else {
-      this.anzeigePanel.clear();
+      this.listeAnzeigePanel.clear();
     }
     for (int i = 0; i < files.length; i++) {
       try {
         BildDokument dok = kern.importiere(files[i]);
         ThumbnailAnzeigePanel tap = new ThumbnailAnzeigePanel(dok,
             this.sGroesze.getValue(), pVorschau);
-        tap.setzeText(files[i].getName());
-        tap.setVisible(true);
-        this.anzeigePanel.add(tap);
+        tap.setzeDateinamen(files[i].getName());
+        this.listeAnzeigePanel.add(tap);
       } catch (ImportException ie) {
         zeigeFehlermeldung("Importfehler",
             "Die Datei(-en) konnten nicht importiert werden.\n" + 
             ie.getMessage());
-      }
-    }
-  }
-  
-  /**
-   * Zeigt die Liste der importierten oder gesuchten Bilder innerhalb
-   * der Fensters an.
-   */
-  private void zeigeBilderAn(int groesze) {
-    
-    if (this.anzeigePanel != null) {
-      
-      for (ThumbnailAnzeigePanel panel : this.anzeigePanel) {
-        panel.setzeGroesze(groesze);
-        panel.setVisible(true);
-        this.pThumbnails.add(panel);
       }
     }
   }
@@ -222,13 +205,13 @@ public class Hauptfenster extends JFrame {
     try {
       trefferliste = kern.suche(pSuche.gibSuchtext());
       
-      if (anzeigePanel == null) {
-        anzeigePanel = new ArrayList<ThumbnailAnzeigePanel>();
+      if (listeAnzeigePanel == null) {
+        listeAnzeigePanel = new ArrayList<ThumbnailAnzeigePanel>();
       } else {
-        anzeigePanel.clear();
+        listeAnzeigePanel.clear();
       }
       for (int i = 0; i < trefferliste.getAnzahlTreffer(); i++) {
-        anzeigePanel.add(
+        listeAnzeigePanel.add(
             new ThumbnailAnzeigePanel(trefferliste.getBildDokument(i),
                 sGroesze.getValue(), pVorschau));
       }
@@ -329,6 +312,15 @@ public class Hauptfenster extends JFrame {
       spAnzeige.setDividerSize(TRENNBALKEN_GROESZE);
       spAnzeige.setRightComponent(getPThumbnailSteuerung());
       spAnzeige.setLeftComponent(getSpVorschauBildinfo());
+      spAnzeige.addPropertyChangeListener("lastDividerLocation",
+          new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent e) {
+              for (int i = 0; listeAnzeigePanel != null && i < listeAnzeigePanel.size(); i++) {
+                ThumbnailAnzeigePanel tap = listeAnzeigePanel.get(i);
+                tap.setzeGroesze(sGroesze.getValue());
+              } 
+            }
+          });
     }
     return spAnzeige;
   }
@@ -348,7 +340,11 @@ public class Hauptfenster extends JFrame {
       miImport.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
           importiereDateien();
-          zeigeBilderAn(sGroesze.getValue());
+          for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
+            tap.setVisible(true);
+            tap.setSize(sGroesze.getValue(), sGroesze.getValue());
+            pThumbnails.add(tap);
+          }
         }
       });
     }
@@ -413,12 +409,12 @@ public class Hauptfenster extends JFrame {
    */
   private Vorschaupanel getPVorschau() {
     Image zuerstAusgewaehltesBild = null;
-    for (int i = 0; anzeigePanel != null 
-                    && i < anzeigePanel.size() 
+    for (int i = 0; listeAnzeigePanel != null 
+                    && i < listeAnzeigePanel.size() 
                     && zuerstAusgewaehltesBild == null; i++) {
       
-      if (anzeigePanel.get(i).istFokussiert()) {
-        zuerstAusgewaehltesBild = anzeigePanel.get(i).gibBild();
+      if (listeAnzeigePanel.get(i).istFokussiert()) {
+        zuerstAusgewaehltesBild = listeAnzeigePanel.get(i).gibBild();
       }
     }
     if (pVorschau == null) {
@@ -445,7 +441,11 @@ public class Hauptfenster extends JFrame {
           if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             
             erzeugeDatenNachSuche();
-            zeigeBilderAn(sGroesze.getValue());
+            for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
+              tap.setVisible(true);
+              tap.setSize(sGroesze.getValue(), sGroesze.getValue());
+              pThumbnails.add(tap);
+            }
           }
         }
       });
@@ -537,7 +537,7 @@ public class Hauptfenster extends JFrame {
       pThumbnailSteuerung = new JPanel();
       pThumbnailSteuerung.setLayout(new BorderLayout());
       pThumbnailSteuerung.add(getTbWerkzeugleiste(), BorderLayout.NORTH);
-      pThumbnailSteuerung.add(getSpThumbnails(), BorderLayout.CENTER);
+      pThumbnailSteuerung.add(getPThumbnails(), BorderLayout.CENTER);
     }
     return pThumbnailSteuerung;
   }
@@ -575,7 +575,11 @@ public class Hauptfenster extends JFrame {
       bSuchen.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
           erzeugeDatenNachSuche();
-          zeigeBilderAn(sGroesze.getValue());
+          for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
+            tap.setVisible(true);
+            tap.setSize(sGroesze.getValue(), sGroesze.getValue());
+            pThumbnails.add(tap);
+          }
         }
       });
     }
@@ -622,8 +626,8 @@ public class Hauptfenster extends JFrame {
       sGroesze.setMinimum(48);
       sGroesze.addMouseListener(new java.awt.event.MouseAdapter() {
         public void mouseReleased(java.awt.event.MouseEvent e) {
-          for (int i = 0; anzeigePanel != null && i < anzeigePanel.size(); i++) {
-            ThumbnailAnzeigePanel tap = anzeigePanel.get(i);
+          for (int i = 0; listeAnzeigePanel != null && i < listeAnzeigePanel.size(); i++) {
+            ThumbnailAnzeigePanel tap = listeAnzeigePanel.get(i);
             tap.setzeGroesze(sGroesze.getValue());
           }
         }
@@ -645,19 +649,6 @@ public class Hauptfenster extends JFrame {
     return tfSchluesselwoerter;
   }
 
-
-  /**
-   * This method initializes spThumbnails	
-   * 	
-   * @return javax.swing.JScrollPane	
-   */
-  private JScrollPane getSpThumbnails() {
-  	if (spThumbnails == null) {
-  		spThumbnails = new JScrollPane();
-  		spThumbnails.setViewportView(getPThumbnails());
-  	}
-  	return spThumbnails;
-  }
 
   /**
    * This method initializes pBildinformationen	
@@ -791,7 +782,7 @@ private JTable getTBilddetails() {
   private JPanel getPThumbnails() {
     if (pThumbnails == null) {
       pThumbnails = new JPanel();
-      pThumbnails.setLayout(new FlowLayout());
+      pThumbnails.setLayout(new FlowLayout(FlowLayout.LEADING, 20, 20));
     }
     return pThumbnails;
   }

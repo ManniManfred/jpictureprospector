@@ -26,6 +26,7 @@ public class ThumbnailAnzeige extends JPanel {
   /** Enthaelt die Groesze in der das Thumbnail angezeigt werden soll. */
   private int groesze;
   
+  /** Enthaelt alle Observer die dieses Objekt beobachten. */
   private Observable observable = null;
   
   /**
@@ -40,6 +41,12 @@ public class ThumbnailAnzeige extends JPanel {
     init(thumbnail, STD_GROESZE);
   }
   
+  /**
+   * Setzt die Hoehe und Breite dieses Objektes neu. Die Groesze dieses Objektes
+   * soll immer quadratisch sein.
+   * 
+   * @param groesze  Hoehe und Breite des Objektes
+   */
   public void setzeGroesze(int groesze) {
     this.groesze = groesze;
     this.setSize(groesze, groesze);
@@ -50,7 +57,7 @@ public class ThumbnailAnzeige extends JPanel {
     
     this.thumbnail = thumbnail;
     this.groesze = groesze;
-    this.setLayout(new BorderLayout());
+    this.setLayout(null);
     this.setSize(groesze, groesze);
     this.repaint();
   }
@@ -63,8 +70,8 @@ public class ThumbnailAnzeige extends JPanel {
     
     double hoeheBild = this.thumbnail.getHeight(this);
     double breiteBild = this.thumbnail.getWidth(this);
-    double dieseBreite = getWidth();
-    double dieseHoehe = getHeight();
+    double dieseBreite = groesze;
+    double dieseHoehe = groesze;
     g.setColor(new Color(238, 238, 238));
     g.fillRect(0, 0, getWidth(), getHeight());
     
