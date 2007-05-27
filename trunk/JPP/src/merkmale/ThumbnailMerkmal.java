@@ -1,6 +1,8 @@
 package merkmale;
 
 import core.GeoeffnetesBild;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -32,6 +34,9 @@ public class ThumbnailMerkmal extends Merkmal {
   /** Maximale Breite des Thumbnails in Pixeln. */
   private static final int MAXBREITE = 256;
   
+  /** Format, in dem die Thumbnails gespeichert werden. */
+  private static final String FORMAT = "jpeg";
+  
   /**
    * Erzeugt ein neues ThumbnailMerkmal.
    */
@@ -47,37 +52,37 @@ public class ThumbnailMerkmal extends Merkmal {
   public void leseMerkmalAus(GeoeffnetesBild bild) {
     
     BufferedImage foto = bild.getBild();
+    Image thumbImage = null;
     
     if (foto.getWidth() > foto.getHeight()) {
       
       /* Bild ist im Querformat, Thumbnail bekommt maximale Breite, Hoehe
        * wird proportional zur Breite berechnet
        */
-      thumbnail = (BufferedImage) 
-        foto.getScaledInstance(MAXBREITE, -1, foto.SCALE_DEFAULT);
+      thumbImage = foto.getScaledInstance(MAXBREITE, -1, foto.SCALE_DEFAULT);
+      thumbnail = this.wandleInBufferedImage(thumbImage);
     } else {
       
       /* Bild ist im Hochformat, Thumbnail bekommt maximale Hoehe, Breite
        * wird proportional zur Breite berechnet
        */
-      thumbnail = (BufferedImage) 
-        foto.getScaledInstance(-1, MAXHOEHE, foto.SCALE_DEFAULT);
+      thumbImage = foto.getScaledInstance(-1, MAXHOEHE, foto.SCALE_DEFAULT);
+      thumbnail = this.wandleInBufferedImage(thumbImage);
     }
     
     /* Thumbnail in ein Byte-Array schreiben */
     
-
     try{
-    // O P E N
-    ByteArrayOutputStream baos = new ByteArrayOutputStream( 1000 );   
-    // W R I T E
-    ImageIO.write(this.getThumbnail(), "jpeg", baos ); 
-    /* "png" "jpeg" format desired, no "gif" yet. */ 
-    // C L O S E
-    baos.flush();
-    this.wert = baos.toByteArray();
-    
-    baos.close();
+      /* oeffnen */
+      ByteArrayOutputStream baos = new ByteArrayOutputStream(1000);
+      /* schreiben */
+      ImageIO.write(this.getThumbnail(), FORMAT, baos);
+      /* "png" "jpeg" format desired, no "gif" yet. */
+      /* schliessen */
+      baos.flush();
+      this.wert = baos.toByteArray();
+      
+      baos.close();
     } catch(IOException e) {
       // Exception werfen
     }
@@ -91,11 +96,13 @@ public class ThumbnailMerkmal extends Merkmal {
    */
   public void leseMerkmalAusLuceneDocument(Document doc) {
     this.wert = doc.get(FELDNAME);
+
+    
     try{
-    this.thumbnail = 
-	ImageIO.read(new ByteArrayInputStream((byte[]) this.wert));
+      this.thumbnail = 
+	  ImageIO.read(new ByteArrayInputStream((byte[]) this.wert));
     } catch(IOException e) {
-      //FEHLERBEHANDLUNG
+      // FEHLER FANGEN
     }
   }
   
@@ -123,4 +130,34 @@ public class ThumbnailMerkmal extends Merkmal {
   public BufferedImage getThumbnail() {
     return this.thumbnail;
   }
+  
+  /**
+   * Wandelt das übergebene Image in ein BufferedImage um.
+   *
+   * @param  Image, das umgewandelt werden soll.
+   * @return BufferedImage, das erzeugt wird.
+   */
+  public static BufferedImage wandleInBufferedImage(Image image) {
+    
+    BufferedImage bufferedImage = null;
+    if(image instanceof BufferedImage) {
+      
+      /* Image ist eine Instanz von BufferedImage, einfaches casten. */
+      bufferedImage = (BufferedImage) image;
+    } else {
+      
+      /* BufferedImage neu erzeugen */
+      bufferedImage = new BufferedImage(image.getWidth(null), 
+	  image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+      // ARGB to support transparency if in original image
+      
+      /* Image an den Ursprung zeichnen. */
+      Graphics2D g = bufferedImage.createGraphics();
+      g.drawImage(image, 0, 0, null);
+      g.dispose(); 
+    }
+    
+    return bufferedImage;
+  }
+  
 }
