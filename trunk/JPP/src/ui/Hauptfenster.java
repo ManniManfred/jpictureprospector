@@ -3,8 +3,10 @@ import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Event;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
@@ -41,7 +43,8 @@ import core.BildDokument;
 import core.ErzeugeException;
 import core.ImportException;
 import core.JPPCore;
-import java.awt.FlowLayout;
+import core.SucheException;
+import core.Trefferliste;
 
 /**
  * Ein Objekt der Klasse stellt das Hauptanzeigefenster der Software zur
@@ -78,6 +81,9 @@ public class Hauptfenster extends JFrame {
    */
   private List<ThumbnailAnzeigePanel> anzeigePanel = null;
 
+  /** Enthaelt die Trefferliste nach einer ausgeführten Suche. */
+  private Trefferliste trefferliste = null;  //  @jve:decl-index=0:
+  
   /** Enthaelt die Inhaltsflaeche dieses Objekts. */
   private JPanel pInhaltsflaeche = null;
 
@@ -153,7 +159,6 @@ public class Hauptfenster extends JFrame {
     try {
       kern = new JPPCore();
     } catch (ErzeugeException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -167,19 +172,20 @@ public class Hauptfenster extends JFrame {
     JFileChooser dateiauswahl = new JFileChooser();
     FileFilter filter = new Bildfilter();
     File[] files;
+    dateiauswahl.setMultiSelectionEnabled(true);
     dateiauswahl.setFileFilter(filter);
     dateiauswahl.showOpenDialog(pInhaltsflaeche);
     files = dateiauswahl.getSelectedFiles();
+    if (this.anzeigePanel == null) {
+      this.anzeigePanel = new ArrayList<ThumbnailAnzeigePanel>();
+    } else {
+      this.anzeigePanel.clear();
+    }
     for (int i = 0; i < files.length; i++) {
       try {
         BildDokument dok = kern.importiere(files[i]);
-        if (this.anzeigePanel == null) {
-          this.anzeigePanel = new ArrayList<ThumbnailAnzeigePanel>();
-        } else {
-          this.anzeigePanel.clear();
-        }
         ThumbnailAnzeigePanel tap = new ThumbnailAnzeigePanel(dok,
-            this.sGroesze.getValue());
+            this.sGroesze.getValue(), pVorschau);
         tap.setzeText(files[i].getName());
         tap.setVisible(true);
         this.anzeigePanel.add(tap);
@@ -189,7 +195,6 @@ public class Hauptfenster extends JFrame {
             ie.getMessage());
       }
     }
-    zeigeBilderAn(sGroesze.getValue());
   }
   
   /**
@@ -206,7 +211,31 @@ public class Hauptfenster extends JFrame {
         this.pThumbnails.add(panel);
       }
     }
+  }
+  
+  /**
+   * Erzeugt alle notwendigen Daten, die zur Anzeige notwendig sind, wenn
+   * der Benutzer nach einem Begriff gesucht hat.
+   */
+  private void erzeugeDatenNachSuche() {
     
+    try {
+      trefferliste = kern.suche(pSuche.gibSuchtext());
+      
+      if (anzeigePanel == null) {
+        anzeigePanel = new ArrayList<ThumbnailAnzeigePanel>();
+      } else {
+        anzeigePanel.clear();
+      }
+      for (int i = 0; i < trefferliste.getAnzahlTreffer(); i++) {
+        anzeigePanel.add(
+            new ThumbnailAnzeigePanel(trefferliste.getBildDokument(i),
+                sGroesze.getValue(), pVorschau));
+      }
+    } catch (SucheException se) {
+      zeigeFehlermeldung("Suche fehlgeschlagen", "Die Suche konnte " +
+          "nicht erfolgreich ausgeführt werden.\n\n" + se.getMessage());
+    }
   }
   
   /**
@@ -219,6 +248,16 @@ public class Hauptfenster extends JFrame {
     
     JOptionPane.showMessageDialog(this.getParent(), meldung, titel,
         JOptionPane.ERROR_MESSAGE);
+  }
+  
+  /**
+   * Liefert das Panel was ein ausgewaehltes Bild in groeszerer Darstellung
+   * anzeigt.
+   * 
+   * @return  dieses <code>Vorschaupanel</code>
+   */
+  public Vorschaupanel gibVorschaupanel() {
+    return this.pVorschau;
   }
   
   /**
@@ -309,6 +348,7 @@ public class Hauptfenster extends JFrame {
       miImport.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
           importiereDateien();
+          zeigeBilderAn(sGroesze.getValue());
         }
       });
     }
@@ -372,8 +412,17 @@ public class Hauptfenster extends JFrame {
    * @return javax.swing.JPanel	
    */
   private Vorschaupanel getPVorschau() {
+    Image zuerstAusgewaehltesBild = null;
+    for (int i = 0; anzeigePanel != null 
+                    && i < anzeigePanel.size() 
+                    && zuerstAusgewaehltesBild == null; i++) {
+      
+      if (anzeigePanel.get(i).istFokussiert()) {
+        zuerstAusgewaehltesBild = anzeigePanel.get(i).gibBild();
+      }
+    }
     if (pVorschau == null) {
-      pVorschau = new Vorschaupanel();
+      pVorschau = new Vorschaupanel(zuerstAusgewaehltesBild);
       pVorschau.setLayout(new GridBagLayout());
       pVorschau.setName("pVorschau");
       pVorschau.setMinimumSize(new Dimension(10, (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 4));
@@ -391,6 +440,15 @@ public class Hauptfenster extends JFrame {
       pSuche = new SuchPanel();
       pSuche.setName("pSuche");
       pSuche.add(getBSuchen(), null);
+      pSuche.addKeyListener(new java.awt.event.KeyAdapter() {
+        public void keyReleased(java.awt.event.KeyEvent e) {
+          if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+            
+            erzeugeDatenNachSuche();
+            zeigeBilderAn(sGroesze.getValue());
+          }
+        }
+      });
     }
     return pSuche;
   }
@@ -514,6 +572,12 @@ public class Hauptfenster extends JFrame {
     if (bSuchen == null) {
       bSuchen = new JButton();
       bSuchen.setText("Suchen");
+      bSuchen.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+          erzeugeDatenNachSuche();
+          zeigeBilderAn(sGroesze.getValue());
+        }
+      });
     }
     return bSuchen;
   }
@@ -558,7 +622,8 @@ public class Hauptfenster extends JFrame {
       sGroesze.setMinimum(48);
       sGroesze.addMouseListener(new java.awt.event.MouseAdapter() {
         public void mouseReleased(java.awt.event.MouseEvent e) {
-          for (ThumbnailAnzeigePanel tap : anzeigePanel) {
+          for (int i = 0; anzeigePanel != null && i < anzeigePanel.size(); i++) {
+            ThumbnailAnzeigePanel tap = anzeigePanel.get(i);
             tap.setzeGroesze(sGroesze.getValue());
           }
         }

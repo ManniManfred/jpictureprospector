@@ -50,14 +50,14 @@ public class ThumbnailMerkmal extends Merkmal {
     
     if (foto.getWidth() > foto.getHeight()) {
       
-      /* Bild ist im Querformat, Thumbnail bekommt maximale Breite, H�he
+      /* Bild ist im Querformat, Thumbnail bekommt maximale Breite, Hoehe
        * wird proportional zur Breite berechnet
        */
       thumbnail = (BufferedImage) 
         foto.getScaledInstance(MAXBREITE, -1, foto.SCALE_DEFAULT);
     } else {
       
-      /* Bild ist im Hochformat, Thumbnail bekommt maximale H�he, Breite
+      /* Bild ist im Hochformat, Thumbnail bekommt maximale Hoehe, Breite
        * wird proportional zur Breite berechnet
        */
       thumbnail = (BufferedImage) 

@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.util.Observer;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -38,12 +39,12 @@ public class ThumbnailAnzeigePanel extends JPanel {
    * This method initializes 
    * 
    */
-  public ThumbnailAnzeigePanel(BildDokument dok, int groesze) {
+  public ThumbnailAnzeigePanel(BildDokument dok, int groesze, Observer observer) {
   	super();
     this.groesze = groesze;
-  	initialize();
     ThumbnailMerkmal m = (ThumbnailMerkmal) dok.getMerkmal(THUMBNAILMERKMALSNAME);
-    this.thumbnailAnzeige = new ThumbnailAnzeige(m.getThumbnail());
+    this.thumbnailAnzeige = new ThumbnailAnzeige(m.getThumbnail(), observer);
+    initialize();
   }
   
   /**
@@ -79,6 +80,14 @@ public class ThumbnailAnzeigePanel extends JPanel {
   public void setzeText(String text) {
     this.lDateiname.setText(text);
   }
+  
+  public Image gibBild() {
+    return this.thumbnailAnzeige.gibBild();
+  }
+  
+  public boolean istFokussiert() {
+    return this.istFokussiert;
+  }
 
   /**
    * This method initializes this
@@ -91,6 +100,11 @@ public class ThumbnailAnzeigePanel extends JPanel {
     this.setLayout(new BorderLayout());
     this.setSize(new Dimension(groesze, groesze + 20));
     this.add(lDateiname, BorderLayout.SOUTH);
+    this.addMouseListener(new java.awt.event.MouseAdapter() {
+      public void mouseClicked(java.awt.event.MouseEvent e) {
+        setzeFokus(true);
+      }
+    });
     this.add(this.thumbnailAnzeige, BorderLayout.CENTER);
   }
 }

@@ -51,6 +51,15 @@ public class SuchPanel extends JPanel {
     super();
     initialize();
   }
+  
+  /**
+   * Liefert den Suchtext den der Benutzer zur Suche eingegeben hat.
+   * 
+   * @return  der eingegebene Suchtext
+   */
+  public String gibSuchtext() {
+    return tfSuchFeld.getText();
+  }
 
   /**
    * Erzeugt alle Objekte, die dieses Panel beinhaltet und ordnet Sie
