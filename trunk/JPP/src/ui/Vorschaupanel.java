@@ -5,15 +5,27 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
+import core.BildDokument;
+
 public class Vorschaupanel extends JPanel implements Observer {
+  
+  private static final String DATEIPFADMERKMALNAME = "Dateipfad";  //  @jve:decl-index=0:
 
   private static final long serialVersionUID = 1L;
   
@@ -22,26 +34,49 @@ public class Vorschaupanel extends JPanel implements Observer {
   /**
    * This is the default constructor
    */
-  public Vorschaupanel(Image bild) {
+  public Vorschaupanel() {
     super();
     initialize();
-    this.bild = bild;
   }
   
-  /**
-   * Setzt und zeichnet das Vorschaubild neu.
-   * 
-   * @param bild  das Bild was neu gesetzt werden soll
-   */
-  public void setzeBild(Image bild) {
-    this.bild = bild;
-    this.repaint();
-  }
-
   public void update(Observable o, Object arg) {
-    if (arg instanceof Image) {
-      setzeBild((Image) arg);
+    if (arg instanceof BildDokument) {
+      BildDokument dok = (BildDokument) arg;
+      String dateipfad = (String) dok.getMerkmal(DATEIPFADMERKMALNAME).getWert();
+      try {
+        bild = readImage(new File(dateipfad));
+        repaint();
+      } catch (IOException e) {
+        
+      }
     }
+  }
+  
+  public static BufferedImage readImage(Object source)
+    throws IOException {
+  
+    ImageInputStream stream = 
+        ImageIO.createImageInputStream(source);
+    ImageReader reader = 
+        (ImageReader) ImageIO.getImageReaders(stream).next();
+    reader.setInput(stream);
+    ImageReadParam param = reader.getDefaultReadParam();
+  
+    ImageTypeSpecifier typeToUse = null;
+    for (Iterator i = reader.getImageTypes(0); i.hasNext(); ) {
+        ImageTypeSpecifier type = (ImageTypeSpecifier) i.next();
+        if( type.getColorModel().getColorSpace().isCS_sRGB() ) {
+            typeToUse = type;
+        }
+    }
+  
+    if (typeToUse!=null) param.setDestinationType(typeToUse);
+  
+    BufferedImage b = reader.read(0, param);
+  
+    reader.dispose();
+    stream.close();
+    return b;
   }
 
   /**

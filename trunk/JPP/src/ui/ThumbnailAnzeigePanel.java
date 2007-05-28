@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JFrame;
@@ -27,15 +28,20 @@ public class ThumbnailAnzeigePanel extends JPanel {
    */
   private static final String THUMBNAILMERKMALSNAME = "Thumbnail";
 
+  /** Enthaelt das Label fuer den Dateinamen des Bildes. */
   private JLabel lDateiname = null;
   
-  private String dateiname = null;
-  
+  /** Enthaelt das Panel fuer die Anzeige des Thumbnails. */
   private ThumbnailAnzeige thumbnailAnzeige = null;
   
-  private int groesze;
+  /** Enthaelt alle Observer, die Aenderungen an diesem Objekt beobachten. */
+  protected ObservableJPP observable = null;
   
+  /** Enthaelt die Information ob dieses Objekt ausgewaehlt ist. */
   private boolean istFokussiert;
+  
+  /** Enthaelt das anzuzeigende BildDokument. */
+  private BildDokument dok = null;
 
   /**
    * This method initializes 
@@ -43,10 +49,7 @@ public class ThumbnailAnzeigePanel extends JPanel {
    */
   public ThumbnailAnzeigePanel(BildDokument dok, int groesze, Observer observer) {
   	super();
-    this.groesze = groesze;
-    ThumbnailMerkmal m = (ThumbnailMerkmal) dok.getMerkmal(THUMBNAILMERKMALSNAME);
-    this.thumbnailAnzeige = new ThumbnailAnzeige(m.getThumbnail(), observer);
-    initialize();
+    initialize(dok, groesze, observer);
   }
   
   /**
@@ -58,7 +61,10 @@ public class ThumbnailAnzeigePanel extends JPanel {
     
     this.istFokussiert = istFokussiert;
     if (this.istFokussiert) {
-      this.setBorder(new LineBorder(Color.GREEN, 2));
+      this.setBorder(new LineBorder(Color.BLUE, 2, true));
+      this.observable.setChanged();
+      this.observable.notifyObservers(dok);
+      this.observable.clearChanged();
     } else {
       this.setBorder(new LineBorder(Color.GRAY, 1));
     }
@@ -83,8 +89,7 @@ public class ThumbnailAnzeigePanel extends JPanel {
    * @param text  der Text des Textfeldes
    */
   public void setzeDateinamen(String dateiname) {
-    this.dateiname = dateiname;
-    this.lDateiname.setText(this.dateiname);
+    this.lDateiname.setText(dateiname);
   }
   
   public Image gibBild() {
@@ -99,23 +104,56 @@ public class ThumbnailAnzeigePanel extends JPanel {
    * This method initializes this
    * 
    */
-  private void initialize() {
+  private void initialize(BildDokument dok, int groesze, Observer observer) {
+    
+    ThumbnailMerkmal m = (ThumbnailMerkmal) dok.getMerkmal(THUMBNAILMERKMALSNAME);
+    this.thumbnailAnzeige = new ThumbnailAnzeige(m.getThumbnail());
+    this.observable = new ObservableJPP();
+    observable.addObserver(observer);
+    this.dok = dok;
     lDateiname = new JLabel();
     lDateiname.setText("");
     lDateiname.setHorizontalAlignment(SwingConstants.CENTER);
     this.setLayout(new BorderLayout());
     this.setSize(new Dimension(groesze, groesze + 20));
     this.setBorder(new LineBorder(Color.GRAY, 1));
+    this.setFocusable(true);
     this.addMouseListener(new java.awt.event.MouseAdapter() {
       public void mouseClicked(java.awt.event.MouseEvent e) {
         if (istFokussiert) {
           setzeFokus(false);
         } else {
           setzeFokus(true);
+          requestFocusInWindow();
         }
       }
     });
+    this.addFocusListener(new java.awt.event.FocusAdapter() {   
+    	public void focusLost(java.awt.event.FocusEvent e) {    
+    		setzeFokus(false);
+    	}
+    });
     this.add(this.thumbnailAnzeige, BorderLayout.CENTER);
     this.add(lDateiname, BorderLayout.SOUTH);
+  }
+}
+
+/**
+ * Stellt einen Workaround dar, da in der Klasse <code>Observable</code>
+ * die Methoden fuer <code>setChanged</code> und <code>clearChanged</code>
+ * protected sind und das Anzeigepanel nicht von Observable abgeleitet
+ * werden kann.
+ * 
+ * @author nils verheyen
+ *
+ */
+class ObservableJPP extends Observable {
+  
+  public void setChanged() {
+    super.setChanged();
+  }
+  
+  public void clearChanged() {
+    super.clearChanged();
   }
 }

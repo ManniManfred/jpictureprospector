@@ -26,18 +26,13 @@ public class ThumbnailAnzeige extends JPanel {
   /** Enthaelt die Groesze in der das Thumbnail angezeigt werden soll. */
   private int groesze;
   
-  /** Enthaelt alle Observer die dieses Objekt beobachten. */
-  private Observable observable = null;
-  
   /**
    * Erzeugt ein neues Objekt der Klasse.
    * 
    * @param thumbnail  enthaelt das anzuzeigende Thumbnail
    */
-  public ThumbnailAnzeige(Image thumbnail, Observer observer) {
+  public ThumbnailAnzeige(Image thumbnail) {
     
-    this.observable = new Observable();
-    this.observable.addObserver(observer);
     init(thumbnail, STD_GROESZE);
   }
   
@@ -86,6 +81,5 @@ public class ThumbnailAnzeige extends JPanel {
           (int) (breiteBild * (dieseHoehe / hoeheBild)),
           (int) dieseHoehe, this);
     }
-    this.observable.notifyObservers(this.thumbnail);
   }
 }
