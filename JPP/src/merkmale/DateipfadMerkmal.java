@@ -12,7 +12,7 @@ import org.apache.lucene.document.Field;
  */
 public class DateipfadMerkmal extends Merkmal { 
 
-  /** Name des Lucene-Feldes für dieses Merkmal. */
+  /** Name des Lucene-Feldes fuer dieses Merkmal. */
   private static final String FELDNAME = "Dateipfad";
 
   /** 

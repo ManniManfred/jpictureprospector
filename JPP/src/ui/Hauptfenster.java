@@ -78,10 +78,12 @@ public class Hauptfenster extends JFrame {
   /** Enthaelt den Kern der Software mit dem operiert wird. */
   private JPPCore kern;
   
+  private List<ThumbnailAnzeigePanel> ausgewaehlteAnzeigePanel = null;
+  
   /** Enthaelt eine Liste an Paneln die zustaendig fuer die Anzeige der
    * Thumbnails sind.
    */
-  private List<ThumbnailAnzeigePanel> listeAnzeigePanel = null;
+  private List<ThumbnailAnzeigePanel> listeAnzeigePanel = null;  //  @jve:decl-index=0:
 
   /** Enthaelt die Trefferliste nach einer ausgeführten Suche. */
   private Trefferliste trefferliste = null;  //  @jve:decl-index=0:
@@ -165,7 +167,8 @@ public class Hauptfenster extends JFrame {
   
   /**
    * Importiert in den Kern des Programms eine ausgewaehlte Anzahl
-   * an Dateien.
+   * an Dateien. Wenn ein Fehler waehrend des Importiervorgangs entsteht
+   * wird dem Benutzer eine entsprechende Fehlermeldung ausgegeben.
    */
   private void importiereDateien() {
     
@@ -180,6 +183,7 @@ public class Hauptfenster extends JFrame {
       this.listeAnzeigePanel = new ArrayList<ThumbnailAnzeigePanel>();
     } else {
       this.listeAnzeigePanel.clear();
+      this.pThumbnails.removeAll();
     }
     for (int i = 0; i < files.length; i++) {
       try {
@@ -315,7 +319,8 @@ public class Hauptfenster extends JFrame {
       spAnzeige.addPropertyChangeListener("lastDividerLocation",
           new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent e) {
-              for (int i = 0; listeAnzeigePanel != null && i < listeAnzeigePanel.size(); i++) {
+              for (int i = 0; listeAnzeigePanel != null 
+                              && i < listeAnzeigePanel.size(); i++) {
                 ThumbnailAnzeigePanel tap = listeAnzeigePanel.get(i);
                 tap.setzeGroesze(sGroesze.getValue());
               } 
@@ -345,6 +350,7 @@ public class Hauptfenster extends JFrame {
             tap.setSize(sGroesze.getValue(), sGroesze.getValue());
             pThumbnails.add(tap);
           }
+          pThumbnails.revalidate();
         }
       });
     }
@@ -408,17 +414,9 @@ public class Hauptfenster extends JFrame {
    * @return javax.swing.JPanel	
    */
   private Vorschaupanel getPVorschau() {
-    Image zuerstAusgewaehltesBild = null;
-    for (int i = 0; listeAnzeigePanel != null 
-                    && i < listeAnzeigePanel.size() 
-                    && zuerstAusgewaehltesBild == null; i++) {
-      
-      if (listeAnzeigePanel.get(i).istFokussiert()) {
-        zuerstAusgewaehltesBild = listeAnzeigePanel.get(i).gibBild();
-      }
-    }
+    
     if (pVorschau == null) {
-      pVorschau = new Vorschaupanel(zuerstAusgewaehltesBild);
+      pVorschau = new Vorschaupanel();
       pVorschau.setLayout(new GridBagLayout());
       pVorschau.setName("pVorschau");
       pVorschau.setMinimumSize(new Dimension(10, (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 4));
@@ -479,6 +477,23 @@ public class Hauptfenster extends JFrame {
       lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeilrechts.png")));
       lNaechstesBild.setSize(new Dimension(32, 32));
       lNaechstesBild.addMouseListener(new java.awt.event.MouseAdapter() {   
+      	public void mouseClicked(java.awt.event.MouseEvent e) {    
+      		boolean gewaehltesBildGefunden = false;
+          for (int i = 0; listeAnzeigePanel != null && !gewaehltesBildGefunden
+                          && i < listeAnzeigePanel.size(); i++) {
+            if (listeAnzeigePanel.get(i).istFokussiert()) {
+              gewaehltesBildGefunden = true;
+              listeAnzeigePanel.get(i).setzeFokus(false);
+              if (i == listeAnzeigePanel.size() - 1) {
+                listeAnzeigePanel.get(0).setzeFokus(true);
+              } else {
+                listeAnzeigePanel.get(i + 1).setzeFokus(true);
+              }
+            } else if (i == listeAnzeigePanel.size() - 1) {
+              listeAnzeigePanel.get(0).setzeFokus(true);
+            }
+          }
+      	}
       	public void mouseExited(java.awt.event.MouseEvent e) {    
           lNaechstesBild.removeAll();
           lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeilrechts.png")));
@@ -493,6 +508,23 @@ public class Hauptfenster extends JFrame {
       lLetztesBild.setIcon(new ImageIcon(getClass().getResource("/ui/uiimgs/pfeillinks.png")));
       lLetztesBild.setSize(new Dimension(32, 32));
       lLetztesBild.addMouseListener(new java.awt.event.MouseAdapter() {   
+      	public void mouseClicked(java.awt.event.MouseEvent e) {    
+          boolean gewaehltesBildGefunden = false;
+          for (int i = 0; listeAnzeigePanel != null && !gewaehltesBildGefunden
+                          && i < listeAnzeigePanel.size(); i++) {
+            if (listeAnzeigePanel.get(i).istFokussiert()) {
+              gewaehltesBildGefunden = true;
+              listeAnzeigePanel.get(i).setzeFokus(false);
+              if (i == 0) {
+                listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
+              } else {
+                listeAnzeigePanel.get(i - 1).setzeFokus(true);
+              }
+            } else if (i == listeAnzeigePanel.size() - 1) {
+              listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
+            }
+          }
+      	}   
       	public void mouseExited(java.awt.event.MouseEvent e) {    
           lLetztesBild.removeAll();
           lLetztesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeillinks.png")));
@@ -523,6 +555,11 @@ public class Hauptfenster extends JFrame {
     if (bGroszanzeige == null) {
       bGroszanzeige = new JButton();
       bGroszanzeige.setText("Bild anzeigen");
+      bGroszanzeige.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+          System.out.println("actionPerformed()"); // TODO Auto-generated Event stub actionPerformed()
+        }
+      });
     }
     return bGroszanzeige;
   }
