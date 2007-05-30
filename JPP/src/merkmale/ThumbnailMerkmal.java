@@ -74,7 +74,8 @@ public class ThumbnailMerkmal extends Merkmal {
     
     try{
       /* oeffnen */
-      ByteArrayOutputStream baos = new ByteArrayOutputStream(1000);
+      
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
       /* schreiben */
       ImageIO.write(this.getThumbnail(), FORMAT, baos);
       /* "png" "jpeg" format desired, no "gif" yet. */
@@ -132,7 +133,7 @@ public class ThumbnailMerkmal extends Merkmal {
   }
   
   /**
-   * Wandelt das übergebene Image in ein BufferedImage um.
+   * Wandelt das uebergebene Image in ein BufferedImage um.
    *
    * @param  Image, das umgewandelt werden soll.
    * @return BufferedImage, das erzeugt wird.
