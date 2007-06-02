@@ -73,11 +73,18 @@ public class ThumbnailAnzeige extends JPanel {
     // Anpassung der Größe an dieses Objekt
     if (Math.abs(dieseBreite / breiteBild) < Math.abs(dieseHoehe / hoeheBild)) {
       
-      g.drawImage(this.thumbnail, 0, 0, (int) dieseBreite,
+      // Breite voll ausgefuellt, Hoehe muss neu berechnet werden
+      g.drawImage(this.thumbnail,
+          0,
+          (int) (dieseHoehe - hoeheBild * (dieseBreite / breiteBild)) / 2,
+          (int) dieseBreite,
           (int) (hoeheBild * (dieseBreite / breiteBild)), this);
     } else {
       
-      g.drawImage(this.thumbnail, 0, 0,
+      // Hoehe voll ausgefuellt, Breite muss neu berechnet werden
+      g.drawImage(this.thumbnail, 
+          (int) (dieseBreite - breiteBild * (dieseHoehe / hoeheBild)) / 2,
+          0,
           (int) (breiteBild * (dieseHoehe / hoeheBild)),
           (int) dieseHoehe, this);
     }

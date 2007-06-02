@@ -13,7 +13,10 @@ import java.awt.event.AdjustmentListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Observer;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -48,6 +51,8 @@ import core.SucheException;
 import core.Trefferliste;
 import javax.swing.JScrollBar;
 
+import sun.util.calendar.CalendarUtils;
+
 /**
  * Ein Objekt der Klasse stellt das Hauptanzeigefenster der Software zur
  * Verfuegung. Im Hauptfenster kann der Anwender alle Aktionen die
@@ -62,7 +67,7 @@ public class Hauptfenster extends JFrame {
   private static final int STD_BREITE = 800;
   
   /** Enthaelt den Standardabstand den Komponenten ggfs. zueinander besitzen. */
-  private static final int STD_INSETS = 10;
+  private static final int STD_ABSTAND = 10;
   
   /** Gibt an welche Breite die Komponenten minimal im Bereich der
    * Bildinformationen haben duerfen.
@@ -78,7 +83,11 @@ public class Hauptfenster extends JFrame {
   /** Enthaelt den Kern der Software mit dem operiert wird. */
   private JPPCore kern;
   
-  private List<ThumbnailAnzeigePanel> ausgewaehlteAnzeigePanel = null;
+  /** Enthaelt alle Observer fuer ThumbnailAnzeigePanel. */
+  private List<Observer> tapObserver = null;
+  
+  /** Enthaelt die Groszanzeige fuer ein Bild. */
+  private BildGroszanzeige groszanzeige = null;
   
   /** Enthaelt eine Liste an Paneln die zustaendig fuer die Anzeige der
    * Thumbnails sind.
@@ -128,8 +137,6 @@ public class Hauptfenster extends JFrame {
 
   private JButton bSuchen = null;
 
-  private JButton bNormalansicht = null;
-
   private JMenuItem miLoeschen = null;
 
   private JSlider sGroesze = null;
@@ -151,6 +158,8 @@ public class Hauptfenster extends JFrame {
   private JTable tBilddetails = null;
 
   private JPanel pThumbnails = null;
+
+  private JScrollPane spThumbnails = null;
 
 /**
    * Erstellt ein neues Objekt der Klasse.
@@ -187,10 +196,13 @@ public class Hauptfenster extends JFrame {
     }
     for (int i = 0; i < files.length; i++) {
       try {
+        long zeit = Calendar.getInstance().getTimeInMillis();
         BildDokument dok = kern.importiere(files[i]);
+        System.out.println("Datei importiert: " + files[i].getAbsolutePath());
+        System.out.println("Benoetigte Zeit:  " + (Calendar.getInstance().getTimeInMillis() - zeit) + "ms");
         ThumbnailAnzeigePanel tap = new ThumbnailAnzeigePanel(dok,
-            this.sGroesze.getValue(), pVorschau);
-        tap.setzeDateinamen(files[i].getName());
+            this.sGroesze.getValue(), tapObserver);
+        tap.setzeDateinamen(files[i].getName(), sGroesze.getValue());
         this.listeAnzeigePanel.add(tap);
       } catch (ImportException ie) {
         zeigeFehlermeldung("Importfehler",
@@ -208,7 +220,6 @@ public class Hauptfenster extends JFrame {
     
     try {
       trefferliste = kern.suche(pSuche.gibSuchtext());
-      
       if (listeAnzeigePanel == null) {
         listeAnzeigePanel = new ArrayList<ThumbnailAnzeigePanel>();
       } else {
@@ -217,7 +228,7 @@ public class Hauptfenster extends JFrame {
       for (int i = 0; i < trefferliste.getAnzahlTreffer(); i++) {
         listeAnzeigePanel.add(
             new ThumbnailAnzeigePanel(trefferliste.getBildDokument(i),
-                sGroesze.getValue(), pVorschau));
+                sGroesze.getValue(), tapObserver));
       }
     } catch (SucheException se) {
       zeigeFehlermeldung("Suche fehlgeschlagen", "Die Suche konnte " +
@@ -238,13 +249,76 @@ public class Hauptfenster extends JFrame {
   }
   
   /**
-   * Liefert das Panel was ein ausgewaehltes Bild in groeszerer Darstellung
-   * anzeigt.
-   * 
-   * @return  dieses <code>Vorschaupanel</code>
+   * Zeigt alle Thumbnails innerhalb des entsprechenden Anzeigebereichs
+   * an, mit den entsprechenden Eigenschaften von oben nach unten scrollen
+   * zu koennen und die Groesze der Thumbnails dynamisch anzupassen.
    */
-  public Vorschaupanel gibVorschaupanel() {
-    return this.pVorschau;
+  private void erzeugeThumbnailansicht() {
+    
+    if (listeAnzeigePanel != null) {
+      
+      pThumbnails.removeAll();
+      int thumbnailPanelBreite = spAnzeige.getWidth() - spAnzeige.getDividerLocation();
+      int anzahlThumbnailsProZeile = thumbnailPanelBreite / (sGroesze.getValue() + STD_ABSTAND);
+      int anzahlBenoetigteZeilen = listeAnzeigePanel.size() / anzahlThumbnailsProZeile == 0 
+          ? 1 : listeAnzeigePanel.size() / anzahlThumbnailsProZeile + 1;
+      int benoetigteBreite = anzahlThumbnailsProZeile * (sGroesze.getValue() + STD_ABSTAND);
+      int benoetigteHoehe = anzahlBenoetigteZeilen * (sGroesze.getValue() + STD_ABSTAND) + 100;
+      
+      /* MUSS GESETZT WERDEN!!! Ansonsten wird nur eine Zeile mit den
+      Thumbnails angezeigt */
+      pThumbnails.setPreferredSize(new Dimension(benoetigteBreite, benoetigteHoehe));
+    
+      for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
+        
+        tap.setzeGroesze(sGroesze.getValue());
+        tap.setVisible(true);
+        pThumbnails.add(tap);
+      }
+      // Neuanordnung der Komponenten innerhalb pThumbnails
+      pThumbnails.revalidate();
+      
+      // Neuzeichnen der Scrollpane da ansonsten Bildfragmente uebrig bleiben
+      spThumbnails.repaint();
+    }
+  }
+  
+  public void waehleLetztesBildAus() {
+    
+    boolean gewaehltesBildGefunden = false;
+    for (int i = 0; listeAnzeigePanel != null && !gewaehltesBildGefunden
+                    && i < listeAnzeigePanel.size(); i++) {
+      if (listeAnzeigePanel.get(i).istAusgewaehlt()) {
+        gewaehltesBildGefunden = true;
+        listeAnzeigePanel.get(i).setzeFokus(false);
+        if (i == 0) {
+          listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
+        } else {
+          listeAnzeigePanel.get(i - 1).setzeFokus(true);
+        }
+      } else if (i == listeAnzeigePanel.size() - 1) {
+        listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
+      }
+    }
+  }
+  
+  public void waehleNaechstesBildAus() {
+    
+    boolean gewaehltesBildGefunden = false;
+    for (int i = 0; listeAnzeigePanel != null && !gewaehltesBildGefunden
+                    && i < listeAnzeigePanel.size(); i++) {
+      if (listeAnzeigePanel.get(i).istAusgewaehlt()) {
+        gewaehltesBildGefunden = true;
+        listeAnzeigePanel.get(i).setzeFokus(false);
+        if (i == listeAnzeigePanel.size() - 1) {
+          listeAnzeigePanel.get(0).setzeFokus(true);
+        } else {
+          listeAnzeigePanel.get(i + 1).setzeFokus(true);
+        }
+      } else if (i == listeAnzeigePanel.size() - 1) {
+        listeAnzeigePanel.get(0).setzeFokus(true);
+      }
+    }
   }
   
   /**
@@ -317,15 +391,15 @@ public class Hauptfenster extends JFrame {
       spAnzeige.setRightComponent(getPThumbnailSteuerung());
       spAnzeige.setLeftComponent(getSpVorschauBildinfo());
       spAnzeige.addPropertyChangeListener("lastDividerLocation",
-          new java.beans.PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent e) {
-              for (int i = 0; listeAnzeigePanel != null 
-                              && i < listeAnzeigePanel.size(); i++) {
-                ThumbnailAnzeigePanel tap = listeAnzeigePanel.get(i);
-                tap.setzeGroesze(sGroesze.getValue());
-              } 
-            }
-          });
+        new java.beans.PropertyChangeListener() {
+          public void propertyChange(java.beans.PropertyChangeEvent e) {
+            for (int i = 0; listeAnzeigePanel != null 
+                            && i < listeAnzeigePanel.size(); i++) {
+              ThumbnailAnzeigePanel tap = listeAnzeigePanel.get(i);
+              tap.setzeGroesze(sGroesze.getValue());
+            } 
+          }
+        });
     }
     return spAnzeige;
   }
@@ -345,11 +419,8 @@ public class Hauptfenster extends JFrame {
       miImport.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
           importiereDateien();
-          for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
-            tap.setVisible(true);
-            tap.setSize(sGroesze.getValue(), sGroesze.getValue());
-            pThumbnails.add(tap);
-          }
+          erzeugeThumbnailansicht();
+          spThumbnails.revalidate();
           pThumbnails.revalidate();
         }
       });
@@ -439,11 +510,7 @@ public class Hauptfenster extends JFrame {
           if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             
             erzeugeDatenNachSuche();
-            for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
-              tap.setVisible(true);
-              tap.setSize(sGroesze.getValue(), sGroesze.getValue());
-              pThumbnails.add(tap);
-            }
+            erzeugeThumbnailansicht();
           }
         }
       });
@@ -478,21 +545,7 @@ public class Hauptfenster extends JFrame {
       lNaechstesBild.setSize(new Dimension(32, 32));
       lNaechstesBild.addMouseListener(new java.awt.event.MouseAdapter() {   
       	public void mouseClicked(java.awt.event.MouseEvent e) {    
-      		boolean gewaehltesBildGefunden = false;
-          for (int i = 0; listeAnzeigePanel != null && !gewaehltesBildGefunden
-                          && i < listeAnzeigePanel.size(); i++) {
-            if (listeAnzeigePanel.get(i).istFokussiert()) {
-              gewaehltesBildGefunden = true;
-              listeAnzeigePanel.get(i).setzeFokus(false);
-              if (i == listeAnzeigePanel.size() - 1) {
-                listeAnzeigePanel.get(0).setzeFokus(true);
-              } else {
-                listeAnzeigePanel.get(i + 1).setzeFokus(true);
-              }
-            } else if (i == listeAnzeigePanel.size() - 1) {
-              listeAnzeigePanel.get(0).setzeFokus(true);
-            }
-          }
+      		waehleNaechstesBildAus();
       	}
       	public void mouseExited(java.awt.event.MouseEvent e) {    
           lNaechstesBild.removeAll();
@@ -509,21 +562,7 @@ public class Hauptfenster extends JFrame {
       lLetztesBild.setSize(new Dimension(32, 32));
       lLetztesBild.addMouseListener(new java.awt.event.MouseAdapter() {   
       	public void mouseClicked(java.awt.event.MouseEvent e) {    
-          boolean gewaehltesBildGefunden = false;
-          for (int i = 0; listeAnzeigePanel != null && !gewaehltesBildGefunden
-                          && i < listeAnzeigePanel.size(); i++) {
-            if (listeAnzeigePanel.get(i).istFokussiert()) {
-              gewaehltesBildGefunden = true;
-              listeAnzeigePanel.get(i).setzeFokus(false);
-              if (i == 0) {
-                listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
-              } else {
-                listeAnzeigePanel.get(i - 1).setzeFokus(true);
-              }
-            } else if (i == listeAnzeigePanel.size() - 1) {
-              listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
-            }
-          }
+          waehleLetztesBildAus();
       	}   
       	public void mouseExited(java.awt.event.MouseEvent e) {    
           lLetztesBild.removeAll();
@@ -535,7 +574,6 @@ public class Hauptfenster extends JFrame {
         }
       });
       tbWerkzeugleiste = new JToolBar();
-      tbWerkzeugleiste.add(getBNormalansicht());
       tbWerkzeugleiste.add(getBGroszanzeige());
       tbWerkzeugleiste.add(lLetztesBild);
       tbWerkzeugleiste.add(lNaechstesBild);
@@ -552,12 +590,16 @@ public class Hauptfenster extends JFrame {
    * @return javax.swing.JButton	
    */
   private JButton getBGroszanzeige() {
+    
     if (bGroszanzeige == null) {
       bGroszanzeige = new JButton();
       bGroszanzeige.setText("Bild anzeigen");
       bGroszanzeige.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
-          System.out.println("actionPerformed()"); // TODO Auto-generated Event stub actionPerformed()
+          if (listeAnzeigePanel != null) {
+            groszanzeige.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            groszanzeige.setVisible(true);
+          }
         }
       });
     }
@@ -574,7 +616,7 @@ public class Hauptfenster extends JFrame {
       pThumbnailSteuerung = new JPanel();
       pThumbnailSteuerung.setLayout(new BorderLayout());
       pThumbnailSteuerung.add(getTbWerkzeugleiste(), BorderLayout.NORTH);
-      pThumbnailSteuerung.add(getPThumbnails(), BorderLayout.CENTER);
+      pThumbnailSteuerung.add(getSpThumbnails(), BorderLayout.CENTER);
     }
     return pThumbnailSteuerung;
   }
@@ -612,28 +654,11 @@ public class Hauptfenster extends JFrame {
       bSuchen.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
           erzeugeDatenNachSuche();
-          for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
-            tap.setVisible(true);
-            tap.setSize(sGroesze.getValue(), sGroesze.getValue());
-            pThumbnails.add(tap);
-          }
+          erzeugeThumbnailansicht();
         }
       });
     }
     return bSuchen;
-  }
-
-  /**
-   * This method initializes bNormalansicht	
-   * 	
-   * @return javax.swing.JButton	
-   */
-  private JButton getBNormalansicht() {
-    if (bNormalansicht == null) {
-      bNormalansicht = new JButton();
-      bNormalansicht.setText("Normalansicht");
-    }
-    return bNormalansicht;
   }
 
   /**
@@ -663,10 +688,7 @@ public class Hauptfenster extends JFrame {
       sGroesze.setMinimum(48);
       sGroesze.addMouseListener(new java.awt.event.MouseAdapter() {
         public void mouseReleased(java.awt.event.MouseEvent e) {
-          for (int i = 0; listeAnzeigePanel != null && i < listeAnzeigePanel.size(); i++) {
-            ThumbnailAnzeigePanel tap = listeAnzeigePanel.get(i);
-            tap.setzeGroesze(sGroesze.getValue());
-          }
+          erzeugeThumbnailansicht();
         }
       });
     }
@@ -720,11 +742,11 @@ public class Hauptfenster extends JFrame {
       gridBagConstraints3.ipady = 50;
       gridBagConstraints3.weightx = 1.0;
       gridBagConstraints3.weighty = 1.0;
-      gridBagConstraints3.insets = new Insets(0, 0, STD_INSETS, 0);
+      gridBagConstraints3.insets = new Insets(0, 0, STD_ABSTAND, 0);
       
       // Bedingungen fuer das Label zur Bildbeschreibung
       GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-      gridBagConstraints2.insets = new Insets(0, STD_INSETS, STD_INSETS, 0);
+      gridBagConstraints2.insets = new Insets(0, STD_ABSTAND, STD_ABSTAND, 0);
       gridBagConstraints2.gridy = 2;
       gridBagConstraints2.ipadx = MIN_BREITE_BILDINFO;
       gridBagConstraints2.ipady = 5;
@@ -740,11 +762,11 @@ public class Hauptfenster extends JFrame {
       gridBagConstraints1.ipady = 1;
       gridBagConstraints1.weightx = 1.0;
       gridBagConstraints1.anchor = GridBagConstraints.WEST;
-      gridBagConstraints1.insets = new Insets(0, 0, STD_INSETS, 0);
+      gridBagConstraints1.insets = new Insets(0, 0, STD_ABSTAND, 0);
       
       // Bedingungen fuer Label "Schluesselwoerter"
       GridBagConstraints gridBagConstraints = new GridBagConstraints();
-      gridBagConstraints.insets = new Insets(STD_INSETS, STD_INSETS, STD_INSETS, 0);
+      gridBagConstraints.insets = new Insets(STD_ABSTAND, STD_ABSTAND, STD_ABSTAND, 0);
       gridBagConstraints.gridy = 0;
       gridBagConstraints.ipadx = MIN_BREITE_BILDINFO;
       gridBagConstraints.ipady = 5;
@@ -819,9 +841,23 @@ private JTable getTBilddetails() {
   private JPanel getPThumbnails() {
     if (pThumbnails == null) {
       pThumbnails = new JPanel();
-      pThumbnails.setLayout(new FlowLayout(FlowLayout.LEADING, 20, 20));
+      pThumbnails.setLayout(new FlowLayout(FlowLayout.LEADING, STD_ABSTAND, STD_ABSTAND));
     }
     return pThumbnails;
+  }
+
+  /**
+   * This method initializes jScrollPane	
+   * 	
+   * @return javax.swing.JScrollPane	
+   */
+  private JScrollPane getSpThumbnails() {
+    if (spThumbnails == null) {
+      spThumbnails = new JScrollPane();
+      spThumbnails.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+      spThumbnails.setViewportView(getPThumbnails());
+    }
+    return spThumbnails;
   }
 
 /**
@@ -854,6 +890,16 @@ private JTable getTBilddetails() {
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.setContentPane(getJContentPane());
     this.setTitle("JPictureProspector");
+    this.addComponentListener(new java.awt.event.ComponentAdapter() {
+      public void componentResized(java.awt.event.ComponentEvent e) {
+        erzeugeThumbnailansicht();
+      }
+    });
+    groszanzeige = new BildGroszanzeige(this);
+    groszanzeige.setVisible(false);
+    tapObserver = new ArrayList<Observer>();
+    tapObserver.add(pVorschau);
+    tapObserver.add(groszanzeige.gibVorschaupanel());
   }
 
   /**
