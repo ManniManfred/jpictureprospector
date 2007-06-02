@@ -3,8 +3,12 @@ package ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -35,19 +39,23 @@ public class ThumbnailAnzeigePanel extends JPanel {
   private ThumbnailAnzeige thumbnailAnzeige = null;
   
   /** Enthaelt alle Observer, die Aenderungen an diesem Objekt beobachten. */
-  protected ObservableJPP observable = null;
+  protected ObservableJPP observable = null;  //  @jve:decl-index=0:
   
   /** Enthaelt die Information ob dieses Objekt ausgewaehlt ist. */
-  private boolean istFokussiert;
+  private boolean istAusgewaehlt;
   
   /** Enthaelt das anzuzeigende BildDokument. */
   private BildDokument dok = null;
+  
+  /** Enthaelt den Dateinamen fuer das Bilddokument. */
+  private String dateiname = null;
 
   /**
    * This method initializes 
    * 
    */
-  public ThumbnailAnzeigePanel(BildDokument dok, int groesze, Observer observer) {
+  public ThumbnailAnzeigePanel(BildDokument dok, int groesze,
+      List<Observer> observer) {
   	super();
     initialize(dok, groesze, observer);
   }
@@ -59,8 +67,8 @@ public class ThumbnailAnzeigePanel extends JPanel {
    */
   public void setzeFokus(boolean istFokussiert) {
     
-    this.istFokussiert = istFokussiert;
-    if (this.istFokussiert) {
+    this.istAusgewaehlt = istFokussiert;
+    if (this.istAusgewaehlt) {
       this.setBorder(new LineBorder(Color.BLUE, 2, true));
       this.observable.setChanged();
       this.observable.notifyObservers(dok);
@@ -80,6 +88,7 @@ public class ThumbnailAnzeigePanel extends JPanel {
     this.setSize(groesze, groesze + 20);
     this.thumbnailAnzeige.setPreferredSize(new Dimension(groesze, groesze));
     this.thumbnailAnzeige.setzeGroesze(groesze);
+    this.setzeDateinamen(this.dateiname, groesze);
     this.revalidate();
   }
   
@@ -88,28 +97,65 @@ public class ThumbnailAnzeigePanel extends JPanel {
    * 
    * @param text  der Text des Textfeldes
    */
-  public void setzeDateinamen(String dateiname) {
-    this.lDateiname.setText(dateiname);
+  public void setzeDateinamen(String dateiname, int groesze) {
+    this.dateiname = dateiname;
+    Font font = getFont();
+    FontMetrics metrics = getFontMetrics(font);
+    int dateinameBreite = metrics.stringWidth(dateiname);
+    String dateinameNeu = "";
+    String dateiEndung = "...";
+    if (dateinameBreite > groesze) {
+      int i = 0;
+      while (metrics.stringWidth(dateinameNeu + dateiEndung) < 
+               groesze - 3 * metrics.stringWidth(dateiEndung)) {
+        dateinameNeu += dateiname.substring(i, i + 1);
+        i++;
+      }
+      this.lDateiname.setText(dateinameNeu + dateiEndung);
+    } else {
+      this.lDateiname.setText(dateiname.substring(0, dateiname.length() - 4));
+    }
   }
   
+  /**
+   * Liefert das <code>BildDokument</code> dieses Objekts.
+   * 
+   * @return  das das <code>BildDokument</code> dieses Objekts
+   */
+  public BildDokument gibBildDokument() {
+    return this.dok;
+  }
+  
+  /**
+   * Liefert das angezeigte <code>Image</code> des Objekts.
+   * 
+   * @return  das angezeigte <code>Image</code>des Objekts.
+   */
   public Image gibBild() {
     return this.thumbnailAnzeige.gibBild();
   }
   
-  public boolean istFokussiert() {
-    return this.istFokussiert;
+  /**
+   * Liefert die Information ob das Objekt ausgewaehlt ist oder nicht.
+   * 
+   * @return <code>true</code> wenn das Objekt ausgewaehlt ist.
+   */
+  public boolean istAusgewaehlt() {
+    return this.istAusgewaehlt;
   }
 
   /**
    * This method initializes this
    * 
    */
-  private void initialize(BildDokument dok, int groesze, Observer observer) {
+  private void initialize(BildDokument dok, int groesze, List<Observer> observer) {
     
     ThumbnailMerkmal m = (ThumbnailMerkmal) dok.getMerkmal(THUMBNAILMERKMALSNAME);
     this.thumbnailAnzeige = new ThumbnailAnzeige(m.getThumbnail());
     this.observable = new ObservableJPP();
-    observable.addObserver(observer);
+    for (Observer o : observer) {
+      observable.addObserver(o);
+    }
     this.dok = dok;
     lDateiname = new JLabel();
     lDateiname.setText("");
@@ -120,7 +166,7 @@ public class ThumbnailAnzeigePanel extends JPanel {
     this.setFocusable(true);
     this.addMouseListener(new java.awt.event.MouseAdapter() {
       public void mouseClicked(java.awt.event.MouseEvent e) {
-        if (istFokussiert) {
+        if (istAusgewaehlt) {
           setzeFokus(false);
         } else {
           setzeFokus(true);

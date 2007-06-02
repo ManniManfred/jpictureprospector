@@ -19,17 +19,24 @@ import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.stream.ImageInputStream;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
 import core.BildDokument;
 
 public class Vorschaupanel extends JPanel implements Observer {
   
-  private static final String DATEIPFADMERKMALNAME = "Dateipfad";  //  @jve:decl-index=0:
+  /**
+   * Entspricht dem Merkmalsnamen aus der Klasse <code>DateipfadMerkmal</code>.
+   * Sollte eine Aenderung erfolgen muss auch in der Klasse die Aenderung
+   * erfolgen.
+   */
+  public static final String DATEIPFADMERKMALNAME = "Dateipfad";  //  @jve:decl-index=0:
 
   private static final long serialVersionUID = 1L;
   
-  private Image bild = null;
+  /** Enthaelt das Bild, was anzeigt werden soll. */
+  private Image bild = null;  //  @jve:decl-index=0:
   
   /**
    * This is the default constructor
@@ -39,44 +46,30 @@ public class Vorschaupanel extends JPanel implements Observer {
     initialize();
   }
   
+  /**
+   * Laedt das Vorschaubild anhand des entsprechenden <code>Observable</code>
+   * neu.
+   * 
+   * @param o  das <code>Observable</code> dass sich geaendert hat
+   * @param arg  das entsprechende <code>Object</code> was sich im 
+   *        <code>Observable</code> geaendert hat
+   */
   public void update(Observable o, Object arg) {
+    
     if (arg instanceof BildDokument) {
+      
       BildDokument dok = (BildDokument) arg;
-      String dateipfad = (String) dok.getMerkmal(DATEIPFADMERKMALNAME).getWert();
+      BildladeThread thread = new BildladeThread(dok);
+      thread.start();
       try {
-        bild = readImage(new File(dateipfad));
-        repaint();
-      } catch (IOException e) {
-        
+        thread.join();
+      } catch (InterruptedException e) {
+        System.out.println("Der Bildladevorgang wurde unerwartet beendet.\n" +
+            e.getMessage());
       }
+      bild = thread.getBild();
+      repaint();
     }
-  }
-  
-  public static BufferedImage readImage(Object source)
-    throws IOException {
-  
-    ImageInputStream stream = 
-        ImageIO.createImageInputStream(source);
-    ImageReader reader = 
-        (ImageReader) ImageIO.getImageReaders(stream).next();
-    reader.setInput(stream);
-    ImageReadParam param = reader.getDefaultReadParam();
-  
-    ImageTypeSpecifier typeToUse = null;
-    for (Iterator i = reader.getImageTypes(0); i.hasNext(); ) {
-        ImageTypeSpecifier type = (ImageTypeSpecifier) i.next();
-        if( type.getColorModel().getColorSpace().isCS_sRGB() ) {
-            typeToUse = type;
-        }
-    }
-  
-    if (typeToUse!=null) param.setDestinationType(typeToUse);
-  
-    BufferedImage b = reader.read(0, param);
-  
-    reader.dispose();
-    stream.close();
-    return b;
   }
 
   /**
@@ -110,17 +103,67 @@ public class Vorschaupanel extends JPanel implements Observer {
       g.fillRect(0, 0, getWidth(), getHeight());
     
       // Anpassung der Größe an dieses Objekt
-    
       if (Math.abs(dieseBreite / breiteBild) < Math.abs(dieseHoehe / hoeheBild)) {
         
-        g.drawImage(bild, 0, 20, (int) dieseBreite,
+        // Breite voll ausgefuellt, Hoehe muss neu berechnet werden
+        g.drawImage(bild,
+            0,
+            (int) (dieseHoehe - hoeheBild * (dieseBreite / breiteBild)) / 2,
+            (int) dieseBreite,
             (int) (hoeheBild * (dieseBreite / breiteBild)), this);
       } else {
         
-        g.drawImage(bild, 0, 20,
+        // Hoehe voll ausgefuellt, Breite muss neu berechnet werden
+        g.drawImage(bild, 
+            (int) (dieseBreite - breiteBild * (dieseHoehe / hoeheBild)) / 2,
+            0,
             (int) (breiteBild * (dieseHoehe / hoeheBild)),
             (int) dieseHoehe, this);
       }
     }
+  }
+}
+
+/**
+ * Ein Objekt der Klasse stellt einen Thread dar, der ein Bild
+ * aus einem Bilddokument laedt.
+ */
+class BildladeThread extends Thread {
+
+  /** Enthaelt das Bilddokument aus dem das Bild geladen werden soll. */
+  private BildDokument dok = null;
+  
+  /** Enthaelt das fertig geladene Bild. */
+  private Image bild = null;
+  
+  public BildladeThread(BildDokument dok) {
+    
+    this.dok = dok;
+  }
+  
+  /**
+   * Startet diesen Thread.
+   */
+  @Override
+  public void run() {
+    
+    String dateipfad = (String) dok.getMerkmal(Vorschaupanel.DATEIPFADMERKMALNAME).getWert();
+    try {
+      
+      bild = ImageIO.read(new File(dateipfad));
+    } catch (IOException e) {
+      System.out.println("Das Bild konnte nicht geladen werden.\n" +
+          e.getMessage());
+    }
+  }
+  
+  /**
+   * Liefert das Bild dieses Objekts.
+   * 
+   * @return <code>Image</code> wenn das Bild geladen wurde ansonsten
+   *         <code>null</code>
+   */
+  public Image getBild() {
+    return this.bild;
   }
 }
