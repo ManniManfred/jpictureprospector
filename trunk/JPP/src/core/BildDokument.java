@@ -1,13 +1,20 @@
 
 package core;
 
-import java.io.BufferedReader;
+import com.drew.imaging.jpeg.JpegMetadataReader;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.Tag;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import merkmale.AlleMerkmale;
+import merkmale.ExifMerkmal;
 import merkmale.Merkmal;
 
 import org.apache.lucene.document.Document;
@@ -25,8 +32,7 @@ public class BildDokument {
    * Zuordnung des Merkmalsnamen zu einem Merkmal dieses BildDokumentes,
    * wie z.B die Bildhoehe oder Bildbreite. 
    */
-  private Map<String, Merkmal> merkmale;
-  
+  private Map<String, Merkmal> merkmale; 
   
   /** 
    * Erzeugt ein neues BildDokument
@@ -200,6 +206,47 @@ public class BildDokument {
    */
   private void addMerkmal(Merkmal merkmal) {
     merkmale.put(merkmal.getName(), merkmal);
+  }
+  
+  /**
+   * Liefert eine Liste aller Merkmale, die zu diesem Bild vorhanden sind,
+   * einschließlich der Exif-Merkmale bei JPGs.
+   *
+   * @return  Liste aller Merkmale
+   */
+  public List<AlleMerkmale> gibAlleMerkmale() {
+    
+    /* vorhandene Merkmale als String uebernehmen. */
+    ArrayList<AlleMerkmale> alleMerkmale = (ArrayList) merkmale.values();
+    
+    String pfad =  this.getMerkmal("DateipfadMerkmal").getWert().toString();   
+    File jpegFile = new File(pfad);
+    
+    /* für JPG die Exif-Daten hinzufuegen. */
+    try{
+      
+      Metadata metadata = JpegMetadataReader.readMetadata(jpegFile);      
+      /* Iteration durch die Directories */
+      Iterator directories = metadata.getDirectoryIterator();
+      
+      while (directories.hasNext()) {
+	Directory directory = (Directory)directories.next();
+	/* Iteration durch die Tags */
+	Iterator tags = directory.getTagIterator();
+	
+	while (tags.hasNext()) {
+	  Tag tag = (Tag)tags.next();
+	  /* Werte setzen */
+	  AlleMerkmale neuesMerkmal = 
+	      new ExifMerkmal(tag.getTagName(), tag.getDescription());
+	  alleMerkmale.add(neuesMerkmal);
+	}
+      }
+    } catch (Exception e) {
+      /* Bild ist kein JPG, es werden keine Merkmale zugefuegt. */
+    }
+    
+    return alleMerkmale;
   }
   
   
