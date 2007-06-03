@@ -26,11 +26,6 @@ import merkmale.ThumbnailMerkmal;
 import core.BildDokument;
 
 public class ThumbnailAnzeigePanel extends JPanel {
-  
-  /** Entspricht der Konstante <code>FELDNAME</code> in der Klasse
-   * <code>ThumbnailMerkmal</code>.
-   */
-  private static final String THUMBNAILMERKMALSNAME = "Thumbnail";
 
   /** Enthaelt das Label fuer den Dateinamen des Bildes. */
   private JLabel lDateiname = null;
@@ -150,8 +145,9 @@ public class ThumbnailAnzeigePanel extends JPanel {
    */
   private void initialize(BildDokument dok, int groesze, List<Observer> observer) {
     
-    ThumbnailMerkmal m = (ThumbnailMerkmal) dok.getMerkmal(THUMBNAILMERKMALSNAME);
-    this.thumbnailAnzeige = new ThumbnailAnzeige(m.getThumbnail());
+    ThumbnailMerkmal m = 
+      (ThumbnailMerkmal) dok.getMerkmal(ThumbnailMerkmal.FELDNAME);
+    this.thumbnailAnzeige = new ThumbnailAnzeige(m.getThumbnail(), dok);
     this.observable = new ObservableJPP();
     for (Observer o : observer) {
       observable.addObserver(o);
@@ -173,11 +169,6 @@ public class ThumbnailAnzeigePanel extends JPanel {
           requestFocusInWindow();
         }
       }
-    });
-    this.addFocusListener(new java.awt.event.FocusAdapter() {   
-    	public void focusLost(java.awt.event.FocusEvent e) {    
-    		setzeFokus(false);
-    	}
     });
     this.add(this.thumbnailAnzeige, BorderLayout.CENTER);
     this.add(lDateiname, BorderLayout.SOUTH);

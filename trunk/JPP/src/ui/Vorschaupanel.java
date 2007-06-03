@@ -22,21 +22,20 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
+import merkmale.BildbreiteMerkmal;
+import merkmale.BildhoeheMerkmal;
+import merkmale.DateipfadMerkmal;
+
 import core.BildDokument;
 
 public class Vorschaupanel extends JPanel implements Observer {
-  
-  /**
-   * Entspricht dem Merkmalsnamen aus der Klasse <code>DateipfadMerkmal</code>.
-   * Sollte eine Aenderung erfolgen muss auch in der Klasse die Aenderung
-   * erfolgen.
-   */
-  public static final String DATEIPFADMERKMALNAME = "Dateipfad";  //  @jve:decl-index=0:
 
   private static final long serialVersionUID = 1L;
   
   /** Enthaelt das Bild, was anzeigt werden soll. */
   private Image bild = null;  //  @jve:decl-index=0:
+  
+  private BildDokument dok = null;
   
   /**
    * This is the default constructor
@@ -44,6 +43,15 @@ public class Vorschaupanel extends JPanel implements Observer {
   public Vorschaupanel() {
     super();
     initialize();
+  }
+  
+  /**
+   * Laedt die Ansicht dieses Objekts neu.
+   */
+  public void resetAnsicht() {
+    this.bild = null;
+    this.dok = null;
+    repaint();
   }
   
   /**
@@ -58,7 +66,7 @@ public class Vorschaupanel extends JPanel implements Observer {
     
     if (arg instanceof BildDokument) {
       
-      BildDokument dok = (BildDokument) arg;
+      dok = (BildDokument) arg;
       BildladeThread thread = new BildladeThread(dok);
       thread.start();
       try {
@@ -95,6 +103,10 @@ public class Vorschaupanel extends JPanel implements Observer {
   public void paintComponent(Graphics g) {
     
     if (bild != null) {
+      double originalBreite = 
+        Double.parseDouble((String) dok.getMerkmal(BildbreiteMerkmal.FELDNAME).getWert());
+      double originalHoehe = 
+        Double.parseDouble((String) dok.getMerkmal(BildhoeheMerkmal.FELDNAME).getWert());
       double hoeheBild = bild.getHeight(this);
       double breiteBild = bild.getWidth(this);
       double dieseBreite = getWidth();
@@ -102,8 +114,14 @@ public class Vorschaupanel extends JPanel implements Observer {
       g.setColor(new Color(238, 238, 238));
       g.fillRect(0, 0, getWidth(), getHeight());
     
-      // Anpassung der Größe an dieses Objekt
-      if (Math.abs(dieseBreite / breiteBild) < Math.abs(dieseHoehe / hoeheBild)) {
+      if (originalBreite <= dieseBreite && originalHoehe <= dieseHoehe) {
+        
+        g.drawImage(bild, 
+            (int) (dieseBreite - originalBreite) / 2,
+            (int) (dieseHoehe - originalHoehe) / 2,
+            (int) originalBreite, (int) originalHoehe, this);
+      } else if (Math.abs(dieseBreite / breiteBild) < Math.abs(dieseHoehe / hoeheBild)) {
+        // Anpassung der Größe an dieses Objekt
         
         // Breite voll ausgefuellt, Hoehe muss neu berechnet werden
         g.drawImage(bild,
@@ -120,6 +138,9 @@ public class Vorschaupanel extends JPanel implements Observer {
             (int) (breiteBild * (dieseHoehe / hoeheBild)),
             (int) dieseHoehe, this);
       }
+    } else {
+      g.setColor(new Color(238, 238, 238));
+      g.fillRect(0, 0, getWidth(), getHeight());
     }
   }
 }
@@ -147,7 +168,7 @@ class BildladeThread extends Thread {
   @Override
   public void run() {
     
-    String dateipfad = (String) dok.getMerkmal(Vorschaupanel.DATEIPFADMERKMALNAME).getWert();
+    String dateipfad = (String) dok.getMerkmal(DateipfadMerkmal.FELDNAME).getWert();
     try {
       
       bild = ImageIO.read(new File(dateipfad));

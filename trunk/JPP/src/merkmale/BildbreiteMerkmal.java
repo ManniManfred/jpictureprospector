@@ -13,8 +13,8 @@ import org.apache.lucene.document.Field;
  */
 public class BildbreiteMerkmal extends Merkmal {
     
-  /** Name des Lucene-Feldes für dieses Merkmal. */
-  private static final String FELDNAME = "Bildbreite";
+  /** Name des Lucene-Feldes fuer dieses Merkmal. */
+  public static final String FELDNAME = "Bildbreite";
   
   /** 
    * Erzeugt ein neues BildbreiteMerkmal.

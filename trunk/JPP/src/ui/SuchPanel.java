@@ -19,24 +19,6 @@ import java.awt.FlowLayout;
  * von Bildern eingegeben werden koennen.
  */
 public class SuchPanel extends JPanel {
-
-  /** Beschreibt die Standardbreite dieses Feldes. */
-  private static final int STD_BREITE = 400;
-  
-  /** Beschreibt die Standardbreite dieses Feldes. */
-  private static final int STD_HOEHE = 500;
-  
-  /** Enthält den standardabstand den ein Objekt am linken Rand haben muss. */
-  private static final int STD_ABS_LINKS = 10;
-  
-  /** Enthält den standardabstand den ein Objekt am rechten Rand haben muss. */
-  private static final int STD_ABS_RECHTS = 10;
-  
-  /** Enthält den standardabstand den ein Objekt am oberen Rand haben muss. */
-  private static final int STD_ABS_OBEN = 10;
-  
-  /** Enthält den standardabstand den ein Objekt am unteren Rand haben muss. */
-  private static final int STD_ABS_UNTEN = 10;
   
   private static final long serialVersionUID = 1L;
   

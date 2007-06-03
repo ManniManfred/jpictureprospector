@@ -7,14 +7,14 @@ import org.apache.lucene.document.Field;
 
 
 /**
- * Ein Objekt dieser Klasse stellt das Merkmal Schlüsselwörter eines 
+ * Ein Objekt dieser Klasse stellt das Merkmal Schlï¿½sselwï¿½rter eines 
  * Bilddokumentes dar.
  * @author Marion Mecking
  */
 public class SchluesselWoerterMerkmal extends Merkmal {
     
-  /** Name des Lucene-Feldes für dieses Merkmal. */
-  private static final String FELDNAME = "Schl\u00fcsselw\u00f6rter";
+  /** Name des Lucene-Feldes fï¿½r dieses Merkmal. */
+  public static final String FELDNAME = "Schl\u00fcsselw\u00f6rter";
   
   /** 
    * Erzeugt ein neues BeschreibungMerkmal.
@@ -24,7 +24,7 @@ public class SchluesselWoerterMerkmal extends Merkmal {
   }  
   
   /**
-   * Liest die Schlüsselwörter dieses Merkmals aus dem uebergebenen geoeffneten
+   * Liest die Schlï¿½sselwï¿½rter dieses Merkmals aus dem uebergebenen geoeffneten
    * Bild und speichert diesen in diesem Merkmal-Objekt.
    * @param bild  Bild, aus dem der Merkmalswert gelesen wird
    */

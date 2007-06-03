@@ -11,6 +11,11 @@ import java.util.Observer;
 
 import javax.swing.JPanel;
 
+import merkmale.BildbreiteMerkmal;
+import merkmale.BildhoeheMerkmal;
+
+import core.BildDokument;
+
 /**
  * Ein Objekt der Klasse stellt ein Thumbnail eines Bildes dar.
  * 
@@ -23,6 +28,9 @@ public class ThumbnailAnzeige extends JPanel {
   /** Enthaelt das Thumbnail. */
   private Image thumbnail = null;
   
+  /** Enthaelt das anzuzeigende Bilddokument. */
+  private BildDokument dok = null;
+  
   /** Enthaelt die Groesze in der das Thumbnail angezeigt werden soll. */
   private int groesze;
   
@@ -31,9 +39,9 @@ public class ThumbnailAnzeige extends JPanel {
    * 
    * @param thumbnail  enthaelt das anzuzeigende Thumbnail
    */
-  public ThumbnailAnzeige(Image thumbnail) {
+  public ThumbnailAnzeige(Image thumbnail, BildDokument dok) {
     
-    init(thumbnail, STD_GROESZE);
+    init(dok, thumbnail, STD_GROESZE);
   }
   
   /**
@@ -48,8 +56,9 @@ public class ThumbnailAnzeige extends JPanel {
     this.repaint();
   }
   
-  public void init(Image thumbnail, int groesze) {
+  public void init(BildDokument dok, Image thumbnail, int groesze) {
     
+    this.dok = dok;
     this.thumbnail = thumbnail;
     this.groesze = groesze;
     this.setLayout(null);
@@ -63,6 +72,10 @@ public class ThumbnailAnzeige extends JPanel {
   
   protected void paintComponent(Graphics g) {
     
+    double originalBreite = 
+      Double.parseDouble((String) dok.getMerkmal(BildbreiteMerkmal.FELDNAME).getWert());
+    double originalHoehe = 
+      Double.parseDouble((String) dok.getMerkmal(BildhoeheMerkmal.FELDNAME).getWert());
     double hoeheBild = this.thumbnail.getHeight(this);
     double breiteBild = this.thumbnail.getWidth(this);
     double dieseBreite = groesze;
@@ -70,11 +83,17 @@ public class ThumbnailAnzeige extends JPanel {
     g.setColor(new Color(238, 238, 238));
     g.fillRect(0, 0, getWidth(), getHeight());
     
-    // Anpassung der Größe an dieses Objekt
-    if (Math.abs(dieseBreite / breiteBild) < Math.abs(dieseHoehe / hoeheBild)) {
+    if (originalBreite <= dieseBreite && originalHoehe <= dieseHoehe) {
+      
+      g.drawImage(thumbnail, 
+          (int) (dieseBreite - originalBreite) / 2,
+          (int) (dieseHoehe - originalHoehe) / 2,
+          (int) originalBreite, (int) originalHoehe, this);
+    } else if (Math.abs(dieseBreite / breiteBild) < Math.abs(dieseHoehe / hoeheBild)) {
+      // Anpassung der Größe an dieses Objekt
       
       // Breite voll ausgefuellt, Hoehe muss neu berechnet werden
-      g.drawImage(this.thumbnail,
+      g.drawImage(thumbnail,
           0,
           (int) (dieseHoehe - hoeheBild * (dieseBreite / breiteBild)) / 2,
           (int) dieseBreite,
@@ -82,7 +101,7 @@ public class ThumbnailAnzeige extends JPanel {
     } else {
       
       // Hoehe voll ausgefuellt, Breite muss neu berechnet werden
-      g.drawImage(this.thumbnail, 
+      g.drawImage(thumbnail, 
           (int) (dieseBreite - breiteBild * (dieseHoehe / hoeheBild)) / 2,
           0,
           (int) (breiteBild * (dieseHoehe / hoeheBild)),

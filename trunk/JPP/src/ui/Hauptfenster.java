@@ -6,15 +6,14 @@ import java.awt.Event;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
-import java.awt.event.AdjustmentListener;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Observer;
 
@@ -44,14 +43,12 @@ import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
 import core.BildDokument;
+import core.EntferneException;
 import core.ErzeugeException;
 import core.ImportException;
 import core.JPPCore;
 import core.SucheException;
 import core.Trefferliste;
-import javax.swing.JScrollBar;
-
-import sun.util.calendar.CalendarUtils;
 
 /**
  * Ein Objekt der Klasse stellt das Hauptanzeigefenster der Software zur
@@ -84,7 +81,7 @@ public class Hauptfenster extends JFrame {
   private JPPCore kern;
   
   /** Enthaelt alle Observer fuer ThumbnailAnzeigePanel. */
-  private List<Observer> tapObserver = null;
+  private List<Observer> tapObserver = null;  //  @jve:decl-index=0:
   
   /** Enthaelt die Groszanzeige fuer ein Bild. */
   private BildGroszanzeige groszanzeige = null;
@@ -95,10 +92,13 @@ public class Hauptfenster extends JFrame {
   private List<ThumbnailAnzeigePanel> listeAnzeigePanel = null;  //  @jve:decl-index=0:
 
   /** Enthaelt die Trefferliste nach einer ausgeführten Suche. */
-  private Trefferliste trefferliste = null;  //  @jve:decl-index=0:
+  private Trefferliste trefferliste = null;
+  
+  private LadebalkenDialog ladebalkendialog;
   
   /** Enthaelt die Inhaltsflaeche dieses Objekts. */
   private JPanel pInhaltsflaeche = null;
+  
 
   /** Enthaelt das Hauptmenue dieses Objektes. */
   private JMenuBar hauptmenu = null;
@@ -201,17 +201,17 @@ public class Hauptfenster extends JFrame {
         System.out.println("Datei importiert: " + files[i].getAbsolutePath());
         System.out.println("Benoetigte Zeit:  " + (Calendar.getInstance().getTimeInMillis() - zeit) + "ms");
         ThumbnailAnzeigePanel tap = new ThumbnailAnzeigePanel(dok,
-            this.sGroesze.getValue(), tapObserver);
+            sGroesze.getValue(), tapObserver);
         tap.setzeDateinamen(files[i].getName(), sGroesze.getValue());
-        this.listeAnzeigePanel.add(tap);
+        listeAnzeigePanel.add(tap);
       } catch (ImportException ie) {
-        zeigeFehlermeldung("Importfehler",
-            "Die Datei(-en) konnten nicht importiert werden.\n" + 
-            ie.getMessage());
+        JOptionPane.showMessageDialog(null, "Die Datei(-en) konnten nicht" +
+            " importiert werden.\n" + ie.getMessage(),
+            "Importfehler", JOptionPane.ERROR_MESSAGE);
       }
     }
   }
-  
+
   /**
    * Erzeugt alle notwendigen Daten, die zur Anzeige notwendig sind, wenn
    * der Benutzer nach einem Begriff gesucht hat.
@@ -256,18 +256,27 @@ public class Hauptfenster extends JFrame {
   private void erzeugeThumbnailansicht() {
     
     if (listeAnzeigePanel != null) {
-      
+
+      /* Neuzeichnen der Vorschau da ansonsten evtl nicht vorhandene Bilder
+      noch angezeigt werden */
+      pVorschau.resetAnsicht();
       pThumbnails.removeAll();
-      int thumbnailPanelBreite = spAnzeige.getWidth() - spAnzeige.getDividerLocation();
-      int anzahlThumbnailsProZeile = thumbnailPanelBreite / (sGroesze.getValue() + STD_ABSTAND);
-      int anzahlBenoetigteZeilen = listeAnzeigePanel.size() / anzahlThumbnailsProZeile == 0 
-          ? 1 : listeAnzeigePanel.size() / anzahlThumbnailsProZeile + 1;
-      int benoetigteBreite = anzahlThumbnailsProZeile * (sGroesze.getValue() + STD_ABSTAND);
-      int benoetigteHoehe = anzahlBenoetigteZeilen * (sGroesze.getValue() + STD_ABSTAND) + 100;
+      
+      double thumbnailPanelBreite = spAnzeige.getWidth() -
+          spAnzeige.getDividerLocation();
+      double anzahlThumbnailsProZeile = Math.floor((thumbnailPanelBreite -
+          spThumbnails.getVerticalScrollBar().getWidth()) /
+          (sGroesze.getValue() + STD_ABSTAND));
+      double anzahlBenoetigteZeilen = listeAnzeigePanel.size() / (int) anzahlThumbnailsProZeile == 0 
+          ? 1 : Math.ceil(listeAnzeigePanel.size() / anzahlThumbnailsProZeile);
+      double benoetigteBreite = anzahlThumbnailsProZeile * (sGroesze.getValue() + STD_ABSTAND);
+      double benoetigteHoehe = anzahlBenoetigteZeilen * (sGroesze.getValue() + STD_ABSTAND) + 50;
       
       /* MUSS GESETZT WERDEN!!! Ansonsten wird nur eine Zeile mit den
       Thumbnails angezeigt */
-      pThumbnails.setPreferredSize(new Dimension(benoetigteBreite, benoetigteHoehe));
+      pThumbnails.setPreferredSize(
+          new Dimension((int) Math.ceil(benoetigteBreite),
+              (int) Math.ceil(benoetigteHoehe)));
     
       for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
         
@@ -283,6 +292,11 @@ public class Hauptfenster extends JFrame {
     }
   }
   
+  /**
+   * Waehlt aus der Liste der angezeigten Thumbnails das
+   * letzte Bild ausgehend vom aktuell ausgewaehlten Bild aus. Wenn
+   * kein Bild ausgewaehlt ist wird das letzte Bild der Liste ausgewaehlt.
+   */
   public void waehleLetztesBildAus() {
     
     boolean gewaehltesBildGefunden = false;
@@ -302,6 +316,12 @@ public class Hauptfenster extends JFrame {
     }
   }
   
+  /**
+   * Waehlt aus der Liste der angezeigten Thumbnails das naechste Bild
+   * ausgehen vom aktuell ausgewaehlten Bild aus. Wenn kein Bild
+   * ausgewaehlt ist wird das erste Bild der Liste ausgewaehlt.
+   *
+   */
   public void waehleNaechstesBildAus() {
     
     boolean gewaehltesBildGefunden = false;
@@ -319,6 +339,33 @@ public class Hauptfenster extends JFrame {
         listeAnzeigePanel.get(0).setzeFokus(true);
       }
     }
+  }
+  
+  public void loescheBilder() {
+    
+    int ergebnis = JOptionPane.showConfirmDialog(this, "Wollen Sie die " +
+        "Bilder auch von der Festplatte loeschen?", "Löschen",
+        JOptionPane.YES_NO_CANCEL_OPTION);
+    boolean auchVonFestplatte = (ergebnis == JOptionPane.YES_OPTION) ? true : false; 
+    if (listeAnzeigePanel != null && ergebnis != JOptionPane.CANCEL_OPTION) {
+      List<ThumbnailAnzeigePanel> zuLoeschendeBilder = new ArrayList<ThumbnailAnzeigePanel>();
+      for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
+        if (tap.istAusgewaehlt()) {
+          try {
+            zuLoeschendeBilder.add(tap);
+            kern.entferne(tap.gibBildDokument(), auchVonFestplatte);
+          } catch (EntferneException e) {
+            zeigeFehlermeldung("Fehler beim Löschen", "Die Datei konnte " +
+                "nicht von der Festplatte geloescht werden.\n" + 
+                e.getMessage());
+          }
+        }
+      }
+      for (ThumbnailAnzeigePanel tap : zuLoeschendeBilder) {
+        listeAnzeigePanel.remove(tap);
+      }
+    }
+    erzeugeThumbnailansicht();
   }
   
   /**
@@ -530,6 +577,9 @@ public class Hauptfenster extends JFrame {
       lLoeschen.setIcon(new ImageIcon(getClass().getResource("uiimgs/loeschen.png")));
       lLoeschen.setSize(new Dimension(32, 32));
       lLoeschen.addMouseListener(new java.awt.event.MouseAdapter() {   
+      	public void mouseClicked(java.awt.event.MouseEvent e) {    
+      		loescheBilder();
+      	}   
       	public void mouseExited(java.awt.event.MouseEvent e) {    
           lLoeschen.removeAll();
           lLoeschen.setIcon(new ImageIcon(getClass().getResource("uiimgs/loeschen.png")));
@@ -597,8 +647,18 @@ public class Hauptfenster extends JFrame {
       bGroszanzeige.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
           if (listeAnzeigePanel != null) {
-            groszanzeige.setExtendedState(JFrame.MAXIMIZED_BOTH);
-            groszanzeige.setVisible(true);
+            boolean wurdeEinBildAusgewaehlt = false;
+            int i = 0;
+            while (!wurdeEinBildAusgewaehlt && i < listeAnzeigePanel.size()) {
+              if (listeAnzeigePanel.get(i).istAusgewaehlt()) {
+                wurdeEinBildAusgewaehlt = true;
+              }
+              i++;
+            }
+            if (wurdeEinBildAusgewaehlt) {
+              groszanzeige.setExtendedState(JFrame.MAXIMIZED_BOTH);
+              groszanzeige.setVisible(true);
+            }
           }
         }
       });
@@ -860,11 +920,10 @@ private JTable getTBilddetails() {
     return spThumbnails;
   }
 
-/**
+  /**
    * @param args
    */
   public static void main(String[] args) {
-    // TODO Auto-generated method stub
 
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
