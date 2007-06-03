@@ -14,8 +14,8 @@ import org.apache.lucene.document.Field;
  * @author Marion Mecking
  */
 public class LetzterZugriffMerkmal extends Merkmal { 
-  /** Name des Lucene-Feldes für dieses Merkmal. */
-  private static final String FELDNAME = "Letzter Zugriff";
+  /** Name des Lucene-Feldes fï¿½r dieses Merkmal. */
+  public static final String FELDNAME = "Letzter Zugriff";
 
   /** 
    * Erzeugt ein neues LetzterZugriffMerkmal.
@@ -31,7 +31,7 @@ public class LetzterZugriffMerkmal extends Merkmal {
    */
   public void leseMerkmalAus(GeoeffnetesBild bild) {
     
-    /* LastModified() gibt long-Wert zurück, umwandlung in Datum. */
+    /* LastModified() gibt long-Wert zurï¿½ck, umwandlung in Datum. */
     GregorianCalendar datum = new GregorianCalendar();
     datum.setTimeInMillis((bild.getDatei().lastModified()));
 

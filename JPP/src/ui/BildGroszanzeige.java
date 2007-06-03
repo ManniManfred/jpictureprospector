@@ -11,6 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
+import java.awt.Color;
 
 public class BildGroszanzeige extends JFrame {
 
@@ -90,7 +91,10 @@ public class BildGroszanzeige extends JFrame {
       lLoeschen = new JLabel();
       lLoeschen.setIcon(new ImageIcon(getClass().getResource("uiimgs/loeschen.png")));
       lLoeschen.setText("");
-      lLoeschen.addMouseListener(new java.awt.event.MouseAdapter() {
+      lLoeschen.addMouseListener(new java.awt.event.MouseAdapter() {   
+      	public void mouseClicked(java.awt.event.MouseEvent e) {    
+      		hauptfenster.loescheBilder();
+      	}
         public void mouseExited(java.awt.event.MouseEvent e) {    
           lLoeschen.removeAll();
           lLoeschen.setIcon(new ImageIcon(getClass().getResource("uiimgs/loeschen.png")));
@@ -169,6 +173,7 @@ public class BildGroszanzeige extends JFrame {
   private JTabbedPane getTpGroszanzeige() {
     if (tpGroszanzeige == null) {
       tpGroszanzeige = new JTabbedPane();
+      tpGroszanzeige.setBackground(new Color(238, 238, 238));
       tpGroszanzeige.addTab("Groszanzeige", null, getPGroszanzeige(), null);
       tpGroszanzeige.addTab("Bilddetails", null, getPBilddetails(), null);
     }

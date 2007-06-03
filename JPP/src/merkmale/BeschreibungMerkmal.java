@@ -13,8 +13,8 @@ import org.apache.lucene.document.Field;
  */
 public class BeschreibungMerkmal extends Merkmal {
     
-  /** Name des Lucene-Feldes für dieses Merkmal. */
-  private static final String FELDNAME = "Beschreibung";
+  /** Name des Lucene-Feldes fï¿½r dieses Merkmal. */
+  public static final String FELDNAME = "Beschreibung";
   
   /** 
    * Erzeugt ein neues BeschreibungMerkmal.

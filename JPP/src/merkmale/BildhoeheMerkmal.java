@@ -14,8 +14,8 @@ import org.apache.lucene.document.Field;
  */
 public class BildhoeheMerkmal extends Merkmal {   
     
-  /** Name des Lucene-Feldes für dieses Merkmal. */
-  private static final String FELDNAME = "Bildh\u00f6he";
+  /** Name des Lucene-Feldes fuer dieses Merkmal. */
+  public static final String FELDNAME = "Bildh\u00f6he";
   
   /** 
    * Erzeugt ein neues BildhoeheMerkmal.

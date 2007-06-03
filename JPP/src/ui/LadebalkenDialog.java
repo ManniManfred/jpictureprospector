@@ -5,6 +5,7 @@ import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.text.NumberFormat;
 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -22,7 +23,7 @@ import javax.swing.SwingConstants;
  * @author Nils Verheyen
  *
  */
-public class LadebalkenDialog extends JDialog {
+public class LadebalkenDialog extends JDialog implements Runnable {
   
   /** Enthaelt die Anzahl welchen Abstand eine Komponente zu einer 
    * Anderen haben soll.
@@ -30,6 +31,8 @@ public class LadebalkenDialog extends JDialog {
   private static final int STD_INSETS = 10;
 
   private static final long serialVersionUID = 1L;
+  
+  private double gesamtanzahl = 0.0;
 
   private JPanel jContentPane = null;
 
@@ -52,10 +55,21 @@ public class LadebalkenDialog extends JDialog {
     super(owner);
     initialize();
     this.lGesamtanzahl.setText(gesamtanzahl + "");
+    this.gesamtanzahl = gesamtanzahl;
+    new Thread(this).start();
   }
   
-  public void setAnzahl(int anzahl) {
+  public void setzeAnzahl(int anzahl) {
+    double prozent = (anzahl / gesamtanzahl) * 100;
+    NumberFormat nf = NumberFormat.getInstance();
+    nf.setMaximumFractionDigits(0);
+    pbLadebalken.setString(nf.format(prozent) + "%");
+    pbLadebalken.setValue((int) prozent);
     this.lAnzahl.setText(anzahl + "");
+  }
+
+  public void run() {
+    this.repaint();
   }
 
   /**
@@ -65,6 +79,7 @@ public class LadebalkenDialog extends JDialog {
    */
   private void initialize() {
     this.setSize(300, 200);
+    this.setResizable(false);
     this.setTitle("Importiere");
     this.setContentPane(getJContentPane());
   }
@@ -116,6 +131,7 @@ public class LadebalkenDialog extends JDialog {
   private JProgressBar getPbLadebalken() {
     if (pbLadebalken == null) {
       pbLadebalken = new JProgressBar();
+      pbLadebalken.setStringPainted(true);
     }
     return pbLadebalken;
   }
