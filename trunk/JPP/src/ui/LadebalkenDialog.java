@@ -104,7 +104,7 @@ public class LadebalkenDialog extends JDialog implements Runnable {
       gridBagConstraints5.insets = new Insets(STD_INSETS, 0, STD_INSETS, 0);
       gridBagConstraints5.gridy = 0;
       lUeberschrift = new JLabel();
-      lUeberschrift.setText("geladene Bilder:");
+      lUeberschrift.setText("lade Bild Nummer:");
       GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
       gridBagConstraints4.gridx = 0;
       gridBagConstraints4.insets = new Insets(STD_INSETS, 0, STD_INSETS, 0);
