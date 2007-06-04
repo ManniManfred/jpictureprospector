@@ -20,6 +20,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 
+import merkmale.DateipfadMerkmal;
 import merkmale.Merkmal;
 import merkmale.ThumbnailMerkmal;
 
@@ -93,6 +94,7 @@ public class ThumbnailAnzeigePanel extends JPanel {
    * @param text  der Text des Textfeldes
    */
   public void setzeDateinamen(String dateiname, int groesze) {
+    
     this.dateiname = dateiname;
     Font font = getFont();
     FontMetrics metrics = getFontMetrics(font);
@@ -144,7 +146,9 @@ public class ThumbnailAnzeigePanel extends JPanel {
    * 
    */
   private void initialize(BildDokument dok, int groesze, List<Observer> observer) {
-    
+
+    this.dok = dok;
+    dateiname = (String) dok.getMerkmal(DateipfadMerkmal.FELDNAME).getWert();
     ThumbnailMerkmal m = 
       (ThumbnailMerkmal) dok.getMerkmal(ThumbnailMerkmal.FELDNAME);
     this.thumbnailAnzeige = new ThumbnailAnzeige(m.getThumbnail(), dok);
@@ -152,7 +156,6 @@ public class ThumbnailAnzeigePanel extends JPanel {
     for (Observer o : observer) {
       observable.addObserver(o);
     }
-    this.dok = dok;
     lDateiname = new JLabel();
     lDateiname.setText("");
     lDateiname.setHorizontalAlignment(SwingConstants.CENTER);

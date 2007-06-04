@@ -13,6 +13,9 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.JList;
 import java.awt.FlowLayout;
+import java.awt.event.KeyEvent;
+
+import javax.swing.JButton;
 
 /**
  * Ein Objekt der Klasse repraesentiert ein Feld in dem Werte zur Suche
@@ -22,15 +25,20 @@ public class SuchPanel extends JPanel {
   
   private static final long serialVersionUID = 1L;
   
+  private Hauptfenster hauptfenster;
+  
   private JTextField tfSuchFeld = null;
   
   private JLabel lSuchen = null;
 
+  private JButton bSuchen = null;
+
   /**
    * Erstellt ein Objekt der Klasse mit den entsprechenden Elementen.
    */
-  public SuchPanel() {
+  public SuchPanel(Hauptfenster hauptfenster) {
     super();
+    this.hauptfenster = hauptfenster;
     initialize();
   }
   
@@ -60,6 +68,7 @@ public class SuchPanel extends JPanel {
     this.setSize(new Dimension(500, 30));
     this.add(lSuchen, null);
     this.add(getTfSuchFeld(), null);
+    this.add(getBSuchen(), null);
   }
 
   /**
@@ -71,8 +80,35 @@ public class SuchPanel extends JPanel {
     if (tfSuchFeld == null) {
       tfSuchFeld = new JTextField();
       tfSuchFeld.setPreferredSize(new Dimension(300, 25));
+      tfSuchFeld.addKeyListener(new java.awt.event.KeyAdapter() {
+        public void keyReleased(java.awt.event.KeyEvent e) {
+          if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+            hauptfenster.erzeugeDatenNachSuche();
+            hauptfenster.erzeugeThumbnailansicht();
+          }
+        }
+      });
     }
     return tfSuchFeld;
+  }
+
+  /**
+   * This method initializes bSuchen	
+   * 	
+   * @return javax.swing.JButton	
+   */
+  private JButton getBSuchen() {
+    if (bSuchen == null) {
+      bSuchen = new JButton();
+      bSuchen.setText("Suchen");
+      bSuchen.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+          hauptfenster.erzeugeDatenNachSuche();
+          hauptfenster.erzeugeThumbnailansicht();
+        }
+      });
+    }
+    return bSuchen;
   }
 
 }  //  @jve:decl-index=0:visual-constraint="10,10"
