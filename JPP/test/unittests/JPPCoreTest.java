@@ -78,11 +78,45 @@ public class JPPCoreTest {
   public void testImportiere() throws ImportException {
 
     /* importiere einige gueltige Dateien */
+    Verteilung v = new Verteilung("Zeitverteilung der einzelnen Dateien.");
+    long vorher, nachher;
+    
+    vorher = System.currentTimeMillis();
     core.importiere(new File(PFAD + DATEI_KUCHEN));
+    nachher = System.currentTimeMillis();
+    v.setze(DATEI_KUCHEN, (int) (nachher - vorher));
+
+    
+    vorher = System.currentTimeMillis();
     core.importiere(new File(PFAD + DATEI_LANDSCHAFT));
+    nachher = System.currentTimeMillis();
+    v.setze(DATEI_LANDSCHAFT, (int) (nachher - vorher));
+    
+
+    vorher = System.currentTimeMillis();
     core.importiere(new File(PFAD + DATEI_SPRUNG));
+    nachher = System.currentTimeMillis();
+    v.setze(DATEI_SPRUNG, (int) (nachher - vorher));
+    
+
+    vorher = System.currentTimeMillis();
     core.importiere(new File(PFAD + DATEI_WAND));
+    nachher = System.currentTimeMillis();
+    v.setze(DATEI_WAND, (int) (nachher - vorher));
+    
+    
+    vorher = System.currentTimeMillis();
     core.importiere(new File(PFAD + DATEI_ZZOLLVEREIN));
+    nachher = System.currentTimeMillis();
+    v.setze(DATEI_ZZOLLVEREIN, (int) (nachher - vorher));
+    
+    
+    vorher = System.currentTimeMillis();
+    core.importiere(new File(PFAD + DATEI_LINUX));
+    nachher = System.currentTimeMillis();
+    v.setze(DATEI_LINUX, (int) (nachher - vorher));
+    
+    System.out.println(v);
     
     /* importiere eine Tiff-Datei nur, wenn das 
      * zusaetliche Java Advanced Imaging Image I/O installiert wurde
@@ -90,7 +124,7 @@ public class JPPCoreTest {
     String[] bildtypen = ImageIO.getReaderFormatNames();
     
     if (Arrays.asList(bildtypen).contains("tiff")) {
-      core.importiere(new File(PFAD + DATEI_LINUX));
+      //core.importiere(new File(PFAD + DATEI_LINUX));
       System.out.println("Es koennen auch tiff-Bilder importiert werden.");
     } else {
       System.out.println("Tiff-Bilder werden nicht unterstuetzt.");
@@ -232,7 +266,7 @@ public class JPPCoreTest {
       // bei einem throw geschlossen werden.
       // Falls in null ist, ist out auch null!
       if (in != null) {
-          //Falls tatsächlich in.close() und out.close()
+          //Falls tatsï¿½chlich in.close() und out.close()
           //Exceptions werfen, die jenige von 'out' geworfen wird.
           try {
               in.close();
