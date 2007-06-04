@@ -9,8 +9,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -28,6 +26,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
@@ -89,7 +88,7 @@ public class Hauptfenster extends JFrame {
   /** Enthaelt eine Liste an Paneln die zustaendig fuer die Anzeige der
    * Thumbnails sind.
    */
-  private List<ThumbnailAnzeigePanel> listeAnzeigePanel = null;  //  @jve:decl-index=0:
+  private List<ThumbnailAnzeigePanel> listeAnzeigePanel = null;
 
   /** Enthaelt die Trefferliste nach einer ausgeführten Suche. */
   private Trefferliste trefferliste = null;
@@ -140,7 +139,7 @@ public class Hauptfenster extends JFrame {
 
   private JPanel pBildinformationen = null;
 
-  private JPanel pBildinfoSchluesselBeschr = null;
+  private JPanel pBilddetails = null;
   
   private JLabel lSchluesselwoerter = null;
   
@@ -183,8 +182,13 @@ public class Hauptfenster extends JFrame {
     File[] files;
     dateiauswahl.setMultiSelectionEnabled(true);
     dateiauswahl.setFileFilter(filter);
-    int ergebnis = dateiauswahl.showOpenDialog(pInhaltsflaeche);
+    final int ergebnis = dateiauswahl.showOpenDialog(pInhaltsflaeche);
     files = dateiauswahl.getSelectedFiles();
+    final Bildimportierer importierer = new Bildimportierer(files, kern,
+        sGroesze.getValue(), tapObserver);
+    int anzahlDateien = files == null ? 0 : files.length;
+    final LadebalkenDialog ladebalken = 
+          new LadebalkenDialog(this, anzahlDateien);
     
     // Neue liste fuer die Anzeigepanel erzeugen
     if (this.listeAnzeigePanel == null) {
@@ -195,23 +199,26 @@ public class Hauptfenster extends JFrame {
       this.pThumbnails.removeAll();
     }
     
-    // dateien laden
-    for (int i = 0; i < files.length 
-           && ergebnis != JFileChooser.CANCEL_OPTION; i++) {
-      try {
-        long zeit = Calendar.getInstance().getTimeInMillis();
-        BildDokument dok = kern.importiere(files[i]);
-        System.out.println("Datei importiert: " + files[i].getAbsolutePath());
-        System.out.println("Benoetigte Zeit:  " + (Calendar.getInstance().getTimeInMillis() - zeit) + "ms");
-        ThumbnailAnzeigePanel tap = new ThumbnailAnzeigePanel(dok,
-            sGroesze.getValue(), tapObserver);
-        tap.setzeDateinamen(files[i].getName(), sGroesze.getValue());
-        listeAnzeigePanel.add(tap);
-      } catch (ImportException ie) {
-        JOptionPane.showMessageDialog(null, "Die Datei(-en) konnten nicht" +
-            " importiert werden.\n" + ie.getMessage(),
-            "Importfehler", JOptionPane.ERROR_MESSAGE);
+    /* Listener hinzufuegen die entsprechende Aktionen ausführen, wenn
+     * neue Bilder geladen wurden. */
+    importierer.addBildImportiertListener(new BildimportListener() {
+      public void bildImportiert() {
+        ladebalken.setzeAnzahl(ladebalken.gibAnzahl() + 1);
+        listeAnzeigePanel = importierer.gibAnzeigePanel();
+        erzeugeThumbnailansicht();
       }
+      public void ladevorgangAbgeschlossen() {
+        ladebalken.dispose();
+        erzeugeThumbnailansicht();
+      }
+    });
+    
+    // Es sollen Bilder importiert werden
+    if (ergebnis != JFileChooser.CANCEL_OPTION) {
+      importierer.start();
+      ladebalken.setLocation((this.getWidth() - ladebalken.getWidth()) / 2, 
+          (this.getHeight() - ladebalken.getHeight()) / 2);
+      ladebalken.setVisible(true);
     }
   }
 
@@ -270,12 +277,15 @@ public class Hauptfenster extends JFrame {
           spThumbnails.getVerticalScrollBar().getWidth() - STD_ABSTAND;
       double anzahlThumbnailsProZeile = Math.floor(thumbnailPanelBreite /
           (sGroesze.getValue() + STD_ABSTAND));
-      double anzahlBenoetigteZeilen = listeAnzeigePanel.size() / (int) anzahlThumbnailsProZeile == 0 
-          ? 1 : Math.ceil(listeAnzeigePanel.size() / anzahlThumbnailsProZeile);
-      double benoetigteBreite = anzahlThumbnailsProZeile * (sGroesze.getValue() + STD_ABSTAND) + STD_ABSTAND;
-      double benoetigteHoehe = anzahlBenoetigteZeilen * (sGroesze.getValue() + STD_ABSTAND) 
-               + tbWerkzeugleiste.getHeight() + hauptmenu.getHeight() +
-               pSuche.getHeight() + STD_ABSTAND;
+      anzahlThumbnailsProZeile = anzahlThumbnailsProZeile == 0 ?
+          1 : anzahlThumbnailsProZeile;
+      double anzahlBenoetigteZeilen = listeAnzeigePanel.size() / 
+          anzahlThumbnailsProZeile;
+      double benoetigteBreite = anzahlThumbnailsProZeile * 
+          (sGroesze.getValue() + STD_ABSTAND) + STD_ABSTAND;
+      double benoetigteHoehe = anzahlBenoetigteZeilen * 
+          (sGroesze.getValue() + STD_ABSTAND) + tbWerkzeugleiste.getHeight() +
+          hauptmenu.getHeight() + pSuche.getHeight() + STD_ABSTAND;
       benoetigteHoehe += anzahlThumbnailsProZeile == 1 ? 150 : 50;
       
       /* MUSS GESETZT WERDEN!!! Ansonsten wird nur eine Zeile mit den
@@ -357,11 +367,17 @@ public class Hauptfenster extends JFrame {
     int ergebnis = JOptionPane.showConfirmDialog(this, "Wollen Sie die " +
         "Bilder auch von der Festplatte loeschen?", "Löschen",
         JOptionPane.YES_NO_CANCEL_OPTION);
-    boolean auchVonFestplatte = (ergebnis == JOptionPane.YES_OPTION) ? true : false; 
+    boolean auchVonFestplatte = (ergebnis == JOptionPane.YES_OPTION) ? 
+        true : false; 
     if (listeAnzeigePanel != null && ergebnis != JOptionPane.CANCEL_OPTION) {
-      List<ThumbnailAnzeigePanel> zuLoeschendeBilder = new ArrayList<ThumbnailAnzeigePanel>();
+      
+      List<ThumbnailAnzeigePanel> zuLoeschendeBilder = 
+        new ArrayList<ThumbnailAnzeigePanel>();
+      
       for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
+        
         if (tap.istAusgewaehlt()) {
+          
           try {
             zuLoeschendeBilder.add(tap);
             kern.entferne(tap.gibBildDokument(), auchVonFestplatte);
@@ -550,7 +566,8 @@ public class Hauptfenster extends JFrame {
       pVorschau = new Vorschaupanel();
       pVorschau.setLayout(new GridBagLayout());
       pVorschau.setName("pVorschau");
-      pVorschau.setMinimumSize(new Dimension(10, (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 4));
+      pVorschau.setMinimumSize(new Dimension(10, 
+          (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 4));
     }
     return pVorschau;
   }
@@ -763,7 +780,7 @@ public class Hauptfenster extends JFrame {
     if (pBildinformationen == null) {
       pBildinformationen = new JPanel();
       pBildinformationen.setLayout(new BorderLayout());
-      pBildinformationen.add(getPBildinfoSchluesselBeschr(), BorderLayout.NORTH);
+      pBildinformationen.add(getPBilddetails(), BorderLayout.NORTH);
       pBildinformationen.add(getSpBilddetails(), BorderLayout.CENTER);
     }
     return pBildinformationen;
@@ -774,9 +791,9 @@ public class Hauptfenster extends JFrame {
    * 	
    * @return javax.swing.JPanel	
    */
-  private JPanel getPBildinfoSchluesselBeschr() {
+  private JPanel getPBilddetails() {
     
-    if (pBildinfoSchluesselBeschr == null) {
+    if (pBilddetails == null) {
       
       // Bedingungen fuer den Textbereich zur Bildbeschreibung
       GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
@@ -811,7 +828,8 @@ public class Hauptfenster extends JFrame {
       
       // Bedingungen fuer Label "Schluesselwoerter"
       GridBagConstraints gridBagConstraints = new GridBagConstraints();
-      gridBagConstraints.insets = new Insets(STD_ABSTAND, STD_ABSTAND, STD_ABSTAND, 0);
+      gridBagConstraints.insets = new Insets(STD_ABSTAND, STD_ABSTAND,
+          STD_ABSTAND, 0);
       gridBagConstraints.gridy = 0;
       gridBagConstraints.ipadx = MIN_BREITE_BILDINFO;
       gridBagConstraints.ipady = 5;
@@ -823,15 +841,15 @@ public class Hauptfenster extends JFrame {
       lBildbeschreibung.setText("Bildbeschreibung");
       lSchluesselwoerter = new JLabel();
       lSchluesselwoerter.setText("Schlüsselwörter");
-      pBildinfoSchluesselBeschr = new JPanel();
-      pBildinfoSchluesselBeschr.setLayout(new GridBagLayout());
-      pBildinfoSchluesselBeschr.setPreferredSize(new Dimension(MIN_BREITE_BILDINFO, 160));
-      pBildinfoSchluesselBeschr.add(lSchluesselwoerter, gridBagConstraints);
-      pBildinfoSchluesselBeschr.add(getTfSchluesselwoerter(), gridBagConstraints1);
-      pBildinfoSchluesselBeschr.add(lBildbeschreibung, gridBagConstraints2);
-      pBildinfoSchluesselBeschr.add(getTaBildbeschreibung(), gridBagConstraints3);
+      pBilddetails = new JPanel();
+      pBilddetails.setLayout(new GridBagLayout());
+      pBilddetails.setPreferredSize(new Dimension(MIN_BREITE_BILDINFO, 160));
+      pBilddetails.add(lSchluesselwoerter, gridBagConstraints);
+      pBilddetails.add(getTfSchluesselwoerter(), gridBagConstraints1);
+      pBilddetails.add(lBildbeschreibung, gridBagConstraints2);
+      pBilddetails.add(getTaBildbeschreibung(), gridBagConstraints3);
     }
-    return pBildinfoSchluesselBeschr;
+    return pBilddetails;
   }
 
   /**
@@ -898,8 +916,11 @@ private JTable getTBilddetails() {
    */
   private JScrollPane getSpThumbnails() {
     if (spThumbnails == null) {
+      JScrollBar jScrollBar = new JScrollBar();
+      jScrollBar.setUnitIncrement(10);
       spThumbnails = new JScrollPane();
-      spThumbnails.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+      spThumbnails.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+      spThumbnails.setVerticalScrollBar(jScrollBar);
       spThumbnails.setViewportView(getPThumbnails());
     }
     return spThumbnails;
