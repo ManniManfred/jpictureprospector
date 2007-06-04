@@ -1,0 +1,2 @@
+jpg, gif, png = core.thumbnail.SchnellerGenerierer
+* = core.thumbnail.AlleFormateGenerierer

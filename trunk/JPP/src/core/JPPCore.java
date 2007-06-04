@@ -254,11 +254,10 @@ public class JPPCore {
       File datei = new File(pfad);
       System.out.println(datei);
       datei.delete();
-      //if (!datei.delete()) {
+      if (!datei.delete()) {
         /* Fehlerbehandlung, falls das Loeschen misslang */
-        //throw new EntferneException("Das Entfernen von der Festplatte misslang.");
-      //}
-      
+        throw new EntferneException("Das Entfernen von der Festplatte misslang.");
+      }
     }
   }
   
