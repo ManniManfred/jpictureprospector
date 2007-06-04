@@ -88,7 +88,7 @@ public class Hauptfenster extends JFrame {
   /** Enthaelt eine Liste an Paneln die zustaendig fuer die Anzeige der
    * Thumbnails sind.
    */
-  private List<ThumbnailAnzeigePanel> listeAnzeigePanel = null;
+  private List<ThumbnailAnzeigePanel> listeAnzeigePanel = null;  //  @jve:decl-index=0:
 
   /** Enthaelt die Trefferliste nach einer ausgeführten Suche. */
   private Trefferliste trefferliste = null;
@@ -189,6 +189,7 @@ public class Hauptfenster extends JFrame {
     int anzahlDateien = files == null ? 0 : files.length;
     final LadebalkenDialog ladebalken = 
           new LadebalkenDialog(this, anzahlDateien);
+    ladebalken.setzeAnzahl(0);
     
     // Neue liste fuer die Anzeigepanel erzeugen
     if (this.listeAnzeigePanel == null) {
@@ -203,9 +204,9 @@ public class Hauptfenster extends JFrame {
      * neue Bilder geladen wurden. */
     importierer.addBildImportiertListener(new BildimportListener() {
       public void bildImportiert() {
-        ladebalken.setzeAnzahl(ladebalken.gibAnzahl() + 1);
         listeAnzeigePanel = importierer.gibAnzeigePanel();
         erzeugeThumbnailansicht();
+        ladebalken.setzeAnzahl(ladebalken.gibAnzahl() + 1);
       }
       public void ladevorgangAbgeschlossen() {
         ladebalken.dispose();
@@ -272,21 +273,19 @@ public class Hauptfenster extends JFrame {
       pVorschau.resetAnsicht();
       pThumbnails.removeAll();
       
-      double thumbnailPanelBreite = spAnzeige.getWidth() -
-          spAnzeige.getDividerLocation() - TRENNBALKEN_GROESZE -
-          spThumbnails.getVerticalScrollBar().getWidth() - STD_ABSTAND;
+      
+      double thumbnailPanelBreite = spThumbnails.getViewport().getWidth();
       double anzahlThumbnailsProZeile = Math.floor(thumbnailPanelBreite /
           (sGroesze.getValue() + STD_ABSTAND));
       anzahlThumbnailsProZeile = anzahlThumbnailsProZeile == 0 ?
           1 : anzahlThumbnailsProZeile;
-      double anzahlBenoetigteZeilen = listeAnzeigePanel.size() / 
-          anzahlThumbnailsProZeile;
+      double anzahlBenoetigteZeilen = Math.ceil(listeAnzeigePanel.size() / 
+          anzahlThumbnailsProZeile);
       double benoetigteBreite = anzahlThumbnailsProZeile * 
           (sGroesze.getValue() + STD_ABSTAND) + STD_ABSTAND;
       double benoetigteHoehe = anzahlBenoetigteZeilen * 
-          (sGroesze.getValue() + STD_ABSTAND) + tbWerkzeugleiste.getHeight() +
+          (sGroesze.getValue() + 20 + STD_ABSTAND) + tbWerkzeugleiste.getHeight() +
           hauptmenu.getHeight() + pSuche.getHeight() + STD_ABSTAND;
-      benoetigteHoehe += anzahlThumbnailsProZeile == 1 ? 150 : 50;
       
       /* MUSS GESETZT WERDEN!!! Ansonsten wird nur eine Zeile mit den
       Thumbnails angezeigt */
