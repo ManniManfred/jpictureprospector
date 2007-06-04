@@ -33,6 +33,8 @@ public class LadebalkenDialog extends JDialog implements Runnable {
   private static final long serialVersionUID = 1L;
   
   private double gesamtanzahl = 0.0;
+  
+  private int anzahl = 0;
 
   private JPanel jContentPane = null;
 
@@ -60,12 +62,18 @@ public class LadebalkenDialog extends JDialog implements Runnable {
   }
   
   public void setzeAnzahl(int anzahl) {
+    
+    this.anzahl = anzahl;
     double prozent = (anzahl / gesamtanzahl) * 100;
     NumberFormat nf = NumberFormat.getInstance();
     nf.setMaximumFractionDigits(0);
     pbLadebalken.setString(nf.format(prozent) + "%");
     pbLadebalken.setValue((int) prozent);
     this.lAnzahl.setText(anzahl + "");
+  }
+  
+  public int gibAnzahl() {
+    return this.anzahl;
   }
 
   public void run() {
@@ -113,7 +121,7 @@ public class LadebalkenDialog extends JDialog implements Runnable {
       gridBagConstraints.gridx = 0;
       gridBagConstraints.gridwidth = 1;
       gridBagConstraints.insets = new Insets(STD_INSETS, 0, STD_INSETS, 0);
-      gridBagConstraints.gridy = 1;
+      gridBagConstraints.gridy = 3;
       jContentPane = new JPanel();
       jContentPane.setLayout(new GridBagLayout());
       jContentPane.add(getPbLadebalken(), gridBagConstraints);
