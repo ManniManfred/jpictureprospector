@@ -94,11 +94,8 @@ public class Hauptfenster extends JFrame {
   /** Enthaelt die Trefferliste nach einer ausgeführten Suche. */
   private Trefferliste trefferliste = null;
   
-  private LadebalkenDialog ladebalkendialog;
-  
   /** Enthaelt die Inhaltsflaeche dieses Objekts. */
   private JPanel pInhaltsflaeche = null;
-  
 
   /** Enthaelt das Hauptmenue dieses Objektes. */
   private JMenuBar hauptmenu = null;
@@ -135,8 +132,6 @@ public class Hauptfenster extends JFrame {
 
   private JLabel lLoeschen = null;
 
-  private JButton bSuchen = null;
-
   private JMenuItem miLoeschen = null;
 
   private JSlider sGroesze = null;
@@ -160,6 +155,8 @@ public class Hauptfenster extends JFrame {
   private JPanel pThumbnails = null;
 
   private JScrollPane spThumbnails = null;
+
+  private JButton bAuswahlAufheben = null;
 
 /**
    * Erstellt ein neues Objekt der Klasse.
@@ -186,15 +183,21 @@ public class Hauptfenster extends JFrame {
     File[] files;
     dateiauswahl.setMultiSelectionEnabled(true);
     dateiauswahl.setFileFilter(filter);
-    dateiauswahl.showOpenDialog(pInhaltsflaeche);
+    int ergebnis = dateiauswahl.showOpenDialog(pInhaltsflaeche);
     files = dateiauswahl.getSelectedFiles();
+    
+    // Neue liste fuer die Anzeigepanel erzeugen
     if (this.listeAnzeigePanel == null) {
       this.listeAnzeigePanel = new ArrayList<ThumbnailAnzeigePanel>();
     } else {
+      // es existiert schon eine liste mit anzeigepaneln
       this.listeAnzeigePanel.clear();
       this.pThumbnails.removeAll();
     }
-    for (int i = 0; i < files.length; i++) {
+    
+    // dateien laden
+    for (int i = 0; i < files.length 
+           && ergebnis != JFileChooser.CANCEL_OPTION; i++) {
       try {
         long zeit = Calendar.getInstance().getTimeInMillis();
         BildDokument dok = kern.importiere(files[i]);
@@ -216,7 +219,7 @@ public class Hauptfenster extends JFrame {
    * Erzeugt alle notwendigen Daten, die zur Anzeige notwendig sind, wenn
    * der Benutzer nach einem Begriff gesucht hat.
    */
-  private void erzeugeDatenNachSuche() {
+  public void erzeugeDatenNachSuche() {
     
     try {
       trefferliste = kern.suche(pSuche.gibSuchtext());
@@ -253,7 +256,7 @@ public class Hauptfenster extends JFrame {
    * an, mit den entsprechenden Eigenschaften von oben nach unten scrollen
    * zu koennen und die Groesze der Thumbnails dynamisch anzupassen.
    */
-  private void erzeugeThumbnailansicht() {
+  public void erzeugeThumbnailansicht() {
     
     if (listeAnzeigePanel != null) {
 
@@ -263,14 +266,17 @@ public class Hauptfenster extends JFrame {
       pThumbnails.removeAll();
       
       double thumbnailPanelBreite = spAnzeige.getWidth() -
-          spAnzeige.getDividerLocation();
-      double anzahlThumbnailsProZeile = Math.floor((thumbnailPanelBreite -
-          spThumbnails.getVerticalScrollBar().getWidth()) /
+          spAnzeige.getDividerLocation() - TRENNBALKEN_GROESZE -
+          spThumbnails.getVerticalScrollBar().getWidth() - STD_ABSTAND;
+      double anzahlThumbnailsProZeile = Math.floor(thumbnailPanelBreite /
           (sGroesze.getValue() + STD_ABSTAND));
       double anzahlBenoetigteZeilen = listeAnzeigePanel.size() / (int) anzahlThumbnailsProZeile == 0 
           ? 1 : Math.ceil(listeAnzeigePanel.size() / anzahlThumbnailsProZeile);
-      double benoetigteBreite = anzahlThumbnailsProZeile * (sGroesze.getValue() + STD_ABSTAND);
-      double benoetigteHoehe = anzahlBenoetigteZeilen * (sGroesze.getValue() + STD_ABSTAND) + 50;
+      double benoetigteBreite = anzahlThumbnailsProZeile * (sGroesze.getValue() + STD_ABSTAND) + STD_ABSTAND;
+      double benoetigteHoehe = anzahlBenoetigteZeilen * (sGroesze.getValue() + STD_ABSTAND) 
+               + tbWerkzeugleiste.getHeight() + hauptmenu.getHeight() +
+               pSuche.getHeight() + STD_ABSTAND;
+      benoetigteHoehe += anzahlThumbnailsProZeile == 1 ? 150 : 50;
       
       /* MUSS GESETZT WERDEN!!! Ansonsten wird nur eine Zeile mit den
       Thumbnails angezeigt */
@@ -341,6 +347,11 @@ public class Hauptfenster extends JFrame {
     }
   }
   
+  /**
+   * Wenn der Benutzer mehrere Bilder im Anzeigebereich der Thumbnails
+   * ausgewaehlt hat wird er gefragt ob die die Bilder auch von der
+   * Festplatte geloescht werden sollen oder nicht.
+   */
   public void loescheBilder() {
     
     int ergebnis = JOptionPane.showConfirmDialog(this, "Wollen Sie die " +
@@ -466,9 +477,11 @@ public class Hauptfenster extends JFrame {
       miImport.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
           importiereDateien();
-          erzeugeThumbnailansicht();
-          spThumbnails.revalidate();
-          pThumbnails.revalidate();
+          if (listeAnzeigePanel != null && !listeAnzeigePanel.isEmpty()) {
+            erzeugeThumbnailansicht();
+            spThumbnails.revalidate();
+            pThumbnails.revalidate();
+          }
         }
       });
     }
@@ -549,18 +562,8 @@ public class Hauptfenster extends JFrame {
    */
   private SuchPanel getSuchPanel() {
     if (pSuche == null) {
-      pSuche = new SuchPanel();
+      pSuche = new SuchPanel(this);
       pSuche.setName("pSuche");
-      pSuche.add(getBSuchen(), null);
-      pSuche.addKeyListener(new java.awt.event.KeyAdapter() {
-        public void keyReleased(java.awt.event.KeyEvent e) {
-          if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-            
-            erzeugeDatenNachSuche();
-            erzeugeThumbnailansicht();
-          }
-        }
-      });
     }
     return pSuche;
   }
@@ -624,6 +627,7 @@ public class Hauptfenster extends JFrame {
         }
       });
       tbWerkzeugleiste = new JToolBar();
+      tbWerkzeugleiste.add(getBAuswahlAufheben());
       tbWerkzeugleiste.add(getBGroszanzeige());
       tbWerkzeugleiste.add(lLetztesBild);
       tbWerkzeugleiste.add(lNaechstesBild);
@@ -703,25 +707,6 @@ public class Hauptfenster extends JFrame {
   }
 
   /**
-   * This method initializes bSuchen	
-   * 	
-   * @return javax.swing.JButton	
-   */
-  private JButton getBSuchen() {
-    if (bSuchen == null) {
-      bSuchen = new JButton();
-      bSuchen.setText("Suchen");
-      bSuchen.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent e) {
-          erzeugeDatenNachSuche();
-          erzeugeThumbnailansicht();
-        }
-      });
-    }
-    return bSuchen;
-  }
-
-  /**
    * This method initializes miLoeschen	
    * 	
    * @return javax.swing.JMenuItem	
@@ -742,8 +727,8 @@ public class Hauptfenster extends JFrame {
   private JSlider getSGroesze() {
     if (sGroesze == null) {
       sGroesze = new JSlider();
-      sGroesze.setValue(150);
       sGroesze.setMaximum(256);
+      sGroesze.setValue(256);
       sGroesze.setMaximumSize(new Dimension(200, 16));
       sGroesze.setMinimum(48);
       sGroesze.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -918,6 +903,28 @@ private JTable getTBilddetails() {
       spThumbnails.setViewportView(getPThumbnails());
     }
     return spThumbnails;
+  }
+
+  /**
+   * This method initializes bAuswahlAufheben	
+   * 	
+   * @return javax.swing.JButton	
+   */
+  private JButton getBAuswahlAufheben() {
+    if (bAuswahlAufheben == null) {
+      bAuswahlAufheben = new JButton();
+      bAuswahlAufheben.setText("Auswahl aufheben");
+      bAuswahlAufheben.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+          if (listeAnzeigePanel != null) {
+            for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
+              tap.setzeFokus(false);
+            }
+          }
+        }
+      });
+    }
+    return bAuswahlAufheben;
   }
 
   /**

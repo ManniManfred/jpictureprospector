@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
 import java.awt.Color;
+import javax.swing.JTable;
 
 public class BildGroszanzeige extends JFrame {
 
@@ -39,6 +40,8 @@ public class BildGroszanzeige extends JFrame {
   private Vorschaupanel pGroszanzeige = null;
 
   private JPanel pBilddetails = null;
+
+  private JTable tBilddetails = null;
 
   /**
    * This is the default constructor
@@ -201,8 +204,21 @@ public class BildGroszanzeige extends JFrame {
   private JPanel getPBilddetails() {
     if (pBilddetails == null) {
       pBilddetails = new JPanel();
+      pBilddetails.add(getTBilddetails(), null);
     }
     return pBilddetails;
+  }
+
+  /**
+   * This method initializes tBilddetails	
+   * 	
+   * @return javax.swing.JTable	
+   */
+  private JTable getTBilddetails() {
+    if (tBilddetails == null) {
+      tBilddetails = new JTable();
+    }
+    return tBilddetails;
   }
 
 }
