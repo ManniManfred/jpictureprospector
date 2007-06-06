@@ -18,9 +18,18 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Searcher;
+import org.apache.lucene.search.TermQuery;
+
+import core.exceptions.AendereException;
+import core.exceptions.EntferneException;
+import core.exceptions.ErzeugeBildDokumentException;
+import core.exceptions.ErzeugeException;
+import core.exceptions.ImportException;
+import core.exceptions.SucheException;
 
 /**
  * Ein Objekt dieser Klasse stellt die Hauptaufgaben dieser JPictureProspector
@@ -94,9 +103,7 @@ public class JPPCore {
   /**
    * Gibt ein Array mit allen Namen der möglichen Merkmale zurueck.
    * @return Array mit allen Namen der möglichen Merkmale
-   * TODO Folgendes sollte noch geaendert werden:
-   * @throws IllegalAccessException 
-   * @throws InstantiationException 
+   * @throws Exception, wenn die Klassennamen nicht erzeugt werden konnten
    */
   private String[] getMerkmalsnamen() throws Exception {
     ArrayList<String> namen = new ArrayList<String>();
@@ -118,10 +125,12 @@ public class JPPCore {
    */
   public BildDokument importiere(File datei) throws ImportException {
     
-    /* TODO ueberpruefen, ob das Bild bereits im Index vorhanden ist. 
+    /* ueberpruefen, ob das Bild bereits im Index vorhanden ist. 
      * Wenn ja, dann eine ImportException werfen.
      */
-    
+    if (istDateiImIndex(datei)) {
+      throw new ImportException("Die Datei wurde bereits importiert.");
+    }
     
     
     /* Lasse das BildDokument aus der Datei erzeugen */
@@ -165,6 +174,34 @@ public class JPPCore {
     } catch(IOException e) {
       throw new ImportException("Es konnte der Lucene-Index nicht erstellt "
           + "werden", e);
+    }
+  }
+  
+  /**
+   * Gibt zurueck, ob sich die uebergebene Datei bereits im Index befindet.
+   * @param datei  Datei, die ueberprueft wird
+   * @return true, falls die Datei im Index vorhanden ist
+   */
+  public boolean istDateiImIndex(File datei) {
+    
+    try {
+      Searcher sucher = new IndexSearcher(INDEX_DIR);
+      
+      /* Nach dem Dateipfad suchen */
+      Hits treffer = 
+        sucher.search(new TermQuery(new Term("Dateipfad", datei.getAbsolutePath())));
+      sucher.close();
+      
+      /* Falls mindestens ein Treffer erzielt wurde, befindet sich die Datei
+       * bereits im Index.
+       */
+      return treffer.length() > 0;
+      
+    } catch (IOException e) {
+      /* Wenn z.B. der Index noch nicht vorhanden ist, befindet sich die Datei
+       * auch noch nicht im Index. Deshalb wird hier false zurueckgegeben.
+       */
+      return false;
     }
   }
   
@@ -229,9 +266,8 @@ public class JPPCore {
    */
   public void entferne(BildDokument bild, boolean auchVonFestplatte) 
           throws EntferneException {
-    /* TODO bilddokument aus dieser Anwendung entfernen und evtl. auch von
-     * der Festplatte
-     */
+    
+    /* BildDokument aus dem Index entfernen  */
     IndexReader reader;
     String pfad;
     try {
@@ -249,11 +285,12 @@ public class JPPCore {
     
     
     
-    /* Evtl. Bilddatei von der Festplatte entfernen. */
+    /* Wenn das Flag auchVonFestplatte gesetzt ist, dann entferne die Bilddatei
+     * von der Festplatte. 
+     */
     if (auchVonFestplatte) {
       File datei = new File(pfad);
       System.out.println(datei);
-      datei.delete();
       if (!datei.delete()) {
         /* Fehlerbehandlung, falls das Loeschen misslang */
         throw new EntferneException("Das Entfernen von der Festplatte misslang.");

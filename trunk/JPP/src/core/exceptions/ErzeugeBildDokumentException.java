@@ -1,4 +1,4 @@
-package core;
+package core.exceptions;
 
 public class ErzeugeBildDokumentException extends Exception {
 

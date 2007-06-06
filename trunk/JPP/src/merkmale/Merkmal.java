@@ -2,6 +2,8 @@
 package merkmale;
 
 import core.*;
+import core.exceptions.LeseMerkmalAusException;
+
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
@@ -29,7 +31,8 @@ public abstract class Merkmal extends AlleMerkmale {
    * Bild und speichert diesen in diesem Merkmal-Objekt.
    * @param bild  Bild, aus dem der Merkmalswert gelesen wird
    */
-  public abstract void leseMerkmalAus(GeoeffnetesBild bild);
+  public abstract void leseMerkmalAus(GeoeffnetesBild bild) 
+      throws LeseMerkmalAusException;
 
   /**
    * Liest den Merkmalswert aus einem Lucene-Document und speichert diesen in 
@@ -37,7 +40,8 @@ public abstract class Merkmal extends AlleMerkmale {
    * @param doc  Lucene-Document, von dem ueber ein zu diesem Merkmal 
    *    gehoerigen Field der Wert ausgelesen wird
    */
-  public abstract void leseMerkmalAusLuceneDocument(Document doc);
+  public abstract void leseMerkmalAusLuceneDocument(Document doc)
+      throws LeseMerkmalAusException;
   
   /**
    * Erzeuge aus diesem Merkmal ein entsprechendes Lucene-Field.

@@ -2,6 +2,7 @@ package core.thumbnail;
 
 import java.awt.image.BufferedImage;
 import core.GeoeffnetesBild;
+import core.exceptions.GeneriereException;
 
 /**
  * Objekte, die dieses Interface implementieren, koennen Thumbnail aus einem
@@ -19,5 +20,5 @@ public interface ThumbnailGenerierer {
    * @return das erzeugte Thumbnail
    */
   BufferedImage generiereThumbnail(GeoeffnetesBild bild, int maxBreite, 
-      int maxHoehe); 
+      int maxHoehe) throws GeneriereException; 
 }

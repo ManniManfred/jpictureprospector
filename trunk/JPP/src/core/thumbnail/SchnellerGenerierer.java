@@ -9,22 +9,24 @@ import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 
 import core.GeoeffnetesBild;
+import core.exceptions.GeneriereException;
 
 public class SchnellerGenerierer implements ThumbnailGenerierer {
 
   public BufferedImage generiereThumbnail(GeoeffnetesBild bild, int maxBreite,
-      int maxHoehe) {
+      int maxHoehe) throws GeneriereException {
 
     Image image = Toolkit.getDefaultToolkit().getImage(
         bild.getDatei().getAbsolutePath());
     
     MediaTracker mediaTracker = new MediaTracker(new Container());
     mediaTracker.addImage(image, 0);
+    
     try {
       mediaTracker.waitForID(0);
     } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new GeneriereException(
+          "Der Mediatracker wurde beim laden unterbrochen.", e);
     }
 
     // determine thumbnail size from WIDTH and HEIGHT
@@ -49,6 +51,9 @@ public class SchnellerGenerierer implements ThumbnailGenerierer {
         RenderingHints.VALUE_INTERPOLATION_BILINEAR);
     
     g.drawImage(image, 0, 0, thumbWidth, thumbHeight, null);
+    
+    //mediaTracker.removeImage(image);
+    
 
     return thumbImage;
   }

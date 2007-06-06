@@ -5,6 +5,10 @@ import com.drew.imaging.jpeg.JpegMetadataReader;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
+
+import core.exceptions.ErzeugeBildDokumentException;
+import core.exceptions.LeseMerkmalAusException;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -145,10 +149,6 @@ public class BildDokument {
       GeoeffnetesBild gBild = null;
       if (datei != null) {
         /* Ein geoffnetes Bild aus der Datei erzeugen */
-        /* TODO Man sollte zwischen der IOException, die hier auftreten kann
-         * mit der IOException, die beim Lesen der Merkmalsdatei auftreten kann
-         * unterscheiden und entsprechend reagieren.
-         */
         gBild = new GeoeffnetesBild(datei);
       }
       
@@ -170,9 +170,6 @@ public class BildDokument {
           /* andernfalls annehmen, dass das Merkmal aus einem LuceneDocument
            * auslesen.
            */
-          /* TODO evtl eine Pruefung, ob doc nicht evtl. null ist, obwohl dies
-           * nicht sein darf.
-           */
           m.leseMerkmalAusLuceneDocument(doc);
         }
         
@@ -184,6 +181,10 @@ public class BildDokument {
       throw new ErzeugeBildDokumentException("Merkmalsdatei \"" 
           + Einstellungen.MERKMAL_DATEI
           + "\" existiert nicht.", e); 
+    } catch (LeseMerkmalAusException e) {
+      throw new ErzeugeBildDokumentException("Das Merkmal \"" 
+          + merkmalsKlassenname
+          + "\" konnte den Wert seines Merkmals nicht auslesen.", e); 
     } catch (IOException e) {
       throw new ErzeugeBildDokumentException("Bilddatei " 
           + datei.getAbsolutePath() + " konnte nicht gelesen werden.", e);
@@ -196,7 +197,7 @@ public class BildDokument {
     } catch (ClassNotFoundException e) {
       throw new ErzeugeBildDokumentException("Konnte keine Instance von einer "
           + "Merkmalsklasse erzeugen.", e);
-    }
+    } 
     return neu;
   }
   
@@ -210,7 +211,7 @@ public class BildDokument {
   
   /**
    * Liefert eine Liste aller Merkmale, die zu diesem Bild vorhanden sind,
-   * einschließlich der Exif-Merkmale bei JPGs.
+   * einschliesslich der Exif-Merkmale bei JPGs.
    *
    * @return  Liste aller Merkmale
    */
@@ -222,7 +223,7 @@ public class BildDokument {
     String pfad =  this.getMerkmal("DateipfadMerkmal").getWert().toString();   
     File jpegFile = new File(pfad);
     
-    /* für JPG die Exif-Daten hinzufuegen. */
+    /* fï¿½r JPG die Exif-Daten hinzufuegen. */
     try{
       
       Metadata metadata = JpegMetadataReader.readMetadata(jpegFile);      
