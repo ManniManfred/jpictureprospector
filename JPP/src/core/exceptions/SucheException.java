@@ -1,22 +1,22 @@
-package core;
+package core.exceptions;
 
-public class AendereException extends Exception {
+public class SucheException extends Exception {
 
-  public AendereException() {
+  public SucheException() {
     // TODO Auto-generated constructor stub
   }
 
-  public AendereException(String message) {
+  public SucheException(String message) {
     super(message);
     // TODO Auto-generated constructor stub
   }
 
-  public AendereException(Throwable cause) {
+  public SucheException(Throwable cause) {
     super(cause);
     // TODO Auto-generated constructor stub
   }
 
-  public AendereException(String message, Throwable cause) {
+  public SucheException(String message, Throwable cause) {
     super(message, cause);
     // TODO Auto-generated constructor stub
   }

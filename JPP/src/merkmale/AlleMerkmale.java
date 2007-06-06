@@ -8,7 +8,7 @@ import org.apache.lucene.document.Field;
 /**
  * Ein Objekt dieser Klasse repraesentiert ein Exif - Merkmal mit einem 
  * Mermalsnamen und einem zu dem Merkmal gehoerenden Wert. 
- * Exif-Merkmale können nur aus JPG und TIF gewonnen werden und werden nicht
+ * Exif-Merkmale kï¿½nnen nur aus JPG und TIF gewonnen werden und werden nicht
  * in Lucene abgespeichert.
  * 
  * @author Marion Mecking
@@ -52,5 +52,17 @@ public abstract class AlleMerkmale {
    */
   public void setWert(Object wert) {
     this.wert = wert;
+  }
+  
+  /**
+   * Ein AlleMerkmale ist gleich, wenn der Name und der Wert des Merkmals gleich
+   * sind.
+   */
+  public boolean equals(Object obj) {
+    if (obj instanceof AlleMerkmale) {
+      AlleMerkmale m2 = (AlleMerkmale) obj;
+      return this.getName().equals(m2.getName()) && this.getWert().equals(m2.getWert());
+    }
+    return false;
   }
 }

@@ -28,7 +28,7 @@ public class DateipfadMerkmal extends Merkmal {
    * @param bild  Bild, aus dem der Merkmalswert gelesen wird
    */
   public void leseMerkmalAus(GeoeffnetesBild bild) {
-    this.wert = bild.getDatei().getPath();
+    this.wert = bild.getDatei().getAbsolutePath();
   }
 
   /**

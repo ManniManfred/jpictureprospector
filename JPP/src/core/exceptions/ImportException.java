@@ -1,4 +1,4 @@
-package core;
+package core.exceptions;
 
 /**
  * Ein Objekt dieser Klasse stellte eine ImportExcpetion dar, die bei einem

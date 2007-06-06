@@ -1,22 +1,22 @@
-package core;
+package core.exceptions;
 
-public class EntferneException extends Exception {
+public class ErzeugeException extends Exception {
 
-  public EntferneException() {
+  public ErzeugeException() {
     // TODO Auto-generated constructor stub
   }
 
-  public EntferneException(String message) {
+  public ErzeugeException(String message) {
     super(message);
     // TODO Auto-generated constructor stub
   }
 
-  public EntferneException(Throwable cause) {
+  public ErzeugeException(Throwable cause) {
     super(cause);
     // TODO Auto-generated constructor stub
   }
 
-  public EntferneException(String message, Throwable cause) {
+  public ErzeugeException(String message, Throwable cause) {
     super(message, cause);
     // TODO Auto-generated constructor stub
   }

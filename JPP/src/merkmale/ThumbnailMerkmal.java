@@ -2,6 +2,8 @@ package merkmale;
 
 import core.Einstellungen;
 import core.GeoeffnetesBild;
+import core.exceptions.GeneriereException;
+import core.exceptions.LeseMerkmalAusException;
 import core.thumbnail.ThumbnailGenerierer;
 
 import java.awt.image.BufferedImage;
@@ -48,16 +50,32 @@ public class ThumbnailMerkmal extends Merkmal {
     super(FELDNAME);
   }
 
+  public boolean equals(Object obj) {
+    if (obj instanceof ThumbnailMerkmal) {
+      /* Da es keine Moeglichkeit gibt die BufferedImages der Thumbnails auf
+       * gleichheit zu ueberpruefen, wird hier einfach true zurueckgegeben.
+       */
+      return true;
+    }
+    return false;
+  }
   /**
    * Liest das Thumbnail aus dem uebergebenen geoeffneten
    * Bild und speichert diesen in diesem Merkmal-Objekt.
    * @param bild  Bild, aus dem der Merkmalswert gelesen wird
+   * @throws LeseMerkmalAusException 
    */
-  public void leseMerkmalAus(GeoeffnetesBild bild) {
+  public void leseMerkmalAus(GeoeffnetesBild bild) throws LeseMerkmalAusException {
 
     /* Hole aus der Zuordnungstabelle fuer das Format den richtigen Generierer 
      */
-    Map<String, ThumbnailGenerierer> zuordnung = getZuordnung();
+    Map<String, ThumbnailGenerierer> zuordnung;
+    try {
+      zuordnung = getZuordnung();
+    } catch (Exception e) {
+      throw new LeseMerkmalAusException(
+          "Konnte dieses ThumbnailMerkmal nicht auslesen.", e);
+    }
     ThumbnailGenerierer generierer = zuordnung.get(bild.getFormat());
 
     /* Falls fuer dieses Format kein Generierer angegeben ist, verwende den
@@ -68,9 +86,13 @@ public class ThumbnailMerkmal extends Merkmal {
     }
 
     /* Lasse das Thumbnail vom Generierer erzeugen */
-    this.setWert(generierer.generiereThumbnail(bild, 
-              Einstellungen.THUMB_MAXBREITE, Einstellungen.THUMB_MAXHOEHE));
-
+    try {
+      this.setWert(generierer.generiereThumbnail(bild, 
+                Einstellungen.THUMB_MAXBREITE, Einstellungen.THUMB_MAXHOEHE));
+    } catch (GeneriereException e) {
+      throw new LeseMerkmalAusException(
+          "Konnte kein Thumbnail erzeugen.", e);
+    }
   }
 
   /**
@@ -79,14 +101,15 @@ public class ThumbnailMerkmal extends Merkmal {
    * @param doc  Lucene-Document, von dem ueber ein zu diesem Merkmal
    *    gehoerigen Field der Wert ausgelesen wird
    */
-  public void leseMerkmalAusLuceneDocument(Document doc) {
+  public void leseMerkmalAusLuceneDocument(Document doc) throws LeseMerkmalAusException {
     byte[] bildInBytes = doc.getField(FELDNAME).binaryValue();
 
     try {
       setWert(ImageIO.read(new ByteArrayInputStream(bildInBytes)));
     } catch (IOException e) {
-      /* TODO Fehlerbehandlung */
-      e.printStackTrace();
+      /* Fehlerbehandlung */
+      throw new LeseMerkmalAusException(
+          "Konnte das Merkmal nicht aus dem Lucene-Dokument erzeugen", e);
     }
   }
 
@@ -111,8 +134,12 @@ public class ThumbnailMerkmal extends Merkmal {
 
       baos.close();
     } catch (IOException e) {
-      /* TODO Fehlerbehandlung */
-      e.printStackTrace();
+      /* TODO Weiss noch nicht, nur so ist es nicht das Optimale.
+       * Man koennte vielleicht eine richtige Exception werfen, oder vielleicht
+       * garnichts machen, da dieser Fall "normal" :) nicht auftritt
+       */
+      throw new RuntimeException("Konnte das BufferedImage nicht in ein "
+          + "ByteArrayOutputStream schreiben.", e);
     }
     return new Field(FELDNAME, bildInBytes, Field.Store.YES);
   }
@@ -143,9 +170,12 @@ public class ThumbnailMerkmal extends Merkmal {
    *    Objekt. Alle Formate, die nicht zugeordnet sind, werden von dem 
    *    Generierer bearbeitet, der dem "*" zugeordnet ist.
    */
-  private static Map<String, ThumbnailGenerierer> getZuordnung() {
+  private static Map<String, ThumbnailGenerierer> getZuordnung() throws Exception {
     if (thumbZuordnung == null) {
       thumbZuordnung = new HashMap<String, ThumbnailGenerierer>();
+      
+      String klassenname = "";
+      
       try {
         BufferedReader leser = new BufferedReader(new FileReader(
             Einstellungen.THUMB_ZUORDUNGSDATEI));
@@ -157,10 +187,10 @@ public class ThumbnailMerkmal extends Merkmal {
 
           /* Formate einlesen, die der Generierer bearbeiten soll */
           String[] formate = formateStr.split(",");
-          String klassenname = zeile.substring(posGleich + 1);
+          klassenname = zeile.substring(posGleich + 1).trim();
 
           /* Generierer-Object erzeugen */
-          Class klasse = Class.forName(klassenname.trim());
+          Class klasse = Class.forName(klassenname);
           ThumbnailGenerierer generierer = (ThumbnailGenerierer) klasse
               .newInstance();
 
@@ -171,17 +201,21 @@ public class ThumbnailMerkmal extends Merkmal {
 
         }
       } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        throw new Exception("Konnte die Datei " 
+            + Einstellungen.THUMB_ZUORDUNGSDATEI
+            + " nicht lesen.", e);
       } catch (ClassNotFoundException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        throw new Exception("Konnte die Klasse \"" 
+            + klassenname
+            + "\" nicht finden.", e);
       } catch (InstantiationException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        throw new Exception("Konnte kein Objekt der Klasse \"" 
+            + klassenname
+            + "\" erzeugen.", e);
       } catch (IllegalAccessException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        throw new Exception("Konnte kein Objekt der Klasse \"" 
+            + klassenname
+            + "\" erzeugen.", e);
       }
     }
     return thumbZuordnung;

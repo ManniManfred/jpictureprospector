@@ -8,6 +8,8 @@ import java.util.List;
 import org.apache.lucene.analysis.LengthFilter;
 import org.apache.lucene.search.Hits;
 
+import core.exceptions.ErzeugeBildDokumentException;
+
 /**
  * Ein Objekt dieser Klasse stellt die Trefferliste sortiert nach der 
  * Treffergenauigkeit einer Suche dar.
