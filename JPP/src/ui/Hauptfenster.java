@@ -981,7 +981,7 @@ private JTable getTBilddetails() {
         erzeugeThumbnailansicht();
       }
     });
-    groszanzeige = new BildGroszanzeige(this);
+    groszanzeige = new BildGroszanzeige(this, pVorschau.gibBildDokument());
     groszanzeige.setVisible(false);
     tapObserver = new ArrayList<Observer>();
     tapObserver.add(pVorschau);

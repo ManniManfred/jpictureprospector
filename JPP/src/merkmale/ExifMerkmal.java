@@ -8,7 +8,7 @@ import org.apache.lucene.document.Field;
 /**
  * Ein Objekt dieser Klasse repraesentiert ein Exif - Merkmal mit einem 
  * Mermalsnamen und einem zu dem Merkmal gehoerenden Wert. 
- * Exif-Merkmale können nur aus JPG und TIF gewonnen werden und werden nicht
+ * Exif-Merkmale koennen nur aus JPG und TIF gewonnen werden und werden nicht
  * in Lucene abgespeichert.
  * 
  * @author Marion Mecking

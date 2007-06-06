@@ -14,6 +14,8 @@ import javax.swing.WindowConstants;
 import java.awt.Color;
 import javax.swing.JTable;
 
+import core.BildDokument;
+
 public class BildGroszanzeige extends JFrame {
 
   /** Enthaelt den Standardabstand fuer Komponenten. */
@@ -22,6 +24,8 @@ public class BildGroszanzeige extends JFrame {
   private static final long serialVersionUID = 1L;
   
   private Hauptfenster hauptfenster = null;
+  
+  private BildDokument dok = null;
 
   private JPanel jContentPane = null;
 
@@ -46,14 +50,20 @@ public class BildGroszanzeige extends JFrame {
   /**
    * This is the default constructor
    */
-  public BildGroszanzeige(Hauptfenster hauptfenster) {
+  public BildGroszanzeige(Hauptfenster hauptfenster, BildDokument dok) {
     super();
     this.hauptfenster = hauptfenster;
+    this.dok = dok;
     initialize();
   }
   
   public Vorschaupanel gibVorschaupanel() {
     return this.pGroszanzeige;
+  }
+  
+  private void fuegeBilddetaildatenEin() {
+    
+    
   }
 
   /**
@@ -217,6 +227,9 @@ public class BildGroszanzeige extends JFrame {
   private JTable getTBilddetails() {
     if (tBilddetails == null) {
       tBilddetails = new JTable();
+      tBilddetails.setRowHeight(20);
+      tBilddetails.setModel(new BGATabellenModell());
+      fuegeBilddetaildatenEin();
     }
     return tBilddetails;
   }
