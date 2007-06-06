@@ -8,7 +8,9 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -45,6 +47,10 @@ public class Vorschaupanel extends JPanel implements Observer {
     initialize();
   }
   
+  public BildDokument gibBildDokument() {
+    return this.dok;
+  }
+  
   /**
    * Laedt die Ansicht dieses Objekts neu.
    */
@@ -67,16 +73,14 @@ public class Vorschaupanel extends JPanel implements Observer {
     if (arg instanceof BildDokument) {
       
       dok = (BildDokument) arg;
-      BildladeThread thread = new BildladeThread(dok);
-      thread.start();
-      try {
-        thread.join();
-      } catch (InterruptedException e) {
-        System.out.println("Der Bildladevorgang wurde unerwartet beendet.\n" +
-            e.getMessage());
-      }
-      bild = thread.getBild();
-      repaint();
+      final Vorschaubildlader bildlader = new Vorschaubildlader(dok);
+      bildlader.addVorschaubildListener(new VorschauBildListener() {
+        public void bildGeladen() {
+          bild = bildlader.getBild();
+          repaint();
+        }
+      });
+      bildlader.start();
     }
   }
 
@@ -149,17 +153,30 @@ public class Vorschaupanel extends JPanel implements Observer {
  * Ein Objekt der Klasse stellt einen Thread dar, der ein Bild
  * aus einem Bilddokument laedt.
  */
-class BildladeThread extends Thread {
+class Vorschaubildlader extends Thread {
 
   /** Enthaelt das Bilddokument aus dem das Bild geladen werden soll. */
   private BildDokument dok = null;
   
+  private List<VorschauBildListener> listener = null;
+  
   /** Enthaelt das fertig geladene Bild. */
   private Image bild = null;
   
-  public BildladeThread(BildDokument dok) {
+  public Vorschaubildlader(BildDokument dok) {
     
     this.dok = dok;
+    this.listener = new ArrayList<VorschauBildListener>();
+  }
+  
+  /**
+   * Wird aufgerufen, wenn das Vorschaubild fertig geladen wurde und
+   * benachrichtigt alle Listener.
+   */
+  private void fireBildGeladen() {
+    for (VorschauBildListener l : listener) {
+      l.bildGeladen();
+    }
   }
   
   /**
@@ -172,6 +189,7 @@ class BildladeThread extends Thread {
     try {
       
       bild = ImageIO.read(new File(dateipfad));
+      fireBildGeladen();
     } catch (IOException e) {
       System.out.println("Das Bild konnte nicht geladen werden.\n" +
           e.getMessage());
@@ -186,5 +204,24 @@ class BildladeThread extends Thread {
    */
   public Image getBild() {
     return this.bild;
+  }
+  
+  /**
+   * Fuegt einen Listener der Liste an bereits vorhandenen
+   * Listenern hinzu
+   * 
+   * @param l  der hinzuzufuegende Listener
+   */
+  public void addVorschaubildListener(VorschauBildListener l) {
+    this.listener.add(l);
+  }
+  
+  /**
+   * Loescht einen Listener aus der Liste an Listenern.
+   * 
+   * @param l  der zu loeschende Listener
+   */
+  public void removeVorschaubildListener(VorschauBildListener l) {
+    this.listener.remove(l);
   }
 }
