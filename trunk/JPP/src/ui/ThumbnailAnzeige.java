@@ -23,7 +23,8 @@ import core.BildDokument;
  */
 public class ThumbnailAnzeige extends JPanel {
   
-  private static final int STD_GROESZE = 150;
+  /** Enthaelt die Standardbreite und -hoehe eines Thumbnails. */
+  private static final int STD_GROESZE = 256;
 
   /** Enthaelt das Thumbnail. */
   private Image thumbnail = null;
@@ -56,6 +57,13 @@ public class ThumbnailAnzeige extends JPanel {
     this.repaint();
   }
   
+  /**
+   * Initialisiert dieses Objekt mit den entsprechenden Dokumenten.
+   * 
+   * @param dok  das <code>BildDokument</code>
+   * @param thumbnail  das anzuzeigende Thumbnail
+   * @param groesze  die Groesze mit der das Thumbnails gezeichnet werden soll
+   */
   public void init(BildDokument dok, Image thumbnail, int groesze) {
     
     this.dok = dok;
@@ -66,10 +74,21 @@ public class ThumbnailAnzeige extends JPanel {
     this.repaint();
   }
   
+  /**
+   * Liefert das im Panel gezeichnete Thumbnail
+   * 
+   * @return  das Thumbnails des Objekts
+   */
   public Image gibBild() {
     return this.thumbnail;
   }
   
+  /**
+   * Zeichnet das Thumbnail in diese Komponente. Die Groesze des Thumbnails
+   * wird entsprechend der Groesze des Panels skaliert, dass die Verhaeltnisse
+   * des Originals erhalten bleiben.
+   * @param g  das Element mit dem gezeichnet wird
+   */
   protected void paintComponent(Graphics g) {
     
     double originalBreite = 

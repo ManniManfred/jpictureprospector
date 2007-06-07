@@ -8,9 +8,10 @@ import java.util.Observer;
 
 import javax.swing.JOptionPane;
 
+import ui.listener.BildimportListener;
 import core.BildDokument;
-import core.ImportException;
 import core.JPPCore;
+import core.exceptions.ImportException;
 
 /**
  * Ein Objekt der Klasse importiert in den Programmkern eine
@@ -37,6 +38,14 @@ public class Bildimportierer extends Thread {
   
   /** Enthaelt eine Liste aller AnzeigePanel. */
   private List<ThumbnailAnzeigePanel> listeAnzeigePanel;
+  
+  /** Enthaelt eine Liste der Dateien, die bereits importiert wurden. */
+  private List<String> bereitsImportierteDateien = null;
+  
+  /** Enthaelt eine Liste an Dateien, die defekt sind und nicht importiert
+   * werden konnten.
+   */
+  private List<String> defekteDateien = null;
   
   /**
    * Erzeugt ein neuen Objekt der Klasse mit den entsprechenden Daten
@@ -92,25 +101,79 @@ public class Bildimportierer extends Thread {
   public void run() {
     
     listeAnzeigePanel = new ArrayList<ThumbnailAnzeigePanel>();
+    
+    /* Import der Dateien */
     if (dateien != null) {
       for (int i = 0; i < dateien.length; i++) {
         try {
+          // Zeit die verwendet wurde zum Import.
           long zeit = Calendar.getInstance().getTimeInMillis();
           BildDokument dok = kern.importiere(dateien[i]);
           System.out.println("Datei importiert: " + dateien[i].getAbsolutePath());
           System.out.println("Benoetigte Zeit:  " + 
               (Calendar.getInstance().getTimeInMillis() - zeit) + "ms");
-          fireBildImportiert();
+          
+          // Erzeugen des entsprechenden Panels
           ThumbnailAnzeigePanel tap = new ThumbnailAnzeigePanel(dok,
               tapGroesze, tapObserver);
           tap.setzeDateinamen(dateien[i].getName(), tapGroesze);
           listeAnzeigePanel.add(tap);
         } catch (ImportException ie) {
-          JOptionPane.showMessageDialog(null, "Die Datei(-en) konnten nicht" +
-              " importiert werden.\n" + ie.getMessage(),
-              "Importfehler", JOptionPane.ERROR_MESSAGE);
+          
+          /* Bereits importierte Dateien und defekt Dateien werden
+           * aufgezeichnet und spaeter ausgegeben
+           */
+          if (ie.getMessage().indexOf("bereits importiert") >= 0) {
+            
+            if (bereitsImportierteDateien == null) {
+              bereitsImportierteDateien = new ArrayList<String>();
+            }
+            bereitsImportierteDateien.add(dateien[i].getName());
+          } else if (ie.getMessage().indexOf("kein BildDokument") >= 0) {
+            
+            if (defekteDateien == null) {
+              defekteDateien = new ArrayList<String>();
+            }
+            defekteDateien.add(dateien[i].getName());
+          }
+        } finally {
+          
+          // Es wurde ein Bild importiert oder eine Fehlermeldung erzeugt
+          fireBildImportiert();
         }
       }
+      
+      /* Erzeugung der Fehlermeldung, wenn bereits importierte oder
+       * defekte Dateien vorhanden sind
+       */
+      String fehlermeldung = "Die Datei(-en) konnten nicht " +
+          "importiert werden.\n\n";
+      
+      if (bereitsImportierteDateien != null) {
+        String importierteDateien = "Diese Dateien wurden bereits importiert:\n";
+        for (String dateiname : bereitsImportierteDateien) {
+          importierteDateien += dateiname + "\n";
+        }
+        fehlermeldung += importierteDateien;
+      }
+      if (defekteDateien != null) {
+        
+        String defekteDateien = "\nDiese Dateien sind defekt:\n";
+        for (String defekteDatei : this.defekteDateien) {
+          defekteDateien += defekteDatei + "\n";
+        }
+        fehlermeldung += defekteDateien;
+      }
+      
+      /* Wenn Fehler beim Import erfolgt sind muss eine Fehlermeldung
+       * ausgegeben werden
+       */
+      if (bereitsImportierteDateien != null || defekteDateien != null) {
+        JOptionPane.showMessageDialog(null, fehlermeldung,
+            "Importfehler", JOptionPane.ERROR_MESSAGE);
+      }
+      bereitsImportierteDateien = null;
+      defekteDateien = null;
       fireLadevorgangAbgeschlossen();
     }
   }

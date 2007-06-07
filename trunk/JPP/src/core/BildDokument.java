@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import merkmale.AlleMerkmale;
+import merkmale.DateipfadMerkmal;
 import merkmale.ExifMerkmal;
 import merkmale.Merkmal;
 
@@ -29,8 +30,6 @@ import org.apache.lucene.document.Document;
  * @author Manfred Rosskamp
  */
 public class BildDokument {
- 
-  
   
   /** 
    * Zuordnung des Merkmalsnamen zu einem Merkmal dieses BildDokumentes,
@@ -218,12 +217,12 @@ public class BildDokument {
   public List<AlleMerkmale> gibAlleMerkmale() {
     
     /* vorhandene Merkmale als String uebernehmen. */
-    ArrayList<AlleMerkmale> alleMerkmale = (ArrayList) merkmale.values();
+    ArrayList<AlleMerkmale> alleMerkmale = new ArrayList<AlleMerkmale>();
     
-    String pfad =  this.getMerkmal("DateipfadMerkmal").getWert().toString();   
+    String pfad =  this.getMerkmal(DateipfadMerkmal.FELDNAME).getWert().toString();   
     File jpegFile = new File(pfad);
     
-    /* f�r JPG die Exif-Daten hinzufuegen. */
+    /* fuer JPG die Exif-Daten hinzufuegen. */
     try{
       
       Metadata metadata = JpegMetadataReader.readMetadata(jpegFile);      
@@ -231,18 +230,18 @@ public class BildDokument {
       Iterator directories = metadata.getDirectoryIterator();
       
       while (directories.hasNext()) {
-	Directory directory = (Directory)directories.next();
-	/* Iteration durch die Tags */
-	Iterator tags = directory.getTagIterator();
-	
-	while (tags.hasNext()) {
-	  Tag tag = (Tag)tags.next();
-	  /* Werte setzen */
-	  AlleMerkmale neuesMerkmal = 
-	      new ExifMerkmal(tag.getTagName(), tag.getDescription());
-	  alleMerkmale.add(neuesMerkmal);
-	}
-      }
+    	Directory directory = (Directory)directories.next();
+    	/* Iteration durch die Tags */
+    	Iterator tags = directory.getTagIterator();
+    	
+    	while (tags.hasNext()) {
+    	  Tag tag = (Tag)tags.next();
+    	  /* Werte setzen */
+    	  AlleMerkmale neuesMerkmal = 
+    	      new ExifMerkmal(tag.getTagName(), tag.getDescription());
+    	  alleMerkmale.add(neuesMerkmal);
+    	}
+          }
     } catch (Exception e) {
       /* Bild ist kein JPG, es werden keine Merkmale zugefuegt. */
     }

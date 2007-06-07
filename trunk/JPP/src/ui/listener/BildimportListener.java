@@ -1,4 +1,4 @@
-package ui;
+package ui.listener;
 
 /**
  * Gibt die Vorgaben fuer Listener die an einem Bildimportvorgang

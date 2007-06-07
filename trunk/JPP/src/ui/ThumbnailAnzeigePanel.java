@@ -28,6 +28,7 @@ import core.BildDokument;
 
 public class ThumbnailAnzeigePanel extends JPanel {
 
+  private static final String PFADSEPARATOR = System.getProperty("file.separator");
   /** Enthaelt das Label fuer den Dateinamen des Bildes. */
   private JLabel lDateiname = null;
   
@@ -65,12 +66,12 @@ public class ThumbnailAnzeigePanel extends JPanel {
     
     this.istAusgewaehlt = istFokussiert;
     if (this.istAusgewaehlt) {
-      this.setBorder(new LineBorder(Color.BLUE, 2, true));
+      this.setBorder(new LineBorder(new Color(80, 200, 80), 2));
       this.observable.setChanged();
       this.observable.notifyObservers(dok);
       this.observable.clearChanged();
     } else {
-      this.setBorder(new LineBorder(Color.GRAY, 1));
+      this.setBorder(new LineBorder(new Color(200, 200, 200), 1));
     }
     this.thumbnailAnzeige.repaint();
   }
@@ -110,7 +111,11 @@ public class ThumbnailAnzeigePanel extends JPanel {
       }
       this.lDateiname.setText(dateinameNeu + dateiEndung);
     } else {
-      this.lDateiname.setText(dateiname.substring(0, dateiname.length() - 4));
+      if (dateiname.length() > 4) {
+        this.lDateiname.setText(dateiname.substring(0, dateiname.length() - 4));
+      } else {
+        this.lDateiname.setText("currywurst");
+      }
     }
   }
   
@@ -140,6 +145,18 @@ public class ThumbnailAnzeigePanel extends JPanel {
   public boolean istAusgewaehlt() {
     return this.istAusgewaehlt;
   }
+  
+  private static String gibDateinamen(String pfad) {
+    
+    String dateiname = "";
+    int posLetzterSeparator = pfad.lastIndexOf(PFADSEPARATOR);
+    if (posLetzterSeparator >= 0) {
+      dateiname = pfad.substring(posLetzterSeparator + 1);
+    } else {
+      dateiname = pfad.substring(0);
+    }
+    return dateiname;
+  }
 
   /**
    * This method initializes this
@@ -148,7 +165,8 @@ public class ThumbnailAnzeigePanel extends JPanel {
   private void initialize(BildDokument dok, int groesze, List<Observer> observer) {
 
     this.dok = dok;
-    dateiname = (String) dok.getMerkmal(DateipfadMerkmal.FELDNAME).getWert();
+    dateiname = gibDateinamen((String)
+        dok.getMerkmal(DateipfadMerkmal.FELDNAME).getWert());
     ThumbnailMerkmal m = 
       (ThumbnailMerkmal) dok.getMerkmal(ThumbnailMerkmal.FELDNAME);
     this.thumbnailAnzeige = new ThumbnailAnzeige(m.getThumbnail(), dok);
@@ -161,7 +179,8 @@ public class ThumbnailAnzeigePanel extends JPanel {
     lDateiname.setHorizontalAlignment(SwingConstants.CENTER);
     this.setLayout(new BorderLayout());
     this.setSize(new Dimension(groesze, groesze + 20));
-    this.setBorder(new LineBorder(Color.GRAY, 1));
+    this.setBackground(Color.WHITE);
+    this.setBorder(new LineBorder(new Color(200, 200, 200), 1));
     this.setFocusable(true);
     this.addMouseListener(new java.awt.event.MouseAdapter() {
       public void mouseClicked(java.awt.event.MouseEvent e) {
