@@ -24,6 +24,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
+import ui.listener.VorschauBildListener;
+
 import merkmale.BildbreiteMerkmal;
 import merkmale.BildhoeheMerkmal;
 import merkmale.DateipfadMerkmal;
@@ -35,7 +37,7 @@ public class Vorschaupanel extends JPanel implements Observer {
   private static final long serialVersionUID = 1L;
   
   /** Enthaelt das Bild, was anzeigt werden soll. */
-  private Image bild = null;  //  @jve:decl-index=0:
+  private Image bild = null;
   
   private BildDokument dok = null;
   
@@ -92,6 +94,7 @@ public class Vorschaupanel extends JPanel implements Observer {
   private void initialize() {
     this.setSize(300, 300);
     this.setLayout(new BorderLayout());
+    this.setBackground(Color.WHITE);
     this.setBorder(BorderFactory.createTitledBorder(
         BorderFactory.createEmptyBorder(0, 0, 0, 0), "Vorschau",
         TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, 
@@ -115,7 +118,7 @@ public class Vorschaupanel extends JPanel implements Observer {
       double breiteBild = bild.getWidth(this);
       double dieseBreite = getWidth();
       double dieseHoehe = getHeight();
-      g.setColor(new Color(238, 238, 238));
+      g.setColor(Color.WHITE);
       g.fillRect(0, 0, getWidth(), getHeight());
     
       if (originalBreite <= dieseBreite && originalHoehe <= dieseHoehe) {
@@ -146,82 +149,5 @@ public class Vorschaupanel extends JPanel implements Observer {
       g.setColor(new Color(238, 238, 238));
       g.fillRect(0, 0, getWidth(), getHeight());
     }
-  }
-}
-
-/**
- * Ein Objekt der Klasse stellt einen Thread dar, der ein Bild
- * aus einem Bilddokument laedt.
- */
-class Vorschaubildlader extends Thread {
-
-  /** Enthaelt das Bilddokument aus dem das Bild geladen werden soll. */
-  private BildDokument dok = null;
-  
-  private List<VorschauBildListener> listener = null;
-  
-  /** Enthaelt das fertig geladene Bild. */
-  private Image bild = null;
-  
-  public Vorschaubildlader(BildDokument dok) {
-    
-    this.dok = dok;
-    this.listener = new ArrayList<VorschauBildListener>();
-  }
-  
-  /**
-   * Wird aufgerufen, wenn das Vorschaubild fertig geladen wurde und
-   * benachrichtigt alle Listener.
-   */
-  private void fireBildGeladen() {
-    for (VorschauBildListener l : listener) {
-      l.bildGeladen();
-    }
-  }
-  
-  /**
-   * Startet diesen Thread.
-   */
-  @Override
-  public void run() {
-    
-    String dateipfad = (String) dok.getMerkmal(DateipfadMerkmal.FELDNAME).getWert();
-    try {
-      
-      bild = ImageIO.read(new File(dateipfad));
-      fireBildGeladen();
-    } catch (IOException e) {
-      System.out.println("Das Bild konnte nicht geladen werden.\n" +
-          e.getMessage());
-    }
-  }
-  
-  /**
-   * Liefert das Bild dieses Objekts.
-   * 
-   * @return <code>Image</code> wenn das Bild geladen wurde ansonsten
-   *         <code>null</code>
-   */
-  public Image getBild() {
-    return this.bild;
-  }
-  
-  /**
-   * Fuegt einen Listener der Liste an bereits vorhandenen
-   * Listenern hinzu
-   * 
-   * @param l  der hinzuzufuegende Listener
-   */
-  public void addVorschaubildListener(VorschauBildListener l) {
-    this.listener.add(l);
-  }
-  
-  /**
-   * Loescht einen Listener aus der Liste an Listenern.
-   * 
-   * @param l  der zu loeschende Listener
-   */
-  public void removeVorschaubildListener(VorschauBildListener l) {
-    this.listener.remove(l);
   }
 }

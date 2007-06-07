@@ -1,4 +1,4 @@
-package ui;
+package ui.listener;
 
 /**
  * Gibt die Vorgaben fuer einen Listener, der den Ladevorgang eines

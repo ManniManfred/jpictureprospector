@@ -32,8 +32,10 @@ public class LadebalkenDialog extends JDialog implements Runnable {
 
   private static final long serialVersionUID = 1L;
   
+  /** Enthaelt die Gesamtanzahl, wie viele Bilder zu importieren sind. */
   private double gesamtanzahl = 0.0;
   
+  /** Enthaelt die Zahl des Bildes welches zur Zeit importiert wird. */
   private int anzahl = 0;
 
   private JPanel jContentPane = null;
@@ -51,7 +53,9 @@ public class LadebalkenDialog extends JDialog implements Runnable {
   private JLabel lUeberschrift = null;
 
   /**
-   * @param owner
+   * Erzeugt ein neues Objekt der Klasse.
+   * @param owner  der Besitzer dieses Dialogs
+   * @param gesamtanzahl  die Gesamtanzahl der zu ladenden Dateien
    */
   public LadebalkenDialog(Frame owner, int gesamtanzahl) {
     super(owner);
@@ -61,6 +65,11 @@ public class LadebalkenDialog extends JDialog implements Runnable {
     new Thread(this).start();
   }
   
+  /**
+   * Setzt die Anzahl der geladenen Bilder neu. Die aktuelle Nummer
+   * entspricht immer der Nummer, welches Bild zur Zeit geladen wird.
+   * @param anzahl  die Zahl welches Bild geladen wird
+   */
   public void setzeAnzahl(int anzahl) {
     
     this.anzahl = anzahl;
@@ -72,12 +81,18 @@ public class LadebalkenDialog extends JDialog implements Runnable {
     this.lAnzahl.setText(anzahl + "");
   }
   
+  /**
+   * Liefert die Anzahl welches Bild zur Zeit geladen wird.
+   * @return  die Anzahl welches Bild zur Zeit geladen wird
+   */
   public int gibAnzahl() {
     return this.anzahl;
   }
 
+  /**
+   * Startet diesen Thread.
+   */
   public void run() {
-    this.repaint();
   }
 
   /**

@@ -1,7 +1,14 @@
 package ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -10,22 +17,42 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.WindowConstants;
-import java.awt.Color;
 import javax.swing.JTable;
+import javax.swing.WindowConstants;
+import javax.swing.table.TableColumn;
+
+import merkmale.AlleMerkmale;
+import merkmale.DateipfadMerkmal;
 
 import core.BildDokument;
+import javax.swing.JScrollPane;
+
+import ui.listener.BildGeladenListener;
 
 public class BildGroszanzeige extends JFrame {
-
+  
+  /** Enthaelt den Wert fuer die Spalte der Exif-Bezeichnungen. */
+  private static final int KEYSPALTE = 0;
+  
+  /** Enthaelt den Wert fuer die Spalte der Exif-Werte. */
+  private static final int WERTSPALTE = 1;
+  
   /** Enthaelt den Standardabstand fuer Komponenten. */
   private static final int STD_ABSTAND = 15;
   
   private static final long serialVersionUID = 1L;
   
+  /** Enthaelt das zugehoerige Hauptfenster. */
   private Hauptfenster hauptfenster = null;
   
+  /** Enthaelt das BildDokument zu dem die Informationen angezeigt werden
+   * sollen. */
   private BildDokument dok = null;
+  
+  /** Enthaehlt das Tabellenmodell fuer die Tabelle in denen Zusatzdetails
+   * angezeigt werden.
+   */
+  private BGATabellenModell detailsTableModel= null;
 
   private JPanel jContentPane = null;
 
@@ -43,9 +70,9 @@ public class BildGroszanzeige extends JFrame {
 
   private Vorschaupanel pGroszanzeige = null;
 
-  private JPanel pBilddetails = null;
+  private JScrollPane spZusatzdetails = null;
 
-  private JTable tBilddetails = null;
+  private JTable tZusatzdetails = null;
 
   /**
    * This is the default constructor
@@ -57,13 +84,51 @@ public class BildGroszanzeige extends JFrame {
     initialize();
   }
   
+  /**
+   * Liefert das Panel in dem die Groszansicht zum Tragen kommt.
+   * 
+   * @return  das entsprechende Panel was das Bild grosz anzeigt
+   */
   public Vorschaupanel gibVorschaupanel() {
     return this.pGroszanzeige;
   }
   
-  private void fuegeBilddetaildatenEin() {
-    
-    
+  /**
+   * Liefert das Tabellenmodell der Tabelle.
+   * 
+   * @return  das entsprechenden Tabellenmodell.
+   */
+  public BGATabellenModell gibTabellenModell() {
+    return this.detailsTableModel;
+  }
+
+  /**
+   * Die Groesze der Spaltenbreite wird automatisch angepasst an die
+   * Laenge der darin enthaltenen Strings.
+   */
+  private void updateAnsicht() {
+
+    TableColumn keySpalte = tZusatzdetails.getColumnModel().getColumn(KEYSPALTE);
+    TableColumn wertSpalte = tZusatzdetails.getColumnModel().getColumn(WERTSPALTE);
+    Font font = tZusatzdetails.getFont();
+    FontMetrics metrics = getFontMetrics(font);
+    int maxBreiteKey = 0;
+    int maxBreiteWert = 0;
+    for (int i = 0; i < tZusatzdetails.getRowCount(); i++) {
+      
+      if (maxBreiteKey < metrics.stringWidth((String)
+                           tZusatzdetails.getValueAt(i, KEYSPALTE))) {
+        maxBreiteKey = metrics.stringWidth((String) 
+                         tZusatzdetails.getValueAt(i, KEYSPALTE));
+      }
+      if (maxBreiteWert < metrics.stringWidth((String) 
+                            tZusatzdetails.getValueAt(i, WERTSPALTE))) {
+        maxBreiteWert = metrics.stringWidth((String) 
+                          tZusatzdetails.getValueAt(i, WERTSPALTE));
+      }
+    }
+    keySpalte.setPreferredWidth(maxBreiteKey + 20);
+    wertSpalte.setPreferredWidth(maxBreiteWert + 20);
   }
 
   /**
@@ -188,7 +253,7 @@ public class BildGroszanzeige extends JFrame {
       tpGroszanzeige = new JTabbedPane();
       tpGroszanzeige.setBackground(new Color(238, 238, 238));
       tpGroszanzeige.addTab("Groszanzeige", null, getPGroszanzeige(), null);
-      tpGroszanzeige.addTab("Bilddetails", null, getPBilddetails(), null);
+      tpGroszanzeige.addTab("Zusatzdetails", null, getSpZusatzdetails(), null);
     }
     return tpGroszanzeige;
   }
@@ -207,31 +272,37 @@ public class BildGroszanzeige extends JFrame {
   }
 
   /**
-   * This method initializes pBilddetails	
+   * This method initializes spZusatzdetails	
    * 	
-   * @return javax.swing.JPanel	
+   * @return javax.swing.JScrollPane	
    */
-  private JPanel getPBilddetails() {
-    if (pBilddetails == null) {
-      pBilddetails = new JPanel();
-      pBilddetails.add(getTBilddetails(), null);
+  private JScrollPane getSpZusatzdetails() {
+    if (spZusatzdetails == null) {
+      spZusatzdetails = new JScrollPane();
+      spZusatzdetails.setViewportView(getTZusatzdetails());
     }
-    return pBilddetails;
+    return spZusatzdetails;
   }
 
   /**
-   * This method initializes tBilddetails	
+   * This method initializes tZusatzdetails	
    * 	
    * @return javax.swing.JTable	
    */
-  private JTable getTBilddetails() {
-    if (tBilddetails == null) {
-      tBilddetails = new JTable();
-      tBilddetails.setRowHeight(20);
-      tBilddetails.setModel(new BGATabellenModell());
-      fuegeBilddetaildatenEin();
+  private JTable getTZusatzdetails() {
+    if (tZusatzdetails == null) {
+      tZusatzdetails = new JTable();
+      tZusatzdetails.setRowHeight(20);
+      tZusatzdetails.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+      tZusatzdetails.setIntercellSpacing(new Dimension(10, 10));
+      detailsTableModel = new BGATabellenModell(this.dok);
+      tZusatzdetails.setModel(detailsTableModel);
+      detailsTableModel.addBildGeladenListener(new BildGeladenListener() {
+        public void bildWurdeGeladen() {
+          updateAnsicht();
+        }
+      });
     }
-    return tBilddetails;
+    return tZusatzdetails;
   }
-
 }

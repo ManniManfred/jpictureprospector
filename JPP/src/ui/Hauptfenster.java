@@ -11,7 +11,6 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Observer;
 
@@ -41,13 +40,14 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
+import ui.listener.BildimportListener;
 import core.BildDokument;
-import core.EntferneException;
-import core.ErzeugeException;
-import core.ImportException;
 import core.JPPCore;
-import core.SucheException;
 import core.Trefferliste;
+import core.exceptions.EntferneException;
+import core.exceptions.ErzeugeException;
+import core.exceptions.SucheException;
+import java.awt.Color;
 
 /**
  * Ein Objekt der Klasse stellt das Hauptanzeigefenster der Software zur
@@ -284,8 +284,7 @@ public class Hauptfenster extends JFrame {
       double benoetigteBreite = anzahlThumbnailsProZeile * 
           (sGroesze.getValue() + STD_ABSTAND) + STD_ABSTAND;
       double benoetigteHoehe = anzahlBenoetigteZeilen * 
-          (sGroesze.getValue() + 20 + STD_ABSTAND) + tbWerkzeugleiste.getHeight() +
-          hauptmenu.getHeight() + pSuche.getHeight() + STD_ABSTAND;
+          (sGroesze.getValue() + 20 + STD_ABSTAND);
       
       /* MUSS GESETZT WERDEN!!! Ansonsten wird nur eine Zeile mit den
       Thumbnails angezeigt */
@@ -511,7 +510,7 @@ public class Hauptfenster extends JFrame {
   private JMenu getMEinstellungen() {
     if (mEinstellungen == null) {
       mEinstellungen = new JMenu();
-      mEinstellungen.setText("Einstellungen");
+      mEinstellungen.setText("Bearbeiten");
       mEinstellungen.setMnemonic(KeyEvent.VK_E);
       mEinstellungen.add(getMiLoeschen());
     }
@@ -730,7 +729,14 @@ public class Hauptfenster extends JFrame {
   private JMenuItem getMiLoeschen() {
     if (miLoeschen == null) {
       miLoeschen = new JMenuItem();
-      miLoeschen.setText("Löschen");
+      miLoeschen.setText("Ausgewählte Bilder löschen");
+      miLoeschen.setMnemonic(KeyEvent.VK_L);
+      miLoeschen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, Event.ALT_MASK | Event.CTRL_MASK, false));
+      miLoeschen.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+          loescheBilder();
+        }
+      });
     }
     return miLoeschen;
   }
@@ -866,34 +872,34 @@ public class Hauptfenster extends JFrame {
   }
 
   /**
- * This method initializes spBilddetails	
- * 	
- * @return javax.swing.JScrollPane	
- */
-private JScrollPane getSpBilddetails() {
-  if (spBilddetails == null) {
-    spBilddetails = new JScrollPane();
-    spBilddetails.setBorder(BorderFactory.createTitledBorder(null,
-        "Bilddetails", TitledBorder.DEFAULT_JUSTIFICATION,
-        TitledBorder.DEFAULT_POSITION, null, null));
-    spBilddetails.setViewportView(getTBilddetails());
+   * This method initializes spBilddetails	
+   * 	
+   * @return javax.swing.JScrollPane	
+   */
+  private JScrollPane getSpBilddetails() {
+    if (spBilddetails == null) {
+      spBilddetails = new JScrollPane();
+      spBilddetails.setBorder(BorderFactory.createTitledBorder(null,
+          "Bilddetails", TitledBorder.DEFAULT_JUSTIFICATION,
+          TitledBorder.DEFAULT_POSITION, null, null));
+      spBilddetails.setViewportView(getTBilddetails());
+    }
+    return spBilddetails;
   }
-  return spBilddetails;
-}
 
-/**
- * This method initializes tBilddetails	
- * 	
- * @return javax.swing.JTable	
- */
-private JTable getTBilddetails() {
-  if (tBilddetails == null) {
-    tBilddetails = new JTable();
-    tBilddetails.setModel(new BildinfoTabelModel());
-    tBilddetails.setName("Bilddetails");
+  /**
+   * This method initializes tBilddetails	
+   * 	
+   * @return javax.swing.JTable	
+   */
+  private JTable getTBilddetails() {
+    if (tBilddetails == null) {
+      tBilddetails = new JTable();
+      tBilddetails.setModel(new BildinfoTabelModel());
+      tBilddetails.setName("Bilddetails");
+    }
+    return tBilddetails;
   }
-  return tBilddetails;
-}
 
   /**
    * This method initializes pThumbnails	
@@ -904,6 +910,7 @@ private JTable getTBilddetails() {
     if (pThumbnails == null) {
       pThumbnails = new JPanel();
       pThumbnails.setLayout(new FlowLayout(FlowLayout.LEADING, STD_ABSTAND, STD_ABSTAND));
+      pThumbnails.setBackground(Color.white);
     }
     return pThumbnails;
   }
@@ -986,6 +993,7 @@ private JTable getTBilddetails() {
     tapObserver = new ArrayList<Observer>();
     tapObserver.add(pVorschau);
     tapObserver.add(groszanzeige.gibVorschaupanel());
+    tapObserver.add(groszanzeige.gibTabellenModell());
   }
 
   /**

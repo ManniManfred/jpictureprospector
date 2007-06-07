@@ -25,6 +25,7 @@ public class SuchPanel extends JPanel {
   
   private static final long serialVersionUID = 1L;
   
+  /** Enthaelt das Hauptfenster in dem das Panel gezeigt wird. */
   private Hauptfenster hauptfenster;
   
   private JTextField tfSuchFeld = null;
@@ -111,4 +112,4 @@ public class SuchPanel extends JPanel {
     return bSuchen;
   }
 
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+}
