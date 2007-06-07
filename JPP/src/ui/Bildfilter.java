@@ -27,9 +27,11 @@ public class Bildfilter extends FileFilter {
     dateitypen.add("jpeg");
     dateitypen.add("gif");
     dateitypen.add("bmp");
-    dateitypen.add("tif");
-    dateitypen.add("tiff");
     dateitypen.add("png");
+    
+    /* Benoetigen JavaAdvancedImageIO */
+//  dateitypen.add("tif");
+//  dateitypen.add("tiff");
   }
 
   /**
