@@ -72,7 +72,7 @@ public class BGATabellenModell extends DefaultTableModel implements Observer {
         this.setRowCount(0);
         for (AlleMerkmale merkmal : alleMerkmale) {
           Object[] daten = new Object[]{merkmal.getName(),
-              (String) merkmal.getWert()};
+              merkmal.getWert().toString()};
           this.addRow(daten);
         }
         fireBildGeladen();

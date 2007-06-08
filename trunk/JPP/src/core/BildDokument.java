@@ -1,6 +1,23 @@
 
 package core;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import merkmale.AlleMerkmale;
+import merkmale.DateipfadMerkmal;
+import merkmale.ExifMerkmal;
+import merkmale.Merkmal;
+
+import org.apache.lucene.document.Document;
+
 import com.drew.imaging.jpeg.JpegMetadataReader;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
@@ -8,21 +25,6 @@ import com.drew.metadata.Tag;
 
 import core.exceptions.ErzeugeBildDokumentException;
 import core.exceptions.LeseMerkmalAusException;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import merkmale.AlleMerkmale;
-import merkmale.DateipfadMerkmal;
-import merkmale.ExifMerkmal;
-import merkmale.Merkmal;
-
-import org.apache.lucene.document.Document;
 
 /**
  * Ein Objekt dieser Klasse stellt ein Dokument mit vielen Merkmalen zu einem
@@ -208,6 +210,11 @@ public class BildDokument {
     merkmale.put(merkmal.getName(), merkmal);
   }
   
+  
+  public Collection<Merkmal> gibGrundMerkmale() {
+    return merkmale.values();
+  }
+  
   /**
    * Liefert eine Liste aller Merkmale, die zu diesem Bild vorhanden sind,
    * einschliesslich der Exif-Merkmale bei JPGs.
@@ -218,6 +225,8 @@ public class BildDokument {
     
     /* vorhandene Merkmale als String uebernehmen. */
     ArrayList<AlleMerkmale> alleMerkmale = new ArrayList<AlleMerkmale>();
+    
+    alleMerkmale.addAll(gibGrundMerkmale());
     
     String pfad =  this.getMerkmal(DateipfadMerkmal.FELDNAME).getWert().toString();   
     File jpegFile = new File(pfad);
