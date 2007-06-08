@@ -61,23 +61,16 @@ public class BGATabellenModell extends DefaultTableModel implements Observer {
     if (arg instanceof BildDokument) {
       dok = (BildDokument) arg;
       
-      /* Nur ein jpg enhaelt die Informationen, die zusaetzlich
-       * dargestellt werden koennen. */
-      if (((String) (dok.getMerkmal(DateipfadMerkmal.FELDNAME).getWert()))
-              .endsWith("jpg")
-          || ((String) (dok.getMerkmal(DateipfadMerkmal.FELDNAME).getWert()))
-                 .endsWith("jpeg")) {
-        
-        List<AlleMerkmale> alleMerkmale = dok.gibAlleMerkmale();
-        this.setRowCount(0);
-        for (AlleMerkmale merkmal : alleMerkmale) {
-          Object[] daten = new Object[]{merkmal.getName(),
-              merkmal.getWert().toString()};
-          this.addRow(daten);
-        }
-        fireBildGeladen();
+      List<AlleMerkmale> alleMerkmale = dok.gibAlleMerkmale();
+      this.setRowCount(0);
+      for (AlleMerkmale merkmal : alleMerkmale) {
+        Object[] daten = new Object[]{merkmal.getName(),
+            merkmal.getWert().toString()};
+        this.addRow(daten);
       }
+      fireBildGeladen();
     }
+    
   }
   
   private void fireBildGeladen() {
