@@ -709,7 +709,7 @@ public class Hauptfenster extends JFrame {
     if (spVorschauBildinfo == null) {
       spVorschauBildinfo = new JSplitPane();
       spVorschauBildinfo.setOrientation(JSplitPane.VERTICAL_SPLIT);
-      spVorschauBildinfo.setDividerLocation(400);
+      spVorschauBildinfo.setDividerLocation(250);
       spVorschauBildinfo.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
       spVorschauBildinfo.setDividerSize(TRENNBALKEN_GROESZE);
       spVorschauBildinfo.setMinimumSize(new Dimension(MIN_BREITE_BILDINFO, 245));
@@ -731,7 +731,7 @@ public class Hauptfenster extends JFrame {
       miLoeschen = new JMenuItem();
       miLoeschen.setText("Ausgewählte Bilder löschen");
       miLoeschen.setMnemonic(KeyEvent.VK_L);
-      miLoeschen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, Event.ALT_MASK | Event.CTRL_MASK, false));
+      miLoeschen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0, false));
       miLoeschen.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
           loescheBilder();
@@ -969,7 +969,6 @@ public class Hauptfenster extends JFrame {
         Hauptfenster hauptfenster = new Hauptfenster();
         hauptfenster.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         hauptfenster.setVisible(true);
-        hauptfenster.setExtendedState(JFrame.MAXIMIZED_BOTH);
       }
     });
   }
