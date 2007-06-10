@@ -139,7 +139,6 @@ public class BildGroszanzeige extends JFrame {
   private void initialize() {
     this.setSize(800, 600);
     this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-    this.setExtendedState(JFrame.MAXIMIZED_BOTH);
     this.setContentPane(getJContentPane());
     this.setTitle("Groszanzeige - JPictureProspector");
   }

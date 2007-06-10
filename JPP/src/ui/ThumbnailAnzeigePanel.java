@@ -71,7 +71,10 @@ public class ThumbnailAnzeigePanel extends JPanel {
       this.observable.notifyObservers(dok);
       this.observable.clearChanged();
     } else {
-      this.setBorder(new LineBorder(new Color(200, 200, 200), 1));
+      this.setBorder(new LineBorder(new Color(200, 200, 200), 2));
+      this.observable.setChanged();
+      this.observable.notifyObservers(dok);
+      this.observable.clearChanged();
     }
     this.thumbnailAnzeige.repaint();
   }
