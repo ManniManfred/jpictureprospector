@@ -72,7 +72,7 @@ public class Hauptfenster extends JFrame {
   
   /** Gib an wie grosz ein Trennbalken einer Splitpane sein darf. */
   private static final int TRENNBALKEN_GROESZE = 7;
-
+  
   /** Version UID der Software. */
   private static final long serialVersionUID = 1L;
   
@@ -89,56 +89,58 @@ public class Hauptfenster extends JFrame {
    * Thumbnails sind.
    */
   private List<ThumbnailAnzeigePanel> listeAnzeigePanel = null;  //  @jve:decl-index=0:
-
+  
   /** Enthaelt die Trefferliste nach einer ausgeführten Suche. */
   private Trefferliste trefferliste = null;
   
   /** Enthaelt die Inhaltsflaeche dieses Objekts. */
   private JPanel pInhaltsflaeche = null;
-
+  
   /** Enthaelt das Hauptmenue dieses Objektes. */
   private JMenuBar hauptmenu = null;
   
   private JMenu mDatei = null;
-
+  
   private JMenuItem miBeenden = null;
-
+  
   private JSplitPane spAnzeige = null;
-
+  
   private JMenuItem miImport = null;
-
+  
   private JMenu mEinstellungen = null;
-
+  
   private JMenu mHilfe = null;
-
+  
   private JMenuItem miInfo = null;
-
+  
   private Vorschaupanel pVorschau = null;
-
+  
+  private MerkmaleTableModel tabellenmodell = null;
+  
   private SuchPanel pSuche = null;
-
+  
   private JToolBar tbWerkzeugleiste = null;
-
+  
   private JButton bGroszanzeige = null;
-
+  
   private JPanel pThumbnailSteuerung = null;
-
+  
   private JSplitPane spVorschauBildinfo = null;
-
+  
   private JLabel lLetztesBild = null;
-
+  
   private JLabel lNaechstesBild = null;
-
+  
   private JLabel lLoeschen = null;
-
+  
   private JMenuItem miLoeschen = null;
-
+  
   private JSlider sGroesze = null;
-
+  
   private JTextField tfSchluesselwoerter = null;
-
+  
   private JPanel pBildinformationen = null;
-
+  
   private JPanel pBilddetails = null;
   
   private JLabel lSchluesselwoerter = null;
@@ -149,15 +151,15 @@ public class Hauptfenster extends JFrame {
   
   private JScrollPane spBilddetails = null;
   
-  private JTable tBilddetails = null;
-
+  private MerkmaleJTable tBilddetails = null;
+  
   private JPanel pThumbnails = null;
-
+  
   private JScrollPane spThumbnails = null;
-
+  
   private JButton bAuswahlAufheben = null;
-
-/**
+  
+  /**
    * Erstellt ein neues Objekt der Klasse.
    */
   public Hauptfenster() {
@@ -185,10 +187,10 @@ public class Hauptfenster extends JFrame {
     final int ergebnis = dateiauswahl.showOpenDialog(pInhaltsflaeche);
     files = dateiauswahl.getSelectedFiles();
     final Bildimportierer importierer = new Bildimportierer(files, kern,
-        sGroesze.getValue(), tapObserver);
+	sGroesze.getValue(), tapObserver);
     int anzahlDateien = files == null ? 0 : files.length;
-    final LadebalkenDialog ladebalken = 
-          new LadebalkenDialog(this, anzahlDateien);
+    final LadebalkenDialog ladebalken =
+	new LadebalkenDialog(this, anzahlDateien);
     ladebalken.setzeAnzahl(0);
     
     // Neue liste fuer die Anzeigepanel erzeugen
@@ -204,25 +206,25 @@ public class Hauptfenster extends JFrame {
      * neue Bilder geladen wurden. */
     importierer.addBildImportiertListener(new BildimportListener() {
       public void bildImportiert() {
-        listeAnzeigePanel = importierer.gibAnzeigePanel();
-        erzeugeThumbnailansicht();
-        ladebalken.setzeAnzahl(ladebalken.gibAnzahl() + 1);
+	listeAnzeigePanel = importierer.gibAnzeigePanel();
+	erzeugeThumbnailansicht();
+	ladebalken.setzeAnzahl(ladebalken.gibAnzahl() + 1);
       }
       public void ladevorgangAbgeschlossen() {
-        ladebalken.dispose();
-        erzeugeThumbnailansicht();
+	ladebalken.dispose();
+	erzeugeThumbnailansicht();
       }
     });
     
     // Es sollen Bilder importiert werden
     if (ergebnis != JFileChooser.CANCEL_OPTION) {
       importierer.start();
-      ladebalken.setLocation((this.getWidth() - ladebalken.getWidth()) / 2, 
-          (this.getHeight() - ladebalken.getHeight()) / 2);
+      ladebalken.setLocation((this.getWidth() - ladebalken.getWidth()) / 2,
+	  (this.getHeight() - ladebalken.getHeight()) / 2);
       ladebalken.setVisible(true);
     }
   }
-
+  
   /**
    * Erzeugt alle notwendigen Daten, die zur Anzeige notwendig sind, wenn
    * der Benutzer nach einem Begriff gesucht hat.
@@ -232,31 +234,31 @@ public class Hauptfenster extends JFrame {
     try {
       trefferliste = kern.suche(pSuche.gibSuchtext());
       if (listeAnzeigePanel == null) {
-        listeAnzeigePanel = new ArrayList<ThumbnailAnzeigePanel>();
+	listeAnzeigePanel = new ArrayList<ThumbnailAnzeigePanel>();
       } else {
-        listeAnzeigePanel.clear();
+	listeAnzeigePanel.clear();
       }
       for (int i = 0; i < trefferliste.getAnzahlTreffer(); i++) {
-        listeAnzeigePanel.add(
-            new ThumbnailAnzeigePanel(trefferliste.getBildDokument(i),
-                sGroesze.getValue(), tapObserver));
+	listeAnzeigePanel.add(
+	    new ThumbnailAnzeigePanel(trefferliste.getBildDokument(i),
+	    sGroesze.getValue(), tapObserver));
       }
     } catch (SucheException se) {
       zeigeFehlermeldung("Suche fehlgeschlagen", "Die Suche konnte " +
-          "nicht erfolgreich ausgeführt werden.\n\n" + se.getMessage());
+	  "nicht erfolgreich ausgeführt werden.\n\n" + se.getMessage());
     }
   }
   
   /**
    * Zeigt dem Benutzer eine Fehlermeldung an.
-   * 
+   *
    * @param titel  der Titel der Fehlermeldung
    * @param meldung  die Fehlermeldung
    */
   private void zeigeFehlermeldung(String titel, String meldung) {
     
     JOptionPane.showMessageDialog(this.getParent(), meldung, titel,
-        JOptionPane.ERROR_MESSAGE);
+	JOptionPane.ERROR_MESSAGE);
   }
   
   /**
@@ -267,7 +269,7 @@ public class Hauptfenster extends JFrame {
   public void erzeugeThumbnailansicht() {
     
     if (listeAnzeigePanel != null) {
-
+      
       /* Neuzeichnen der Vorschau da ansonsten evtl nicht vorhandene Bilder
       noch angezeigt werden */
       pVorschau.resetAnsicht();
@@ -276,27 +278,27 @@ public class Hauptfenster extends JFrame {
       
       double thumbnailPanelBreite = spThumbnails.getViewport().getWidth();
       double anzahlThumbnailsProZeile = Math.floor(thumbnailPanelBreite /
-          (sGroesze.getValue() + STD_ABSTAND));
+	  (sGroesze.getValue() + STD_ABSTAND));
       anzahlThumbnailsProZeile = anzahlThumbnailsProZeile == 0 ?
-          1 : anzahlThumbnailsProZeile;
-      double anzahlBenoetigteZeilen = Math.ceil(listeAnzeigePanel.size() / 
-          anzahlThumbnailsProZeile);
-      double benoetigteBreite = anzahlThumbnailsProZeile * 
-          (sGroesze.getValue() + STD_ABSTAND) + STD_ABSTAND;
-      double benoetigteHoehe = anzahlBenoetigteZeilen * 
-          (sGroesze.getValue() + 20 + STD_ABSTAND);
+	1 : anzahlThumbnailsProZeile;
+      double anzahlBenoetigteZeilen = Math.ceil(listeAnzeigePanel.size() /
+	  anzahlThumbnailsProZeile);
+      double benoetigteBreite = anzahlThumbnailsProZeile *
+	  (sGroesze.getValue() + STD_ABSTAND) + STD_ABSTAND;
+      double benoetigteHoehe = anzahlBenoetigteZeilen *
+	  (sGroesze.getValue() + 20 + STD_ABSTAND);
       
       /* MUSS GESETZT WERDEN!!! Ansonsten wird nur eine Zeile mit den
       Thumbnails angezeigt */
       pThumbnails.setPreferredSize(
-          new Dimension((int) Math.ceil(benoetigteBreite),
-              (int) Math.ceil(benoetigteHoehe)));
-    
+	  new Dimension((int) Math.ceil(benoetigteBreite),
+	  (int) Math.ceil(benoetigteHoehe)));
+      
       for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
-        
-        tap.setzeGroesze(sGroesze.getValue());
-        tap.setVisible(true);
-        pThumbnails.add(tap);
+	
+	tap.setzeGroesze(sGroesze.getValue());
+	tap.setVisible(true);
+	pThumbnails.add(tap);
       }
       // Neuanordnung der Komponenten innerhalb pThumbnails
       pThumbnails.revalidate();
@@ -315,20 +317,21 @@ public class Hauptfenster extends JFrame {
     
     boolean gewaehltesBildGefunden = false;
     for (int i = 0; listeAnzeigePanel != null && !gewaehltesBildGefunden
-                    && i < listeAnzeigePanel.size(); i++) {
+	&& i < listeAnzeigePanel.size(); i++) {
       if (listeAnzeigePanel.get(i).istAusgewaehlt()) {
-        gewaehltesBildGefunden = true;
-        listeAnzeigePanel.get(i).setzeFokus(false);
-        if (i == 0) {
-          listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
-        } else {
-          listeAnzeigePanel.get(i - 1).setzeFokus(true);
-        }
+	gewaehltesBildGefunden = true;
+	listeAnzeigePanel.get(i).setzeFokus(false);
+	if (i == 0) {
+	  listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
+	} else {
+	  listeAnzeigePanel.get(i - 1).setzeFokus(true);
+	}
       } else if (i == listeAnzeigePanel.size() - 1) {
-        listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
+	listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
       }
     }
   }
+  
   
   /**
    * Waehlt aus der Liste der angezeigten Thumbnails das naechste Bild
@@ -340,17 +343,17 @@ public class Hauptfenster extends JFrame {
     
     boolean gewaehltesBildGefunden = false;
     for (int i = 0; listeAnzeigePanel != null && !gewaehltesBildGefunden
-                    && i < listeAnzeigePanel.size(); i++) {
+	&& i < listeAnzeigePanel.size(); i++) {
       if (listeAnzeigePanel.get(i).istAusgewaehlt()) {
-        gewaehltesBildGefunden = true;
-        listeAnzeigePanel.get(i).setzeFokus(false);
-        if (i == listeAnzeigePanel.size() - 1) {
-          listeAnzeigePanel.get(0).setzeFokus(true);
-        } else {
-          listeAnzeigePanel.get(i + 1).setzeFokus(true);
-        }
+	gewaehltesBildGefunden = true;
+	listeAnzeigePanel.get(i).setzeFokus(false);
+	if (i == listeAnzeigePanel.size() - 1) {
+	  listeAnzeigePanel.get(0).setzeFokus(true);
+	} else {
+	  listeAnzeigePanel.get(i + 1).setzeFokus(true);
+	}
       } else if (i == listeAnzeigePanel.size() - 1) {
-        listeAnzeigePanel.get(0).setzeFokus(true);
+	listeAnzeigePanel.get(0).setzeFokus(true);
       }
     }
   }
@@ -363,31 +366,31 @@ public class Hauptfenster extends JFrame {
   public void loescheBilder() {
     
     int ergebnis = JOptionPane.showConfirmDialog(this, "Wollen Sie die " +
-        "Bilder auch von der Festplatte loeschen?", "Löschen",
-        JOptionPane.YES_NO_CANCEL_OPTION);
-    boolean auchVonFestplatte = (ergebnis == JOptionPane.YES_OPTION) ? 
-        true : false; 
+	"Bilder auch von der Festplatte loeschen?", "Löschen",
+	JOptionPane.YES_NO_CANCEL_OPTION);
+    boolean auchVonFestplatte = (ergebnis == JOptionPane.YES_OPTION) ?
+      true : false;
     if (listeAnzeigePanel != null && ergebnis != JOptionPane.CANCEL_OPTION) {
       
-      List<ThumbnailAnzeigePanel> zuLoeschendeBilder = 
-        new ArrayList<ThumbnailAnzeigePanel>();
+      List<ThumbnailAnzeigePanel> zuLoeschendeBilder =
+	  new ArrayList<ThumbnailAnzeigePanel>();
       
       for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
-        
-        if (tap.istAusgewaehlt()) {
-          
-          try {
-            zuLoeschendeBilder.add(tap);
-            kern.entferne(tap.gibBildDokument(), auchVonFestplatte);
-          } catch (EntferneException e) {
-            zeigeFehlermeldung("Fehler beim Löschen", "Die Datei konnte " +
-                "nicht von der Festplatte geloescht werden.\n" + 
-                e.getMessage());
-          }
-        }
+	
+	if (tap.istAusgewaehlt()) {
+	  
+	  try {
+	    zuLoeschendeBilder.add(tap);
+	    kern.entferne(tap.gibBildDokument(), auchVonFestplatte);
+	  } catch (EntferneException e) {
+	    zeigeFehlermeldung("Fehler beim Löschen", "Die Datei konnte " +
+		"nicht von der Festplatte geloescht werden.\n" +
+		e.getMessage());
+	  }
+	}
       }
       for (ThumbnailAnzeigePanel tap : zuLoeschendeBilder) {
-        listeAnzeigePanel.remove(tap);
+	listeAnzeigePanel.remove(tap);
       }
     }
     erzeugeThumbnailansicht();
@@ -395,7 +398,7 @@ public class Hauptfenster extends JFrame {
   
   /**
    * Erstellt das Hauptmenue des Fensters.
-   * 	
+   *
    * @return das Hauptmenu des Fensters, wenn es noch nicht erzeugt wurde
    */
   private JMenuBar getHauptmenu() {
@@ -407,11 +410,11 @@ public class Hauptfenster extends JFrame {
     }
     return hauptmenu;
   }
-
+  
   /**
-   * This method initializes mDatei	
-   * 	
-   * @return javax.swing.JMenu	
+   * This method initializes mDatei
+   *
+   * @return javax.swing.JMenu
    */
   private JMenu getMDatei() {
     if (mDatei == null) {
@@ -423,11 +426,11 @@ public class Hauptfenster extends JFrame {
     }
     return mDatei;
   }
-
+  
   /**
-   * This method initializes miBeenden	
-   * 	
-   * @return javax.swing.JMenuItem	
+   * This method initializes miBeenden
+   *
+   * @return javax.swing.JMenuItem
    */
   private JMenuItem getMiBeenden() {
     if (miBeenden == null) {
@@ -435,25 +438,25 @@ public class Hauptfenster extends JFrame {
       miBeenden.setText("Beenden");
       miBeenden.setMnemonic(KeyEvent.VK_B);
       miBeenden.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent e) {
-          
-          int ergebnis = JOptionPane.showConfirmDialog(pInhaltsflaeche, 
-              "Wollen Sie das Programm beenden?", "Beenden", 
-              JOptionPane.OK_CANCEL_OPTION);
-          if (ergebnis == JOptionPane.OK_OPTION) {
-            
-            System.exit(0);
-          }
-        }
+	public void actionPerformed(java.awt.event.ActionEvent e) {
+	  
+	  int ergebnis = JOptionPane.showConfirmDialog(pInhaltsflaeche,
+	      "Wollen Sie das Programm beenden?", "Beenden",
+	      JOptionPane.OK_CANCEL_OPTION);
+	  if (ergebnis == JOptionPane.OK_OPTION) {
+	    
+	    System.exit(0);
+	  }
+	}
       });
     }
     return miBeenden;
   }
-
+  
   /**
-   * This method initializes jSplitPane	
-   * 	
-   * @return javax.swing.JSplitPane	
+   * This method initializes jSplitPane
+   *
+   * @return javax.swing.JSplitPane
    */
   private JSplitPane getSpAnzeige() {
     if (spAnzeige == null) {
@@ -463,23 +466,23 @@ public class Hauptfenster extends JFrame {
       spAnzeige.setRightComponent(getPThumbnailSteuerung());
       spAnzeige.setLeftComponent(getSpVorschauBildinfo());
       spAnzeige.addPropertyChangeListener("lastDividerLocation",
-        new java.beans.PropertyChangeListener() {
-          public void propertyChange(java.beans.PropertyChangeEvent e) {
-            for (int i = 0; listeAnzeigePanel != null 
-                            && i < listeAnzeigePanel.size(); i++) {
-              ThumbnailAnzeigePanel tap = listeAnzeigePanel.get(i);
-              tap.setzeGroesze(sGroesze.getValue());
-            } 
-          }
-        });
+	  new java.beans.PropertyChangeListener() {
+	public void propertyChange(java.beans.PropertyChangeEvent e) {
+	  for (int i = 0; listeAnzeigePanel != null
+	      && i < listeAnzeigePanel.size(); i++) {
+	    ThumbnailAnzeigePanel tap = listeAnzeigePanel.get(i);
+	    tap.setzeGroesze(sGroesze.getValue());
+	  }
+	}
+      });
     }
     return spAnzeige;
   }
-
+  
   /**
-   * This method initializes miImport	
-   * 	
-   * @return javax.swing.JMenuItem	
+   * This method initializes miImport
+   *
+   * @return javax.swing.JMenuItem
    */
   private JMenuItem getMiImport() {
     if (miImport == null) {
@@ -487,25 +490,25 @@ public class Hauptfenster extends JFrame {
       miImport.setText("Importieren");
       miImport.setMnemonic(KeyEvent.VK_I);
       miImport.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I,
-                                Event.CTRL_MASK, false));
+	  Event.CTRL_MASK, false));
       miImport.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent e) {
-          importiereDateien();
-          if (listeAnzeigePanel != null && !listeAnzeigePanel.isEmpty()) {
-            erzeugeThumbnailansicht();
-            spThumbnails.revalidate();
-            pThumbnails.revalidate();
-          }
-        }
+	public void actionPerformed(java.awt.event.ActionEvent e) {
+	  importiereDateien();
+	  if (listeAnzeigePanel != null && !listeAnzeigePanel.isEmpty()) {
+	    erzeugeThumbnailansicht();
+	    spThumbnails.revalidate();
+	    pThumbnails.revalidate();
+	  }
+	}
       });
     }
     return miImport;
   }
-
+  
   /**
-   * This method initializes mEinstellungen	
-   * 	
-   * @return javax.swing.JMenu	
+   * This method initializes mEinstellungen
+   *
+   * @return javax.swing.JMenu
    */
   private JMenu getMEinstellungen() {
     if (mEinstellungen == null) {
@@ -516,11 +519,11 @@ public class Hauptfenster extends JFrame {
     }
     return mEinstellungen;
   }
-
+  
   /**
-   * This method initializes mHilfe	
-   * 	
-   * @return javax.swing.JMenu	
+   * This method initializes mHilfe
+   *
+   * @return javax.swing.JMenu
    */
   private JMenu getMHilfe() {
     if (mHilfe == null) {
@@ -531,11 +534,11 @@ public class Hauptfenster extends JFrame {
     }
     return mHilfe;
   }
-
+  
   /**
-   * This method initializes miInfo	
-   * 	
-   * @return javax.swing.JMenuItem	
+   * This method initializes miInfo
+   *
+   * @return javax.swing.JMenuItem
    */
   private JMenuItem getMiInfo() {
     if (miInfo == null) {
@@ -543,20 +546,20 @@ public class Hauptfenster extends JFrame {
       miInfo.setText("Info");
       miInfo.setMnemonic(KeyEvent.VK_I);
       miInfo.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent e) {
-          JOptionPane.showMessageDialog(pInhaltsflaeche, "Programmierprojekt " +
-              "der FH Gelsenkirchen\n\nJPictureProspector\n\nv0.1",
-              "Info", JOptionPane.INFORMATION_MESSAGE);
-        }
+	public void actionPerformed(java.awt.event.ActionEvent e) {
+	  JOptionPane.showMessageDialog(pInhaltsflaeche, "Programmierprojekt " +
+	      "der FH Gelsenkirchen\n\nJPictureProspector\n\nv0.1",
+	      "Info", JOptionPane.INFORMATION_MESSAGE);
+	}
       });
     }
     return miInfo;
   }
-
+  
   /**
-   * This method initializes pVorschau	
-   * 	
-   * @return javax.swing.JPanel	
+   * This method initializes pVorschau
+   *
+   * @return javax.swing.JPanel
    */
   private Vorschaupanel getPVorschau() {
     
@@ -564,16 +567,16 @@ public class Hauptfenster extends JFrame {
       pVorschau = new Vorschaupanel();
       pVorschau.setLayout(new GridBagLayout());
       pVorschau.setName("pVorschau");
-      pVorschau.setMinimumSize(new Dimension(10, 
-          (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 4));
+      pVorschau.setMinimumSize(new Dimension(10,
+	  (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 4));
     }
     return pVorschau;
   }
-
+  
   /**
-   * This method initializes suchPanel	
-   * 	
-   * @return ui.SuchPanel	
+   * This method initializes suchPanel
+   *
+   * @return ui.SuchPanel
    */
   private SuchPanel getSuchPanel() {
     if (pSuche == null) {
@@ -582,11 +585,11 @@ public class Hauptfenster extends JFrame {
     }
     return pSuche;
   }
-
+  
   /**
-   * This method initializes tbWerkzeugleiste	
-   * 	
-   * @return javax.swing.JToolBar	
+   * This method initializes tbWerkzeugleiste
+   *
+   * @return javax.swing.JToolBar
    */
   private JToolBar getTbWerkzeugleiste() {
     if (tbWerkzeugleiste == null) {
@@ -594,52 +597,52 @@ public class Hauptfenster extends JFrame {
       lLoeschen.setText("");
       lLoeschen.setIcon(new ImageIcon(getClass().getResource("uiimgs/loeschen.png")));
       lLoeschen.setSize(new Dimension(32, 32));
-      lLoeschen.addMouseListener(new java.awt.event.MouseAdapter() {   
-      	public void mouseClicked(java.awt.event.MouseEvent e) {    
-      		loescheBilder();
-      	}   
-      	public void mouseExited(java.awt.event.MouseEvent e) {    
-          lLoeschen.removeAll();
-          lLoeschen.setIcon(new ImageIcon(getClass().getResource("uiimgs/loeschen.png")));
-      	}
-        public void mouseEntered(java.awt.event.MouseEvent e) {
-          lLoeschen.removeAll();
-          lLoeschen.setIcon(new ImageIcon(getClass().getResource("uiimgs/loeschenKlick.png")));
-        }
+      lLoeschen.addMouseListener(new java.awt.event.MouseAdapter() {
+	public void mouseClicked(java.awt.event.MouseEvent e) {
+	  loescheBilder();
+	}
+	public void mouseExited(java.awt.event.MouseEvent e) {
+	  lLoeschen.removeAll();
+	  lLoeschen.setIcon(new ImageIcon(getClass().getResource("uiimgs/loeschen.png")));
+	}
+	public void mouseEntered(java.awt.event.MouseEvent e) {
+	  lLoeschen.removeAll();
+	  lLoeschen.setIcon(new ImageIcon(getClass().getResource("uiimgs/loeschenKlick.png")));
+	}
       });
       lNaechstesBild = new JLabel();
       lNaechstesBild.setText("");
       lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeilrechts.png")));
       lNaechstesBild.setSize(new Dimension(32, 32));
-      lNaechstesBild.addMouseListener(new java.awt.event.MouseAdapter() {   
-      	public void mouseClicked(java.awt.event.MouseEvent e) {    
-      		waehleNaechstesBildAus();
-      	}
-      	public void mouseExited(java.awt.event.MouseEvent e) {    
-          lNaechstesBild.removeAll();
-          lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeilrechts.png")));
-      	}
-        public void mouseEntered(java.awt.event.MouseEvent e) {
-          lNaechstesBild.removeAll();
-          lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeilrechtsKlick.png")));
-        }
+      lNaechstesBild.addMouseListener(new java.awt.event.MouseAdapter() {
+	public void mouseClicked(java.awt.event.MouseEvent e) {
+	  waehleNaechstesBildAus();
+	}
+	public void mouseExited(java.awt.event.MouseEvent e) {
+	  lNaechstesBild.removeAll();
+	  lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeilrechts.png")));
+	}
+	public void mouseEntered(java.awt.event.MouseEvent e) {
+	  lNaechstesBild.removeAll();
+	  lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeilrechtsKlick.png")));
+	}
       });
       lLetztesBild = new JLabel();
       lLetztesBild.setText("");
       lLetztesBild.setIcon(new ImageIcon(getClass().getResource("/ui/uiimgs/pfeillinks.png")));
       lLetztesBild.setSize(new Dimension(32, 32));
-      lLetztesBild.addMouseListener(new java.awt.event.MouseAdapter() {   
-      	public void mouseClicked(java.awt.event.MouseEvent e) {    
-          waehleLetztesBildAus();
-      	}   
-      	public void mouseExited(java.awt.event.MouseEvent e) {    
-          lLetztesBild.removeAll();
-          lLetztesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeillinks.png")));
-      	}
-        public void mouseEntered(java.awt.event.MouseEvent e) {
-          lLetztesBild.removeAll();
-          lLetztesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeillinksKlick.png")));
-        }
+      lLetztesBild.addMouseListener(new java.awt.event.MouseAdapter() {
+	public void mouseClicked(java.awt.event.MouseEvent e) {
+	  waehleLetztesBildAus();
+	}
+	public void mouseExited(java.awt.event.MouseEvent e) {
+	  lLetztesBild.removeAll();
+	  lLetztesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeillinks.png")));
+	}
+	public void mouseEntered(java.awt.event.MouseEvent e) {
+	  lLetztesBild.removeAll();
+	  lLetztesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeillinksKlick.png")));
+	}
       });
       tbWerkzeugleiste = new JToolBar();
       tbWerkzeugleiste.add(getBAuswahlAufheben());
@@ -652,11 +655,11 @@ public class Hauptfenster extends JFrame {
     }
     return tbWerkzeugleiste;
   }
-
+  
   /**
-   * This method initializes bGroszanzeige	
-   * 	
-   * @return javax.swing.JButton	
+   * This method initializes bGroszanzeige
+   *
+   * @return javax.swing.JButton
    */
   private JButton getBGroszanzeige() {
     
@@ -664,31 +667,31 @@ public class Hauptfenster extends JFrame {
       bGroszanzeige = new JButton();
       bGroszanzeige.setText("Bild anzeigen");
       bGroszanzeige.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent e) {
-          if (listeAnzeigePanel != null) {
-            boolean wurdeEinBildAusgewaehlt = false;
-            int i = 0;
-            while (!wurdeEinBildAusgewaehlt && i < listeAnzeigePanel.size()) {
-              if (listeAnzeigePanel.get(i).istAusgewaehlt()) {
-                wurdeEinBildAusgewaehlt = true;
-              }
-              i++;
-            }
-            if (wurdeEinBildAusgewaehlt) {
-              groszanzeige.setExtendedState(JFrame.MAXIMIZED_BOTH);
-              groszanzeige.setVisible(true);
-            }
-          }
-        }
+	public void actionPerformed(java.awt.event.ActionEvent e) {
+	  if (listeAnzeigePanel != null) {
+	    boolean wurdeEinBildAusgewaehlt = false;
+	    int i = 0;
+	    while (!wurdeEinBildAusgewaehlt && i < listeAnzeigePanel.size()) {
+	      if (listeAnzeigePanel.get(i).istAusgewaehlt()) {
+		wurdeEinBildAusgewaehlt = true;
+	      }
+	      i++;
+	    }
+	    if (wurdeEinBildAusgewaehlt) {
+	      groszanzeige.setExtendedState(JFrame.MAXIMIZED_BOTH);
+	      groszanzeige.setVisible(true);
+	    }
+	  }
+	}
       });
     }
     return bGroszanzeige;
   }
-
+  
   /**
-   * This method initializes pThumbnailSteuerung	
-   * 	
-   * @return javax.swing.JPanel	
+   * This method initializes pThumbnailSteuerung
+   *
+   * @return javax.swing.JPanel
    */
   private JPanel getPThumbnailSteuerung() {
     if (pThumbnailSteuerung == null) {
@@ -699,11 +702,11 @@ public class Hauptfenster extends JFrame {
     }
     return pThumbnailSteuerung;
   }
-
+  
   /**
-   * This method initializes spVorschauBildinfo	
-   * 	
-   * @return javax.swing.JSplitPane	
+   * This method initializes spVorschauBildinfo
+   *
+   * @return javax.swing.JSplitPane
    */
   private JSplitPane getSpVorschauBildinfo() {
     if (spVorschauBildinfo == null) {
@@ -720,11 +723,11 @@ public class Hauptfenster extends JFrame {
     }
     return spVorschauBildinfo;
   }
-
+  
   /**
-   * This method initializes miLoeschen	
-   * 	
-   * @return javax.swing.JMenuItem	
+   * This method initializes miLoeschen
+   *
+   * @return javax.swing.JMenuItem
    */
   private JMenuItem getMiLoeschen() {
     if (miLoeschen == null) {
@@ -733,17 +736,17 @@ public class Hauptfenster extends JFrame {
       miLoeschen.setMnemonic(KeyEvent.VK_L);
       miLoeschen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0, false));
       miLoeschen.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent e) {
-          loescheBilder();
-        }
+	public void actionPerformed(java.awt.event.ActionEvent e) {
+	  loescheBilder();
+	}
       });
     }
     return miLoeschen;
   }
-
+  
   /**
    * Initialisiert die Leiste fuer die Groesze der Thumbnails.
-   * 	
+   *
    * @return javax.swing.JSlider	liefert den initialisierten Schieber
    */
   private JSlider getSGroesze() {
@@ -754,18 +757,18 @@ public class Hauptfenster extends JFrame {
       sGroesze.setMaximumSize(new Dimension(200, 16));
       sGroesze.setMinimum(48);
       sGroesze.addMouseListener(new java.awt.event.MouseAdapter() {
-        public void mouseReleased(java.awt.event.MouseEvent e) {
-          erzeugeThumbnailansicht();
-        }
+	public void mouseReleased(java.awt.event.MouseEvent e) {
+	  erzeugeThumbnailansicht();
+	}
       });
     }
     return sGroesze;
   }
-
+  
   /**
-   * This method initializes tfSchluesselwoerter	
-   * 	
-   * @return javax.swing.JTextField	
+   * This method initializes tfSchluesselwoerter
+   *
+   * @return javax.swing.JTextField
    */
   private JTextField getTfSchluesselwoerter() {
     
@@ -774,12 +777,12 @@ public class Hauptfenster extends JFrame {
     }
     return tfSchluesselwoerter;
   }
-
-
+  
+  
   /**
-   * This method initializes pBildinformationen	
-   * 	
-   * @return javax.swing.JPanel	
+   * This method initializes pBildinformationen
+   *
+   * @return javax.swing.JPanel
    */
   private JPanel getPBildinformationen() {
     if (pBildinformationen == null) {
@@ -790,11 +793,11 @@ public class Hauptfenster extends JFrame {
     }
     return pBildinformationen;
   }
-
+  
   /**
-   * This method initializes pBildinfoSchluesselBeschr	
-   * 	
-   * @return javax.swing.JPanel	
+   * This method initializes pBildinfoSchluesselBeschr
+   *
+   * @return javax.swing.JPanel
    */
   private JPanel getPBilddetails() {
     
@@ -834,7 +837,7 @@ public class Hauptfenster extends JFrame {
       // Bedingungen fuer Label "Schluesselwoerter"
       GridBagConstraints gridBagConstraints = new GridBagConstraints();
       gridBagConstraints.insets = new Insets(STD_ABSTAND, STD_ABSTAND,
-          STD_ABSTAND, 0);
+	  STD_ABSTAND, 0);
       gridBagConstraints.gridy = 0;
       gridBagConstraints.ipadx = MIN_BREITE_BILDINFO;
       gridBagConstraints.ipady = 5;
@@ -856,11 +859,11 @@ public class Hauptfenster extends JFrame {
     }
     return pBilddetails;
   }
-
+  
   /**
-   * This method initializes tfBildbeschreibung	
-   * 	
-   * @return javax.swing.JTextPane	
+   * This method initializes tfBildbeschreibung
+   *
+   * @return javax.swing.JTextPane
    */
   private JTextPane getTaBildbeschreibung() {
     
@@ -870,41 +873,40 @@ public class Hauptfenster extends JFrame {
     }
     return taBildbeschreibung;
   }
-
+  
   /**
-   * This method initializes spBilddetails	
-   * 	
-   * @return javax.swing.JScrollPane	
+   * This method initializes spBilddetails
+   *
+   * @return javax.swing.JScrollPane
    */
   private JScrollPane getSpBilddetails() {
     if (spBilddetails == null) {
       spBilddetails = new JScrollPane();
       spBilddetails.setBorder(BorderFactory.createTitledBorder(null,
-          "Bilddetails", TitledBorder.DEFAULT_JUSTIFICATION,
-          TitledBorder.DEFAULT_POSITION, null, null));
+	  "Bilddetails", TitledBorder.DEFAULT_JUSTIFICATION,
+	  TitledBorder.DEFAULT_POSITION, null, null));
       spBilddetails.setViewportView(getTBilddetails());
     }
     return spBilddetails;
   }
-
+  
   /**
-   * This method initializes tBilddetails	
-   * 	
-   * @return javax.swing.JTable	
+   * This method initializes tBilddetails
+   *
+   * @return javax.swing.JTable
    */
   private JTable getTBilddetails() {
     if (tBilddetails == null) {
-      tBilddetails = new JTable();
-      tBilddetails.setModel(new BildinfoTabelModel());
-      tBilddetails.setName("Bilddetails");
+         
+      tBilddetails = new MerkmaleJTable();
     }
     return tBilddetails;
   }
-
+  
   /**
-   * This method initializes pThumbnails	
-   * 	
-   * @return javax.swing.JPanel	
+   * This method initializes pThumbnails
+   *
+   * @return javax.swing.JPanel
    */
   private JPanel getPThumbnails() {
     if (pThumbnails == null) {
@@ -914,11 +916,11 @@ public class Hauptfenster extends JFrame {
     }
     return pThumbnails;
   }
-
+  
   /**
-   * This method initializes jScrollPane	
-   * 	
-   * @return javax.swing.JScrollPane	
+   * This method initializes jScrollPane
+   *
+   * @return javax.swing.JScrollPane
    */
   private JScrollPane getSpThumbnails() {
     if (spThumbnails == null) {
@@ -931,34 +933,34 @@ public class Hauptfenster extends JFrame {
     }
     return spThumbnails;
   }
-
+  
   /**
-   * This method initializes bAuswahlAufheben	
-   * 	
-   * @return javax.swing.JButton	
+   * This method initializes bAuswahlAufheben
+   *
+   * @return javax.swing.JButton
    */
   private JButton getBAuswahlAufheben() {
     if (bAuswahlAufheben == null) {
       bAuswahlAufheben = new JButton();
       bAuswahlAufheben.setText("Auswahl aufheben");
       bAuswahlAufheben.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent e) {
-          if (listeAnzeigePanel != null) {
-            for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
-              tap.setzeFokus(false);
-            }
-          }
-        }
+	public void actionPerformed(java.awt.event.ActionEvent e) {
+	  if (listeAnzeigePanel != null) {
+	    for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
+	      tap.setzeFokus(false);
+	    }
+	  }
+	}
       });
     }
     return bAuswahlAufheben;
   }
-
+  
   /**
    * @param args
    */
   public static void main(String[] args) {
-
+    
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
         try { 
@@ -972,7 +974,7 @@ public class Hauptfenster extends JFrame {
       }
     });
   }
-
+  
   /**
    * Initialisiert das dieses Objekt.
    */
@@ -984,7 +986,7 @@ public class Hauptfenster extends JFrame {
     this.setTitle("JPictureProspector");
     this.addComponentListener(new java.awt.event.ComponentAdapter() {
       public void componentResized(java.awt.event.ComponentEvent e) {
-        erzeugeThumbnailansicht();
+	erzeugeThumbnailansicht();
       }
     });
     groszanzeige = new BildGroszanzeige(this, pVorschau.gibBildDokument());
@@ -993,11 +995,12 @@ public class Hauptfenster extends JFrame {
     tapObserver.add(pVorschau);
     tapObserver.add(groszanzeige.gibVorschaupanel());
     tapObserver.add(groszanzeige.gibTabellenModell());
+    tapObserver.add(tBilddetails);
   }
-
+  
   /**
    * This method initializes jContentPane
-   * 
+   *
    * @return javax.swing.JPanel
    */
   private JPanel getJContentPane() {
@@ -1009,5 +1012,5 @@ public class Hauptfenster extends JFrame {
     }
     return pInhaltsflaeche;
   }
-
+  
 }

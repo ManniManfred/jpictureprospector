@@ -67,15 +67,13 @@ public class ThumbnailAnzeigePanel extends JPanel {
     this.istAusgewaehlt = istFokussiert;
     if (this.istAusgewaehlt) {
       this.setBorder(new LineBorder(new Color(80, 200, 80), 2));
-      this.observable.setChanged();
-      this.observable.notifyObservers(dok);
-      this.observable.clearChanged();
     } else {
       this.setBorder(new LineBorder(new Color(200, 200, 200), 2));
+    }
+    
       this.observable.setChanged();
       this.observable.notifyObservers(dok);
       this.observable.clearChanged();
-    }
     this.thumbnailAnzeige.repaint();
   }
   

@@ -105,7 +105,7 @@ public class JPPCore {
    * @return Array mit allen Namen der möglichen Merkmale
    * @throws Exception, wenn die Klassennamen nicht erzeugt werden konnten
    */
-  private String[] getMerkmalsnamen() throws Exception {
+  public String[] getMerkmalsnamen() throws Exception {
     ArrayList<String> namen = new ArrayList<String>();
     
     for (Class klasse : getMerkmalsKlassen()) {
