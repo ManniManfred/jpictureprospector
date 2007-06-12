@@ -276,8 +276,8 @@ public class BilddetailsPanel extends JPanel implements Observer {
 	/* Daten werden nur geaendert wenn die Checkbox nicht 
 	 * deaktiviert ist */
 	if(!(aktCheckBox.isVisible() && !aktCheckBox.isSelected())) {
-	  for (int j = 0; i < bilddokumente.size(); j++ ) {
-	    bilddokumente.get(i).getMerkmal(merkmale[i]).setWert(
+	  for (int j = 0; j < bilddokumente.size(); j++ ) {
+	    bilddokumente.get(j).getMerkmal(merkmale[i]).setWert(
 		aktTextKomponente.getText());
 	    this.kern.aendere(bilddokumente.get(j));
 	  }
