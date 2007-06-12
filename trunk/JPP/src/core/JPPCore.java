@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import merkmale.DateipfadMerkmal;
 import merkmale.Merkmal;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -139,7 +140,7 @@ public class JPPCore {
       dokument = BildDokument.erzeugeAusDatei(datei);
     } catch (ErzeugeBildDokumentException e1) {
       throw new ImportException("Konnte kein BildDokument aus der Datei \""
-          + datei.getAbsolutePath() + "\" erzeugen.");
+          + datei.getAbsolutePath() + "\" erzeugen.", e1);
     }
     
     importInLucene(dokument);
@@ -189,7 +190,8 @@ public class JPPCore {
       
       /* Nach dem Dateipfad suchen */
       Hits treffer = 
-        sucher.search(new TermQuery(new Term("Dateipfad", datei.getAbsolutePath())));
+        sucher.search(new TermQuery(
+            new Term(DateipfadMerkmal.FELDNAME, datei.getAbsolutePath())));
       sucher.close();
       
       /* Falls mindestens ein Treffer erzielt wurde, befindet sich die Datei
@@ -276,8 +278,8 @@ public class JPPCore {
       /* Da die Pfadangabe eindeutig ist, entferne das Document mit dem Pfad,
        * der aus dem BildDokument gelesen wurde.
        */
-      pfad = bild.getMerkmal("Dateipfad").getWert().toString();
-      reader.deleteDocuments(new Term("Dateipfad", pfad));
+      pfad = bild.getMerkmal(DateipfadMerkmal.FELDNAME).getWert().toString();
+      reader.deleteDocuments(new Term(DateipfadMerkmal.FELDNAME, pfad));
       reader.close();
     } catch (IOException e) {
       throw new EntferneException("Konnte das BildDokument nicht entfernen.");

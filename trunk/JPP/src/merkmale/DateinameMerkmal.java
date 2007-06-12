@@ -28,16 +28,15 @@ public class DateinameMerkmal extends Merkmal {
   public void leseMerkmalAus(GeoeffnetesBild bild) {
     String dateiname = bild.getDatei().getName();
 
-    /*
-     * Die Endung von dem Dateinamen entfernen Es wird z.B. aus
+    /* Die Endung von dem Dateinamen entfernen Es wird z.B. aus
      * "urlaubsbild01.jpg" "urlaubsbild01"
      */
     int punktpos = dateiname.lastIndexOf(".");
     if (punktpos >= 0) {
       dateiname = dateiname.substring(0, punktpos);
     }
-    System.out.println("Dateiname=" + dateiname);
-    setWert(dateiname);
+    
+    this.wert = dateiname;
   }
 
   /**
@@ -49,7 +48,7 @@ public class DateinameMerkmal extends Merkmal {
    *          Field der Wert ausgelesen wird
    */
   public void leseMerkmalAusLuceneDocument(Document doc) {
-    setWert(doc.get(FELDNAME));
+    this.wert = doc.get(FELDNAME);
   }
 
   /**

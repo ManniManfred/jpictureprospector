@@ -6,13 +6,14 @@ import org.apache.lucene.document.Field;
 
 
 /**
- * Ein Objekt dieser Klasse stellt das Merkmal Dateigr��e (in kB) eines 
- * Bilddokumentes dar.
+ * Ein Objekt dieser Klasse stellt das Merkmal Dateigroessee (in kB) eines 
+ * Bilddokumentes dar. Der Typ dieses Merkmalwertes ist ein Integer.
+ * @author Manfred Rosskamp
  * @author Marion Mecking
  */
 public class DateigroesseMerkmal extends Merkmal {
    
-  /** Name des Lucene-Feldes f�r dieses Merkmal. */
+  /** Name des Lucene-Feldes fuer dieses Merkmal. */
   public static final String FELDNAME = "Dateigr\u00f6sse";
   
   /** Konstante zur Umrechnung von Byte in kB. */
@@ -31,8 +32,7 @@ public class DateigroesseMerkmal extends Merkmal {
    * @param bild  Bild, aus dem der Merkmalswert gelesen wird
    */
   public void leseMerkmalAus(GeoeffnetesBild bild) { 
-
-    this.wert = Long.toString((int) bild.getDatei().length() / KILO);
+    this.wert = new Integer((int) bild.getDatei().length() / KILO);
   }
 
   /**
@@ -42,7 +42,7 @@ public class DateigroesseMerkmal extends Merkmal {
    *    gehoerigen Field der Wert ausgelesen wird
    */
   public void leseMerkmalAusLuceneDocument(Document doc) {   
-    this.wert = doc.get(FELDNAME);  
+    this.wert = new Integer(doc.get(FELDNAME));  
   }
     
   /**
