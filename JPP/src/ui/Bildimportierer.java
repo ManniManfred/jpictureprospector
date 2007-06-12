@@ -115,7 +115,7 @@ public class Bildimportierer extends Thread {
           
           // Erzeugen des entsprechenden Panels
           ThumbnailAnzeigePanel tap = new ThumbnailAnzeigePanel(dok,
-              tapGroesze, tapObserver);
+              tapGroesze, tapObserver, i);
           tap.setzeDateinamen(dateien[i].getName(), tapGroesze);
           listeAnzeigePanel.add(tap);
         } catch (ImportException ie) {

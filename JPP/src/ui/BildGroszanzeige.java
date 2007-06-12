@@ -12,8 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -22,22 +20,17 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.WindowConstants;
 import javax.swing.table.TableColumn;
 
-import merkmale.AlleMerkmale;
 import merkmale.BildbreiteMerkmal;
 import merkmale.BildhoeheMerkmal;
 import merkmale.DateipfadMerkmal;
-
-import core.BildDokument;
-import javax.swing.JScrollPane;
-
-import com.sun.org.apache.xerces.internal.impl.RevalidationHandler;
-
 import ui.listener.BildGeladenListener;
+import core.BildDokument;
 
 public class BildGroszanzeige extends JFrame {
   

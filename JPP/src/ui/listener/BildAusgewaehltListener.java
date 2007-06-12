@@ -12,5 +12,5 @@ public interface BildAusgewaehltListener {
    * 
    * @param tap  das neue ausgewaehlte Bild
    */
-  void setzeZuletztAusgewaehltesBild(ThumbnailAnzeigePanel tap);
+  void setzeZuletztAusgewaehltesBild(ThumbnailAnzeigePanel tap, int index);
 }
