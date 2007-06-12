@@ -40,6 +40,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
+import ui.listener.BildAusgewaehltListener;
 import ui.listener.BildimportListener;
 import core.BildDokument;
 import core.JPPCore;
@@ -80,10 +81,7 @@ public class Hauptfenster extends JFrame {
   private JPPCore kern;
   
   /** Enthaelt alle Observer fuer ThumbnailAnzeigePanel. */
-  private List<Observer> tapObserver = null;  //  @jve:decl-index=0:
-  
-  /** Enthaelt die Groszanzeige fuer ein Bild. */
-  private BildGroszanzeige groszanzeige = null;
+  private List<Observer> tapObserver = null;
   
   /** Enthaelt eine Liste an Paneln die zustaendig fuer die Anzeige der
    * Thumbnails sind.
@@ -92,6 +90,8 @@ public class Hauptfenster extends JFrame {
   
   /** Enthaelt die Trefferliste nach einer ausgeführten Suche. */
   private Trefferliste trefferliste = null;
+  
+  private ThumbnailAnzeigePanel zuletztGewaehltesPanel = null;
   
   /** Enthaelt die Inhaltsflaeche dieses Objekts. */
   private JPanel pInhaltsflaeche = null;
@@ -187,10 +187,10 @@ public class Hauptfenster extends JFrame {
     final int ergebnis = dateiauswahl.showOpenDialog(pInhaltsflaeche);
     files = dateiauswahl.getSelectedFiles();
     final Bildimportierer importierer = new Bildimportierer(files, kern,
-	sGroesze.getValue(), tapObserver);
+        sGroesze.getValue(), tapObserver);
     int anzahlDateien = files == null ? 0 : files.length;
     final LadebalkenDialog ladebalken =
-	new LadebalkenDialog(this, anzahlDateien);
+      new LadebalkenDialog(this, anzahlDateien);
     ladebalken.setzeAnzahl(0);
     
     // Neue liste fuer die Anzeigepanel erzeugen
@@ -206,13 +206,13 @@ public class Hauptfenster extends JFrame {
      * neue Bilder geladen wurden. */
     importierer.addBildImportiertListener(new BildimportListener() {
       public void bildImportiert() {
-	listeAnzeigePanel = importierer.gibAnzeigePanel();
-	erzeugeThumbnailansicht();
-	ladebalken.setzeAnzahl(ladebalken.gibAnzahl() + 1);
+        listeAnzeigePanel = importierer.gibAnzeigePanel();
+        erzeugeThumbnailansicht();
+        ladebalken.setzeAnzahl(ladebalken.gibAnzahl() + 1);
       }
       public void ladevorgangAbgeschlossen() {
-	ladebalken.dispose();
-	erzeugeThumbnailansicht();
+        ladebalken.dispose();
+        erzeugeThumbnailansicht();
       }
     });
     
@@ -220,7 +220,7 @@ public class Hauptfenster extends JFrame {
     if (ergebnis != JFileChooser.CANCEL_OPTION) {
       importierer.start();
       ladebalken.setLocation((this.getWidth() - ladebalken.getWidth()) / 2,
-	  (this.getHeight() - ladebalken.getHeight()) / 2);
+          (this.getHeight() - ladebalken.getHeight()) / 2);
       ladebalken.setVisible(true);
     }
   }
@@ -234,18 +234,29 @@ public class Hauptfenster extends JFrame {
     try {
       trefferliste = kern.suche(pSuche.gibSuchtext());
       if (listeAnzeigePanel == null) {
-	listeAnzeigePanel = new ArrayList<ThumbnailAnzeigePanel>();
+        listeAnzeigePanel = new ArrayList<ThumbnailAnzeigePanel>();
       } else {
-	listeAnzeigePanel.clear();
+        for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
+          if (tap.istAusgewaehlt()) {
+            tap.setzeFokus(false);
+          }
+        }
+        listeAnzeigePanel.clear();
       }
       for (int i = 0; i < trefferliste.getAnzahlTreffer(); i++) {
-	listeAnzeigePanel.add(
-	    new ThumbnailAnzeigePanel(trefferliste.getBildDokument(i),
-	    sGroesze.getValue(), tapObserver));
+        ThumbnailAnzeigePanel tap = 
+          new ThumbnailAnzeigePanel(trefferliste.getBildDokument(i),
+                sGroesze.getValue(), tapObserver);
+        tap.addBildAusgewaehltListener(new BildAusgewaehltListener() {
+          public void setzeZuletztAusgewaehltesBild(ThumbnailAnzeigePanel tap) {
+            zuletztGewaehltesPanel = tap;
+          }
+        });
+        listeAnzeigePanel.add(tap);
       }
     } catch (SucheException se) {
       zeigeFehlermeldung("Suche fehlgeschlagen", "Die Suche konnte " +
-	  "nicht erfolgreich ausgeführt werden.\n\n" + se.getMessage());
+          "nicht erfolgreich ausgeführt werden.\n\n" + se.getMessage());
     }
   }
   
@@ -258,7 +269,7 @@ public class Hauptfenster extends JFrame {
   private void zeigeFehlermeldung(String titel, String meldung) {
     
     JOptionPane.showMessageDialog(this.getParent(), meldung, titel,
-	JOptionPane.ERROR_MESSAGE);
+        JOptionPane.ERROR_MESSAGE);
   }
   
   /**
@@ -278,27 +289,27 @@ public class Hauptfenster extends JFrame {
       
       double thumbnailPanelBreite = spThumbnails.getViewport().getWidth();
       double anzahlThumbnailsProZeile = Math.floor(thumbnailPanelBreite /
-	  (sGroesze.getValue() + STD_ABSTAND));
+          (sGroesze.getValue() + STD_ABSTAND));
       anzahlThumbnailsProZeile = anzahlThumbnailsProZeile == 0 ?
-	1 : anzahlThumbnailsProZeile;
+          1 : anzahlThumbnailsProZeile;
       double anzahlBenoetigteZeilen = Math.ceil(listeAnzeigePanel.size() /
-	  anzahlThumbnailsProZeile);
+          anzahlThumbnailsProZeile);
       double benoetigteBreite = anzahlThumbnailsProZeile *
-	  (sGroesze.getValue() + STD_ABSTAND) + STD_ABSTAND;
+        (sGroesze.getValue() + STD_ABSTAND) + STD_ABSTAND;
       double benoetigteHoehe = anzahlBenoetigteZeilen *
-	  (sGroesze.getValue() + 20 + STD_ABSTAND);
+        (sGroesze.getValue() + 20 + STD_ABSTAND);
       
       /* MUSS GESETZT WERDEN!!! Ansonsten wird nur eine Zeile mit den
       Thumbnails angezeigt */
       pThumbnails.setPreferredSize(
-	  new Dimension((int) Math.ceil(benoetigteBreite),
-	  (int) Math.ceil(benoetigteHoehe)));
+          new Dimension((int) Math.ceil(benoetigteBreite),
+              (int) Math.ceil(benoetigteHoehe)));
       
       for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
 	
-	tap.setzeGroesze(sGroesze.getValue());
-	tap.setVisible(true);
-	pThumbnails.add(tap);
+      	tap.setzeGroesze(sGroesze.getValue());
+      	tap.setVisible(true);
+      	pThumbnails.add(tap);
       }
       // Neuanordnung der Komponenten innerhalb pThumbnails
       pThumbnails.revalidate();
@@ -317,17 +328,17 @@ public class Hauptfenster extends JFrame {
     
     boolean gewaehltesBildGefunden = false;
     for (int i = 0; listeAnzeigePanel != null && !gewaehltesBildGefunden
-	&& i < listeAnzeigePanel.size(); i++) {
+      && i < listeAnzeigePanel.size(); i++) {
       if (listeAnzeigePanel.get(i).istAusgewaehlt()) {
-	gewaehltesBildGefunden = true;
-	listeAnzeigePanel.get(i).setzeFokus(false);
-	if (i == 0) {
-	  listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
-	} else {
-	  listeAnzeigePanel.get(i - 1).setzeFokus(true);
-	}
+        gewaehltesBildGefunden = true;
+        listeAnzeigePanel.get(i).setzeFokus(false);
+        if (i == 0) {
+          listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
+        } else {
+          listeAnzeigePanel.get(i - 1).setzeFokus(true);
+        }
       } else if (i == listeAnzeigePanel.size() - 1) {
-	listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
+        listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
       }
     }
   }
@@ -343,17 +354,18 @@ public class Hauptfenster extends JFrame {
     
     boolean gewaehltesBildGefunden = false;
     for (int i = 0; listeAnzeigePanel != null && !gewaehltesBildGefunden
-	&& i < listeAnzeigePanel.size(); i++) {
+      && i < listeAnzeigePanel.size(); i++) {
+      
       if (listeAnzeigePanel.get(i).istAusgewaehlt()) {
-	gewaehltesBildGefunden = true;
-	listeAnzeigePanel.get(i).setzeFokus(false);
-	if (i == listeAnzeigePanel.size() - 1) {
-	  listeAnzeigePanel.get(0).setzeFokus(true);
-	} else {
-	  listeAnzeigePanel.get(i + 1).setzeFokus(true);
-	}
+        gewaehltesBildGefunden = true;
+        listeAnzeigePanel.get(i).setzeFokus(false);
+        if (i == listeAnzeigePanel.size() - 1) {
+          listeAnzeigePanel.get(0).setzeFokus(true);
+        } else {
+          listeAnzeigePanel.get(i + 1).setzeFokus(true);
+        }
       } else if (i == listeAnzeigePanel.size() - 1) {
-	listeAnzeigePanel.get(0).setzeFokus(true);
+        listeAnzeigePanel.get(0).setzeFokus(true);
       }
     }
   }
@@ -366,34 +378,42 @@ public class Hauptfenster extends JFrame {
   public void loescheBilder() {
     
     int ergebnis = JOptionPane.showConfirmDialog(this, "Wollen Sie die " +
-	"Bilder auch von der Festplatte loeschen?", "Löschen",
-	JOptionPane.YES_NO_CANCEL_OPTION);
+        "Bilder auch von der Festplatte loeschen?", "Löschen",
+        JOptionPane.YES_NO_CANCEL_OPTION);
     boolean auchVonFestplatte = (ergebnis == JOptionPane.YES_OPTION) ?
       true : false;
     if (listeAnzeigePanel != null && ergebnis != JOptionPane.CANCEL_OPTION) {
       
       List<ThumbnailAnzeigePanel> zuLoeschendeBilder =
-	  new ArrayList<ThumbnailAnzeigePanel>();
+        new ArrayList<ThumbnailAnzeigePanel>();
       
       for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
 	
-	if (tap.istAusgewaehlt()) {
-	  
-	  try {
-	    zuLoeschendeBilder.add(tap);
-	    kern.entferne(tap.gibBildDokument(), auchVonFestplatte);
-	  } catch (EntferneException e) {
-	    zeigeFehlermeldung("Fehler beim Löschen", "Die Datei konnte " +
-		"nicht von der Festplatte geloescht werden.\n" +
-		e.getMessage());
-	  }
-	}
+      	if (tap.istAusgewaehlt()) {
+      	  
+      	  try {
+      	    zuLoeschendeBilder.add(tap);
+      	    kern.entferne(tap.gibBildDokument(), auchVonFestplatte);
+      	  } catch (EntferneException e) {
+      	    zeigeFehlermeldung("Fehler beim Löschen", "Die Datei konnte " +
+      	        "nicht von der Festplatte geloescht werden.\n" +
+      	        e.getMessage());
+      	  }
+      	}
       }
       for (ThumbnailAnzeigePanel tap : zuLoeschendeBilder) {
-	listeAnzeigePanel.remove(tap);
+        listeAnzeigePanel.remove(tap);
       }
     }
     erzeugeThumbnailansicht();
+  }
+  
+  /**
+   * Setzt das zuletzt ausgewaehlte <code>ThumbnailAnzeigePanel</code>.
+   * @param tap  das zuletzt ausgewaehlte <code>ThumbnailAnzeigePanel</code>
+   */
+  public void setzeZuletztAusgewaehltesBild(ThumbnailAnzeigePanel tap) {
+    this.zuletztGewaehltesPanel = tap;
   }
   
   /**
@@ -438,16 +458,16 @@ public class Hauptfenster extends JFrame {
       miBeenden.setText("Beenden");
       miBeenden.setMnemonic(KeyEvent.VK_B);
       miBeenden.addActionListener(new java.awt.event.ActionListener() {
-	public void actionPerformed(java.awt.event.ActionEvent e) {
-	  
-	  int ergebnis = JOptionPane.showConfirmDialog(pInhaltsflaeche,
-	      "Wollen Sie das Programm beenden?", "Beenden",
-	      JOptionPane.OK_CANCEL_OPTION);
-	  if (ergebnis == JOptionPane.OK_OPTION) {
-	    
-	    System.exit(0);
-	  }
-	}
+      	public void actionPerformed(java.awt.event.ActionEvent e) {
+      	  
+      	  int ergebnis = JOptionPane.showConfirmDialog(pInhaltsflaeche,
+      	      "Wollen Sie das Programm beenden?", "Beenden",
+      	      JOptionPane.OK_CANCEL_OPTION);
+      	  if (ergebnis == JOptionPane.OK_OPTION) {
+      	    
+      	    System.exit(0);
+      	  }
+      	}
       });
     }
     return miBeenden;
@@ -466,14 +486,15 @@ public class Hauptfenster extends JFrame {
       spAnzeige.setRightComponent(getPThumbnailSteuerung());
       spAnzeige.setLeftComponent(getSpVorschauBildinfo());
       spAnzeige.addPropertyChangeListener("lastDividerLocation",
-	  new java.beans.PropertyChangeListener() {
-	public void propertyChange(java.beans.PropertyChangeEvent e) {
-	  for (int i = 0; listeAnzeigePanel != null
-	      && i < listeAnzeigePanel.size(); i++) {
-	    ThumbnailAnzeigePanel tap = listeAnzeigePanel.get(i);
-	    tap.setzeGroesze(sGroesze.getValue());
-	  }
-	}
+        new java.beans.PropertyChangeListener() {
+          public void propertyChange(java.beans.PropertyChangeEvent e) {
+            for (int i = 0; listeAnzeigePanel != null
+              && i < listeAnzeigePanel.size(); i++) {
+              
+              ThumbnailAnzeigePanel tap = listeAnzeigePanel.get(i);
+              tap.setzeGroesze(sGroesze.getValue());
+      	  }
+      	}
       });
     }
     return spAnzeige;
@@ -490,16 +511,16 @@ public class Hauptfenster extends JFrame {
       miImport.setText("Importieren");
       miImport.setMnemonic(KeyEvent.VK_I);
       miImport.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I,
-	  Event.CTRL_MASK, false));
+          Event.CTRL_MASK, false));
       miImport.addActionListener(new java.awt.event.ActionListener() {
-	public void actionPerformed(java.awt.event.ActionEvent e) {
-	  importiereDateien();
-	  if (listeAnzeigePanel != null && !listeAnzeigePanel.isEmpty()) {
-	    erzeugeThumbnailansicht();
-	    spThumbnails.revalidate();
-	    pThumbnails.revalidate();
-	  }
-	}
+      	public void actionPerformed(java.awt.event.ActionEvent e) {
+      	  importiereDateien();
+      	  if (listeAnzeigePanel != null && !listeAnzeigePanel.isEmpty()) {
+      	    erzeugeThumbnailansicht();
+      	    spThumbnails.revalidate();
+      	    pThumbnails.revalidate();
+      	  }
+      	}
       });
     }
     return miImport;
@@ -546,11 +567,11 @@ public class Hauptfenster extends JFrame {
       miInfo.setText("Info");
       miInfo.setMnemonic(KeyEvent.VK_I);
       miInfo.addActionListener(new java.awt.event.ActionListener() {
-	public void actionPerformed(java.awt.event.ActionEvent e) {
-	  JOptionPane.showMessageDialog(pInhaltsflaeche, "Programmierprojekt " +
-	      "der FH Gelsenkirchen\n\nJPictureProspector\n\nv0.1",
-	      "Info", JOptionPane.INFORMATION_MESSAGE);
-	}
+      	public void actionPerformed(java.awt.event.ActionEvent e) {
+      	  JOptionPane.showMessageDialog(pInhaltsflaeche, "Programmierprojekt " +
+      	      "der FH Gelsenkirchen\n\nJPictureProspector\n\nv0.1",
+      	      "Info", JOptionPane.INFORMATION_MESSAGE);
+      	}
       });
     }
     return miInfo;
@@ -568,7 +589,7 @@ public class Hauptfenster extends JFrame {
       pVorschau.setLayout(new GridBagLayout());
       pVorschau.setName("pVorschau");
       pVorschau.setMinimumSize(new Dimension(10,
-	  (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 4));
+          (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 4));
     }
     return pVorschau;
   }
@@ -595,54 +616,54 @@ public class Hauptfenster extends JFrame {
     if (tbWerkzeugleiste == null) {
       lLoeschen = new JLabel();
       lLoeschen.setText("");
-      lLoeschen.setIcon(new ImageIcon(getClass().getResource("uiimgs/loeschen.png")));
+      lLoeschen.setIcon(new ImageIcon(getClass().getResource("uiimgs/loeschenTrash.png")));
       lLoeschen.setSize(new Dimension(32, 32));
       lLoeschen.addMouseListener(new java.awt.event.MouseAdapter() {
-	public void mouseClicked(java.awt.event.MouseEvent e) {
-	  loescheBilder();
-	}
-	public void mouseExited(java.awt.event.MouseEvent e) {
-	  lLoeschen.removeAll();
-	  lLoeschen.setIcon(new ImageIcon(getClass().getResource("uiimgs/loeschen.png")));
-	}
-	public void mouseEntered(java.awt.event.MouseEvent e) {
-	  lLoeschen.removeAll();
-	  lLoeschen.setIcon(new ImageIcon(getClass().getResource("uiimgs/loeschenKlick.png")));
-	}
+      	public void mouseClicked(java.awt.event.MouseEvent e) {
+      	  loescheBilder();
+      	}
+      	public void mouseExited(java.awt.event.MouseEvent e) {
+      	  lLoeschen.removeAll();
+      	  lLoeschen.setIcon(new ImageIcon(getClass().getResource("uiimgs/loeschenTrash.png")));
+      	}
+      	public void mouseEntered(java.awt.event.MouseEvent e) {
+      	  lLoeschen.removeAll();
+      	  lLoeschen.setIcon(new ImageIcon(getClass().getResource("uiimgs/loeschenTrashKlick.png")));
+      	}
       });
       lNaechstesBild = new JLabel();
       lNaechstesBild.setText("");
       lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeilrechts.png")));
       lNaechstesBild.setSize(new Dimension(32, 32));
       lNaechstesBild.addMouseListener(new java.awt.event.MouseAdapter() {
-	public void mouseClicked(java.awt.event.MouseEvent e) {
-	  waehleNaechstesBildAus();
-	}
-	public void mouseExited(java.awt.event.MouseEvent e) {
-	  lNaechstesBild.removeAll();
-	  lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeilrechts.png")));
-	}
-	public void mouseEntered(java.awt.event.MouseEvent e) {
-	  lNaechstesBild.removeAll();
-	  lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeilrechtsKlick.png")));
-	}
+      	public void mouseClicked(java.awt.event.MouseEvent e) {
+      	  waehleNaechstesBildAus();
+      	}
+      	public void mouseExited(java.awt.event.MouseEvent e) {
+      	  lNaechstesBild.removeAll();
+      	  lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeilrechts.png")));
+      	}
+      	public void mouseEntered(java.awt.event.MouseEvent e) {
+      	  lNaechstesBild.removeAll();
+      	  lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeilrechtsKlick.png")));
+      	}
       });
       lLetztesBild = new JLabel();
       lLetztesBild.setText("");
       lLetztesBild.setIcon(new ImageIcon(getClass().getResource("/ui/uiimgs/pfeillinks.png")));
       lLetztesBild.setSize(new Dimension(32, 32));
       lLetztesBild.addMouseListener(new java.awt.event.MouseAdapter() {
-	public void mouseClicked(java.awt.event.MouseEvent e) {
-	  waehleLetztesBildAus();
-	}
-	public void mouseExited(java.awt.event.MouseEvent e) {
-	  lLetztesBild.removeAll();
-	  lLetztesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeillinks.png")));
-	}
-	public void mouseEntered(java.awt.event.MouseEvent e) {
-	  lLetztesBild.removeAll();
-	  lLetztesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeillinksKlick.png")));
-	}
+      	public void mouseClicked(java.awt.event.MouseEvent e) {
+      	  waehleLetztesBildAus();
+      	}
+      	public void mouseExited(java.awt.event.MouseEvent e) {
+      	  lLetztesBild.removeAll();
+      	  lLetztesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeillinks.png")));
+      	}
+      	public void mouseEntered(java.awt.event.MouseEvent e) {
+      	  lLetztesBild.removeAll();
+      	  lLetztesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeillinksKlick.png")));
+      	}
       });
       tbWerkzeugleiste = new JToolBar();
       tbWerkzeugleiste.add(getBAuswahlAufheben());
@@ -667,22 +688,13 @@ public class Hauptfenster extends JFrame {
       bGroszanzeige = new JButton();
       bGroszanzeige.setText("Bild anzeigen");
       bGroszanzeige.addActionListener(new java.awt.event.ActionListener() {
-	public void actionPerformed(java.awt.event.ActionEvent e) {
-	  if (listeAnzeigePanel != null) {
-	    boolean wurdeEinBildAusgewaehlt = false;
-	    int i = 0;
-	    while (!wurdeEinBildAusgewaehlt && i < listeAnzeigePanel.size()) {
-	      if (listeAnzeigePanel.get(i).istAusgewaehlt()) {
-		wurdeEinBildAusgewaehlt = true;
-	      }
-	      i++;
-	    }
-	    if (wurdeEinBildAusgewaehlt) {
-	      groszanzeige.setExtendedState(JFrame.MAXIMIZED_BOTH);
-	      groszanzeige.setVisible(true);
-	    }
-	  }
-	}
+      	public void actionPerformed(java.awt.event.ActionEvent e) {
+      	  if (zuletztGewaehltesPanel != null) {
+            BildGroszanzeige anzeige = new BildGroszanzeige(listeAnzeigePanel,
+                zuletztGewaehltesPanel.gibBildDokument());
+            anzeige.setVisible(true);
+          }
+      	}
       });
     }
     return bGroszanzeige;
@@ -736,9 +748,9 @@ public class Hauptfenster extends JFrame {
       miLoeschen.setMnemonic(KeyEvent.VK_L);
       miLoeschen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0, false));
       miLoeschen.addActionListener(new java.awt.event.ActionListener() {
-	public void actionPerformed(java.awt.event.ActionEvent e) {
-	  loescheBilder();
-	}
+      	public void actionPerformed(java.awt.event.ActionEvent e) {
+      	  loescheBilder();
+      	}
       });
     }
     return miLoeschen;
@@ -757,9 +769,9 @@ public class Hauptfenster extends JFrame {
       sGroesze.setMaximumSize(new Dimension(200, 16));
       sGroesze.setMinimum(48);
       sGroesze.addMouseListener(new java.awt.event.MouseAdapter() {
-	public void mouseReleased(java.awt.event.MouseEvent e) {
-	  erzeugeThumbnailansicht();
-	}
+      	public void mouseReleased(java.awt.event.MouseEvent e) {
+      	  erzeugeThumbnailansicht();
+      	}
       });
     }
     return sGroesze;
@@ -837,7 +849,7 @@ public class Hauptfenster extends JFrame {
       // Bedingungen fuer Label "Schluesselwoerter"
       GridBagConstraints gridBagConstraints = new GridBagConstraints();
       gridBagConstraints.insets = new Insets(STD_ABSTAND, STD_ABSTAND,
-	  STD_ABSTAND, 0);
+          STD_ABSTAND, 0);
       gridBagConstraints.gridy = 0;
       gridBagConstraints.ipadx = MIN_BREITE_BILDINFO;
       gridBagConstraints.ipady = 5;
@@ -883,8 +895,8 @@ public class Hauptfenster extends JFrame {
     if (spBilddetails == null) {
       spBilddetails = new JScrollPane();
       spBilddetails.setBorder(BorderFactory.createTitledBorder(null,
-	  "Bilddetails", TitledBorder.DEFAULT_JUSTIFICATION,
-	  TitledBorder.DEFAULT_POSITION, null, null));
+          "Bilddetails", TitledBorder.DEFAULT_JUSTIFICATION,
+          TitledBorder.DEFAULT_POSITION, null, null));
       spBilddetails.setViewportView(getTBilddetails());
     }
     return spBilddetails;
@@ -944,13 +956,13 @@ public class Hauptfenster extends JFrame {
       bAuswahlAufheben = new JButton();
       bAuswahlAufheben.setText("Auswahl aufheben");
       bAuswahlAufheben.addActionListener(new java.awt.event.ActionListener() {
-	public void actionPerformed(java.awt.event.ActionEvent e) {
-	  if (listeAnzeigePanel != null) {
-	    for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
-	      tap.setzeFokus(false);
-	    }
-	  }
-	}
+      	public void actionPerformed(java.awt.event.ActionEvent e) {
+      	  if (listeAnzeigePanel != null) {
+      	    for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
+      	      tap.setzeFokus(false);
+      	    }
+      	  }
+      	}
       });
     }
     return bAuswahlAufheben;
@@ -986,15 +998,11 @@ public class Hauptfenster extends JFrame {
     this.setTitle("JPictureProspector");
     this.addComponentListener(new java.awt.event.ComponentAdapter() {
       public void componentResized(java.awt.event.ComponentEvent e) {
-	erzeugeThumbnailansicht();
+        erzeugeThumbnailansicht();
       }
     });
-    groszanzeige = new BildGroszanzeige(this, pVorschau.gibBildDokument());
-    groszanzeige.setVisible(false);
     tapObserver = new ArrayList<Observer>();
     tapObserver.add(pVorschau);
-    tapObserver.add(groszanzeige.gibVorschaupanel());
-    tapObserver.add(groszanzeige.gibTabellenModell());
     tapObserver.add(tBilddetails);
   }
   

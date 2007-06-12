@@ -19,7 +19,7 @@ import core.BildDokument;
  * in der Groszansicht verwendet wird. Wenn ein neues Bild im Programm
  * ausgewaehlt wird, sollen sich die Informationen entsprechend aendern.
  */
-public class BGATabellenModell extends DefaultTableModel implements Observer {
+public class BGATabellenModell extends DefaultTableModel {
   
   /**
    * Enthaelt das Bilddokument das die darzustellenden Informationen enthaelt.
@@ -40,6 +40,7 @@ public class BGATabellenModell extends DefaultTableModel implements Observer {
     this.addColumn("Bezeichnung");
     this.addColumn("Wert");
     this.listener = new ArrayList<BildGeladenListener>();
+    ladeDaten();
   }
   
   /**
@@ -50,26 +51,18 @@ public class BGATabellenModell extends DefaultTableModel implements Observer {
   }
 
   /**
-   * Wird aufgerufen, wenn ein neues Bild in der Oberflaeche ausgewaehlt
-   * wurde.
-   * 
-   * @param o  das zugehoerige <code>Oberservable</code>
-   * @param arg  das Objekt was sich geaendert hat.
+   * Laedt die Daten des Bildokuments in die Tabelle.
    */
-  public void update(Observable o, Object arg) {
+  public void ladeDaten() {
     
-    if (arg instanceof BildDokument) {
-      dok = (BildDokument) arg;
-      
-      List<AlleMerkmale> alleMerkmale = dok.gibAlleMerkmale();
-      this.setRowCount(0);
-      for (AlleMerkmale merkmal : alleMerkmale) {
-        Object[] daten = new Object[]{merkmal.getName(),
-            merkmal.getWert().toString()};
-        this.addRow(daten);
-      }
-      fireBildGeladen();
+    List<AlleMerkmale> alleMerkmale = dok.gibAlleMerkmale();
+    this.setRowCount(0);
+    for (AlleMerkmale merkmal : alleMerkmale) {
+      Object[] daten = new Object[]{merkmal.getName(),
+          merkmal.getWert().toString()};
+      this.addRow(daten);
     }
+    fireBildGeladen();
     
   }
   

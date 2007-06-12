@@ -8,6 +8,8 @@ import java.awt.FontMetrics;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -20,15 +22,26 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 
+import ui.listener.BildAusgewaehltListener;
+
 import merkmale.DateipfadMerkmal;
 import merkmale.Merkmal;
 import merkmale.ThumbnailMerkmal;
 
 import core.BildDokument;
 
+/**
+ * Ein Objekt der Klasse stellt eine Anzeige in einem Fenster dar
+ * in dem ein Thumbnail und der dazugehoerige Dateiname angezeigt wird.
+ * Die Groesze dieses Objektes ist variabel.
+ */
 public class ThumbnailAnzeigePanel extends JPanel {
 
+  /** Enthaelt den Systemseperator fuer das Trennzeichen von Dateien. */ 
   private static final String PFADSEPARATOR = System.getProperty("file.separator");
+  
+  private List<BildAusgewaehltListener> listener = null;
+  
   /** Enthaelt das Label fuer den Dateinamen des Bildes. */
   private JLabel lDateiname = null;
   
@@ -67,13 +80,14 @@ public class ThumbnailAnzeigePanel extends JPanel {
     this.istAusgewaehlt = istFokussiert;
     if (this.istAusgewaehlt) {
       this.setBorder(new LineBorder(new Color(80, 200, 80), 2));
+      fireBildAusgewaehlt();
     } else {
-      this.setBorder(new LineBorder(new Color(200, 200, 200), 2));
+      this.setBorder(new LineBorder(new Color(255, 255, 255), 2));
     }
     
-      this.observable.setChanged();
-      this.observable.notifyObservers(dok);
-      this.observable.clearChanged();
+    this.observable.setChanged();
+    this.observable.notifyObservers(dok);
+    this.observable.clearChanged();
     this.thumbnailAnzeige.repaint();
   }
   
@@ -165,6 +179,7 @@ public class ThumbnailAnzeigePanel extends JPanel {
    */
   private void initialize(BildDokument dok, int groesze, List<Observer> observer) {
 
+    this.listener = new ArrayList<BildAusgewaehltListener>();
     this.dok = dok;
     dateiname = gibDateinamen((String)
         dok.getMerkmal(DateipfadMerkmal.FELDNAME).getWert());
@@ -181,7 +196,7 @@ public class ThumbnailAnzeigePanel extends JPanel {
     this.setLayout(new BorderLayout());
     this.setSize(new Dimension(groesze, groesze + 20));
     this.setBackground(Color.WHITE);
-    this.setBorder(new LineBorder(new Color(200, 200, 200), 1));
+    this.setBorder(new LineBorder(new Color(255, 255, 255), 2));
     this.setFocusable(true);
     this.addMouseListener(new java.awt.event.MouseAdapter() {
       public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -195,6 +210,20 @@ public class ThumbnailAnzeigePanel extends JPanel {
     });
     this.add(this.thumbnailAnzeige, BorderLayout.CENTER);
     this.add(lDateiname, BorderLayout.SOUTH);
+  }
+  
+  public void addBildAusgewaehltListener(BildAusgewaehltListener l) {
+    this.listener.add(l);
+  }
+  
+  public void removeBildAusgewaehltListener(BildAusgewaehltListener l) {
+    this.listener.remove(l);
+  }
+  
+  public void fireBildAusgewaehlt() {
+    for (BildAusgewaehltListener l : listener) {
+      l.setzeZuletztAusgewaehltesBild(this);
+    }
   }
 }
 
