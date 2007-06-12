@@ -810,60 +810,61 @@ public class Hauptfenster extends JFrame {
   private JPanel getPBilddetails() {
     
     if (pBilddetails == null) {
-      
-      // Bedingungen fuer den Textbereich zur Bildbeschreibung
-      GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-      gridBagConstraints3.fill = GridBagConstraints.BOTH;
-      gridBagConstraints3.gridx = 0;
-      gridBagConstraints3.gridy = 3;
-      gridBagConstraints3.ipadx = MIN_BREITE_BILDINFO;
-      gridBagConstraints3.ipady = 50;
-      gridBagConstraints3.weightx = 1.0;
-      gridBagConstraints3.weighty = 1.0;
-      gridBagConstraints3.insets = new Insets(0, 0, STD_ABSTAND, 0);
-      
-      // Bedingungen fuer das Label zur Bildbeschreibung
-      GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-      gridBagConstraints2.insets = new Insets(0, STD_ABSTAND, STD_ABSTAND, 0);
-      gridBagConstraints2.gridy = 2;
-      gridBagConstraints2.ipadx = MIN_BREITE_BILDINFO;
-      gridBagConstraints2.ipady = 5;
-      gridBagConstraints2.anchor = GridBagConstraints.WEST;
-      gridBagConstraints2.gridx = 0;
-      
-      // Bedingungen fuer das Textfeld zu den Schluesselwoertern
-      GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-      gridBagConstraints1.fill = GridBagConstraints.BOTH;
-      gridBagConstraints1.gridx = 0;
-      gridBagConstraints1.gridy = 1;
-      gridBagConstraints1.ipadx = MIN_BREITE_BILDINFO;
-      gridBagConstraints1.ipady = 1;
-      gridBagConstraints1.weightx = 1.0;
-      gridBagConstraints1.anchor = GridBagConstraints.WEST;
-      gridBagConstraints1.insets = new Insets(0, 0, STD_ABSTAND, 0);
-      
-      // Bedingungen fuer Label "Schluesselwoerter"
-      GridBagConstraints gridBagConstraints = new GridBagConstraints();
-      gridBagConstraints.insets = new Insets(STD_ABSTAND, STD_ABSTAND,
-          STD_ABSTAND, 0);
-      gridBagConstraints.gridy = 0;
-      gridBagConstraints.ipadx = MIN_BREITE_BILDINFO;
-      gridBagConstraints.ipady = 5;
-      gridBagConstraints.anchor = GridBagConstraints.WEST;
-      gridBagConstraints.gridx = 0;
-      
-      // Erstellen der Komponenten und hinzufuegen zum Layout
-      lBildbeschreibung = new JLabel();
-      lBildbeschreibung.setText("Bildbeschreibung");
-      lSchluesselwoerter = new JLabel();
-      lSchluesselwoerter.setText("Schlüsselwörter");
-      pBilddetails = new JPanel();
-      pBilddetails.setLayout(new GridBagLayout());
-      pBilddetails.setPreferredSize(new Dimension(MIN_BREITE_BILDINFO, 160));
-      pBilddetails.add(lSchluesselwoerter, gridBagConstraints);
-      pBilddetails.add(getTfSchluesselwoerter(), gridBagConstraints1);
-      pBilddetails.add(lBildbeschreibung, gridBagConstraints2);
-      pBilddetails.add(getTaBildbeschreibung(), gridBagConstraints3);
+//      
+//      // Bedingungen fuer den Textbereich zur Bildbeschreibung
+//      GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
+//      gridBagConstraints3.fill = GridBagConstraints.BOTH;
+//      gridBagConstraints3.gridx = 0;
+//      gridBagConstraints3.gridy = 3;
+//      gridBagConstraints3.ipadx = MIN_BREITE_BILDINFO;
+//      gridBagConstraints3.ipady = 50;
+//      gridBagConstraints3.weightx = 1.0;
+//      gridBagConstraints3.weighty = 1.0;
+//      gridBagConstraints3.insets = new Insets(0, 0, STD_ABSTAND, 0);
+//      
+//      // Bedingungen fuer das Label zur Bildbeschreibung
+//      GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
+//      gridBagConstraints2.insets = new Insets(0, STD_ABSTAND, STD_ABSTAND, 0);
+//      gridBagConstraints2.gridy = 2;
+//      gridBagConstraints2.ipadx = MIN_BREITE_BILDINFO;
+//      gridBagConstraints2.ipady = 5;
+//      gridBagConstraints2.anchor = GridBagConstraints.WEST;
+//      gridBagConstraints2.gridx = 0;
+//      
+//      // Bedingungen fuer das Textfeld zu den Schluesselwoertern
+//      GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+//      gridBagConstraints1.fill = GridBagConstraints.BOTH;
+//      gridBagConstraints1.gridx = 0;
+//      gridBagConstraints1.gridy = 1;
+//      gridBagConstraints1.ipadx = MIN_BREITE_BILDINFO;
+//      gridBagConstraints1.ipady = 1;
+//      gridBagConstraints1.weightx = 1.0;
+//      gridBagConstraints1.anchor = GridBagConstraints.WEST;
+//      gridBagConstraints1.insets = new Insets(0, 0, STD_ABSTAND, 0);
+//      
+//      // Bedingungen fuer Label "Schluesselwoerter"
+//      GridBagConstraints gridBagConstraints = new GridBagConstraints();
+//      gridBagConstraints.insets = new Insets(STD_ABSTAND, STD_ABSTAND,
+//	  STD_ABSTAND, 0);
+//      gridBagConstraints.gridy = 0;
+//      gridBagConstraints.ipadx = MIN_BREITE_BILDINFO;
+//      gridBagConstraints.ipady = 5;
+//      gridBagConstraints.anchor = GridBagConstraints.WEST;
+//      gridBagConstraints.gridx = 0;
+//      
+//      // Erstellen der Komponenten und hinzufuegen zum Layout
+//      lBildbeschreibung = new JLabel();
+//      lBildbeschreibung.setText("Bildbeschreibung");
+//      lSchluesselwoerter = new JLabel();
+//      lSchluesselwoerter.setText("Schlüsselwörter");
+//      pBilddetails = new JPanel();
+      pBilddetails = new BilddetailsPanel(kern);
+//      pBilddetails.setLayout(new GridBagLayout());
+//      pBilddetails.setPreferredSize(new Dimension(MIN_BREITE_BILDINFO, 160));
+//      pBilddetails.add(lSchluesselwoerter, gridBagConstraints);
+//      pBilddetails.add(getTfSchluesselwoerter(), gridBagConstraints1);
+//      pBilddetails.add(lBildbeschreibung, gridBagConstraints2);
+//      pBilddetails.add(getTaBildbeschreibung(), gridBagConstraints3);
     }
     return pBilddetails;
   }
@@ -1001,7 +1002,9 @@ public class Hauptfenster extends JFrame {
     });
     tapObserver = new ArrayList<Observer>();
     tapObserver.add(pVorschau);
+    tapObserver.add((Observer) pBilddetails);
     tapObserver.add(tBilddetails);
+
   }
   
   /**
