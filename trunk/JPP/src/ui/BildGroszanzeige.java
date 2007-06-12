@@ -6,10 +6,16 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -22,10 +28,14 @@ import javax.swing.WindowConstants;
 import javax.swing.table.TableColumn;
 
 import merkmale.AlleMerkmale;
+import merkmale.BildbreiteMerkmal;
+import merkmale.BildhoeheMerkmal;
 import merkmale.DateipfadMerkmal;
 
 import core.BildDokument;
 import javax.swing.JScrollPane;
+
+import com.sun.org.apache.xerces.internal.impl.RevalidationHandler;
 
 import ui.listener.BildGeladenListener;
 
@@ -42,9 +52,6 @@ public class BildGroszanzeige extends JFrame {
   
   private static final long serialVersionUID = 1L;
   
-  /** Enthaelt das zugehoerige Hauptfenster. */
-  private Hauptfenster hauptfenster = null;
-  
   /** Enthaelt das BildDokument zu dem die Informationen angezeigt werden
    * sollen. */
   private BildDokument dok = null;
@@ -52,7 +59,9 @@ public class BildGroszanzeige extends JFrame {
   /** Enthaehlt das Tabellenmodell fuer die Tabelle in denen Zusatzdetails
    * angezeigt werden.
    */
-  private BGATabellenModell detailsTableModel= null;
+  private BGATabellenModell detailsTableModel = null;
+  
+  private List<ThumbnailAnzeigePanel> listeAnzeigePanel = null;
 
   private JPanel jContentPane = null;
 
@@ -62,13 +71,11 @@ public class BildGroszanzeige extends JFrame {
   
   private JLabel lNaechstesBild = null;
   
-  private JLabel lLoeschen = null;
-  
   private JButton bSchlieszen = null;
 
   private JTabbedPane tpGroszanzeige = null;
 
-  private Vorschaupanel pGroszanzeige = null;
+  private BildGroszanzeigeZeichner pGroszanzeige = null;
 
   private JScrollPane spZusatzdetails = null;
 
@@ -77,20 +84,11 @@ public class BildGroszanzeige extends JFrame {
   /**
    * This is the default constructor
    */
-  public BildGroszanzeige(Hauptfenster hauptfenster, BildDokument dok) {
+  public BildGroszanzeige(List<ThumbnailAnzeigePanel> taps, BildDokument dok) {
     super();
-    this.hauptfenster = hauptfenster;
+    listeAnzeigePanel = taps;
     this.dok = dok;
     initialize();
-  }
-  
-  /**
-   * Liefert das Panel in dem die Groszansicht zum Tragen kommt.
-   * 
-   * @return  das entsprechende Panel was das Bild grosz anzeigt
-   */
-  public Vorschaupanel gibVorschaupanel() {
-    return this.pGroszanzeige;
   }
   
   /**
@@ -165,28 +163,28 @@ public class BildGroszanzeige extends JFrame {
    */
   private JPanel getPToolbar() {
     if (pToolbar == null) {
-      lLoeschen = new JLabel();
-      lLoeschen.setIcon(new ImageIcon(getClass().getResource("uiimgs/loeschen.png")));
-      lLoeschen.setText("");
-      lLoeschen.addMouseListener(new java.awt.event.MouseAdapter() {   
-      	public void mouseClicked(java.awt.event.MouseEvent e) {    
-      		hauptfenster.loescheBilder();
-      	}
-        public void mouseExited(java.awt.event.MouseEvent e) {    
-          lLoeschen.removeAll();
-          lLoeschen.setIcon(new ImageIcon(getClass().getResource("uiimgs/loeschen.png")));
-        }
-        public void mouseEntered(java.awt.event.MouseEvent e) {
-          lLoeschen.removeAll();
-          lLoeschen.setIcon(new ImageIcon(getClass().getResource("uiimgs/loeschenKlick.png")));
-        }
-      });
       lNaechstesBild = new JLabel();
       lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeilrechts.png")));
       lNaechstesBild.setText("");
       lNaechstesBild.addMouseListener(new java.awt.event.MouseAdapter() {   
-      	public void mouseClicked(java.awt.event.MouseEvent e) {    
-      		hauptfenster.waehleNaechstesBildAus();
+      	public void mouseClicked(java.awt.event.MouseEvent e) {   
+          
+          /* Waehlt das naechste Bild in der Liste aus
+           * oder das erste wenn das letzte Bild der Liste angezeigt wird
+           */
+          boolean neuesBildGewaehlt = false;
+          for (int i = 0; i < listeAnzeigePanel.size() && !neuesBildGewaehlt; i++) {
+            if (dok.equals(listeAnzeigePanel.get(i).gibBildDokument())
+                && i < listeAnzeigePanel.size() - 1) {
+              dok = listeAnzeigePanel.get(i + 1).gibBildDokument();
+              pGroszanzeige.setzeDok(dok);
+              neuesBildGewaehlt = true;
+            } else if (i == listeAnzeigePanel.size() - 1){
+              dok = listeAnzeigePanel.get(0).gibBildDokument();
+              pGroszanzeige.setzeDok(dok);
+              neuesBildGewaehlt = true;
+            }
+          }
       	}   
       	public void mouseExited(java.awt.event.MouseEvent e) {    
           lNaechstesBild.removeAll();
@@ -201,8 +199,25 @@ public class BildGroszanzeige extends JFrame {
       lLetztesBild.setIcon(new ImageIcon(getClass().getResource("/ui/uiimgs/pfeillinks.png")));
       lLetztesBild.setText("");
       lLetztesBild.addMouseListener(new java.awt.event.MouseAdapter() {   
-      	public void mouseClicked(java.awt.event.MouseEvent e) {    
-      		hauptfenster.waehleLetztesBildAus();
+      	public void mouseClicked(java.awt.event.MouseEvent e) {   
+          
+          /* Waehlt das vorige Bild in der Liste aus und das letzte Bild
+           * wenn das erste Bild der Liste ausgewaehlt ist
+           */
+          boolean neuesBildGewaehlt = false;
+          for (int i = 0; i < listeAnzeigePanel.size() && !neuesBildGewaehlt; i++) {
+            if (dok.equals(listeAnzeigePanel.get(i).gibBildDokument()) 
+                && i > 0) {
+              dok = listeAnzeigePanel.get(i - 1).gibBildDokument();
+              pGroszanzeige.setzeDok(dok);
+              neuesBildGewaehlt = true;
+            } else if (dok.equals(listeAnzeigePanel.get(i).gibBildDokument()) 
+                && i == 0){
+              dok = listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).gibBildDokument();
+              pGroszanzeige.setzeDok(dok);
+              neuesBildGewaehlt = true;
+            }
+          }
       	}
         public void mouseExited(java.awt.event.MouseEvent e) {    
           lLetztesBild.removeAll();
@@ -218,7 +233,6 @@ public class BildGroszanzeige extends JFrame {
       pToolbar.setLayout(new FlowLayout(FlowLayout.CENTER, STD_ABSTAND, STD_ABSTAND));
       pToolbar.add(lLetztesBild, null);
       pToolbar.add(lNaechstesBild, null);
-      pToolbar.add(lLoeschen, null);
       pToolbar.add(getBSchlieszen(), null);
     }
     return pToolbar;
@@ -262,10 +276,15 @@ public class BildGroszanzeige extends JFrame {
    * 	
    * @return javax.swing.JPanel	
    */
-  private Vorschaupanel getPGroszanzeige() {
+  private BildGroszanzeigeZeichner getPGroszanzeige() {
     if (pGroszanzeige == null) {
-      pGroszanzeige = new Vorschaupanel();
+      pGroszanzeige = new BildGroszanzeigeZeichner(dok);
       pGroszanzeige.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+      pGroszanzeige.addBildGeladenListener(new BildGeladenListener() {
+        public void bildWurdeGeladen() {
+          updateAnsicht();
+        }
+      });
     }
     return pGroszanzeige;
   }
@@ -303,5 +322,118 @@ public class BildGroszanzeige extends JFrame {
       });
     }
     return tZusatzdetails;
+  }
+}
+
+/**
+ * Ein Objekt der Klasse zeichnet aus einer Datei ein Bild in den eigenen
+ * Anzeigebereich.
+ */
+class BildGroszanzeigeZeichner extends JPanel {
+  
+  /** Enthaelt das Dokument, dass den Pfad zur Datei enthaelt. */
+  private BildDokument dok = null;
+  
+  /** Enthaelt eine Liste an Listenern die darauf reagieren, wenn ein
+   * Bild geladen wurde. */
+  private List<BildGeladenListener> listener = null;
+  
+  /**
+   * Erzeugt ein neues Objekt der Klasse mit den entsprechenden Daten.
+   * @param dok  das Bilddokument, dass den Pfad zur Datei enthaelt
+   */
+  public BildGroszanzeigeZeichner(BildDokument dok) {
+    this.dok = dok;
+    this.listener = new ArrayList<BildGeladenListener>();
+    repaint();
+  }
+  
+  /**
+   * Fuegt einen <code>BildGeladenListener</code> zur Liste der Listener
+   * hinzu.
+   * @param l  der hinzuzufuegende Listener
+   */
+  public void addBildGeladenListener(BildGeladenListener l) {
+    listener.add(l);
+  }
+  
+  /**
+   * Loescht einen <code>BildGeladenListener</code> aus der Liste der
+   * Listener.
+   * @param l  der zu loeschende Listener
+   */
+  public void removeBildGeladenListener(BildGeladenListener l) {
+    if (l != null && listener.contains(l)) {
+      listener.remove(l);
+    }
+  }
+  
+  /**
+   * Wird aufgerufen, wenn das anzuzeigende Bild geladen wurde und
+   * benachrichtigt alle Listener
+   */
+  public void fireBildGeladen() {
+    for (BildGeladenListener l : listener) {
+      l.bildWurdeGeladen();
+    }
+  }
+  
+  /**
+   * Setzt das Dokument in der Anzeige neu.
+   * @param dok  das Dokument mit den benoetigten Informationen
+   */
+  public void setzeDok(BildDokument dok) {
+    this.dok = dok;
+    this.repaint();
+  }
+  
+  /**
+   * Zeichnet das Bild in die Oberflaeche, mit den entsprechenden Abmessungen. 
+   */
+  protected void paintComponent(Graphics g) {
+    
+    try {
+      Image bild = ImageIO.read(
+          new File((String)
+              dok.getMerkmal(DateipfadMerkmal.FELDNAME).getWert()));
+      fireBildGeladen();
+      double originalBreite = 
+        Double.parseDouble((String) dok.getMerkmal(BildbreiteMerkmal.FELDNAME).getWert());
+      double originalHoehe = 
+        Double.parseDouble((String) dok.getMerkmal(BildhoeheMerkmal.FELDNAME).getWert());
+      double hoeheBild = bild.getHeight(this);
+      double breiteBild = bild.getWidth(this);
+      double dieseBreite = getWidth();
+      double dieseHoehe = getHeight();
+      g.setColor(Color.WHITE);
+      g.fillRect(0, 0, getWidth(), getHeight());
+    
+      if (originalBreite <= dieseBreite && originalHoehe <= dieseHoehe) {
+        
+        g.drawImage(bild, 
+            (int) (dieseBreite - originalBreite) / 2,
+            (int) (dieseHoehe - originalHoehe) / 2,
+            (int) originalBreite, (int) originalHoehe, this);
+      } else if (Math.abs(dieseBreite / breiteBild) < Math.abs(dieseHoehe / hoeheBild)) {
+        // Anpassung der Größe an dieses Objekt
+        
+        // Breite voll ausgefuellt, Hoehe muss neu berechnet werden
+        g.drawImage(bild,
+            0,
+            (int) (dieseHoehe - hoeheBild * (dieseBreite / breiteBild)) / 2,
+            (int) dieseBreite,
+            (int) (hoeheBild * (dieseBreite / breiteBild)), this);
+      } else {
+        
+        // Hoehe voll ausgefuellt, Breite muss neu berechnet werden
+        g.drawImage(bild, 
+            (int) (dieseBreite - breiteBild * (dieseHoehe / hoeheBild)) / 2,
+            0,
+            (int) (breiteBild * (dieseHoehe / hoeheBild)),
+            (int) dieseHoehe, this);
+      }
+    } catch (IOException e) {
+      System.out.println("Konnte das Bild nicht laden.");
+    }
   }
 }

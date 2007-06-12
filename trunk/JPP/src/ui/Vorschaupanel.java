@@ -109,7 +109,7 @@ public class Vorschaupanel extends JPanel implements Observer {
    */
   public void paintComponent(Graphics g) {
     
-    if (bild != null) {
+    if (bild != null && dok != null) {
       double originalBreite = 
         Double.parseDouble((String) dok.getMerkmal(BildbreiteMerkmal.FELDNAME).getWert());
       double originalHoehe = 

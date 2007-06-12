@@ -90,7 +90,7 @@ public class BildDokument {
   }
 
   public int hashCode() {
-    return 23;
+    return getMerkmal(DateipfadMerkmal.FELDNAME).getWert().hashCode();
   }
   
   public boolean equals(Object obj) {
