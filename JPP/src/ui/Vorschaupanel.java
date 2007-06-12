@@ -146,7 +146,7 @@ public class Vorschaupanel extends JPanel implements Observer {
             (int) dieseHoehe, this);
       }
     } else {
-      g.setColor(new Color(238, 238, 238));
+      g.setColor(new Color(255, 255, 255));
       g.fillRect(0, 0, getWidth(), getHeight());
     }
   }

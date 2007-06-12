@@ -121,7 +121,6 @@ public class MerkmaleTableModel extends DefaultTableModel {
         boolean editierbar = merkmal.istEditierbar();
         boolean checkbox_anzeigen = false;
         boolean gleicherWert = this.hatMerkmalGleichenWert(merkmal.getName());
-        System.out.println(merkmal.getWert());
         String merkmalswert = merkmal.getWert().toString();
 
         /*

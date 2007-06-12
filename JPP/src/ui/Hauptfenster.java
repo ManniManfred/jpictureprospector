@@ -164,12 +164,12 @@ public class Hauptfenster extends JFrame {
    */
   public Hauptfenster() {
     super();
-    initialize();
     try {
       kern = new JPPCore();
     } catch (ErzeugeException e) {
       e.printStackTrace();
     }
+    initialize();
   }
   
   /**
@@ -959,7 +959,9 @@ public class Hauptfenster extends JFrame {
       	public void actionPerformed(java.awt.event.ActionEvent e) {
       	  if (listeAnzeigePanel != null) {
       	    for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
-      	      tap.setzeFokus(false);
+              if (tap.istAusgewaehlt()) {
+                tap.setzeFokus(false);
+              }
       	    }
       	  }
       	}
