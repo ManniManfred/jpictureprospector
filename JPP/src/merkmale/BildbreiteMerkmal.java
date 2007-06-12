@@ -8,7 +8,8 @@ import org.apache.lucene.document.Field;
 
 /**
  * Ein Objekt dieser Klasse stellt das Merkmal Bildbreite eines 
- * Bilddokumentes dar.
+ * Bilddokumentes dar. Der Typ dieses Merkmalwertes ist ein Integer.
+ * @author Manfred Rosskamp
  * @author Marion Mecking
  */
 public class BildbreiteMerkmal extends Merkmal {
@@ -29,7 +30,7 @@ public class BildbreiteMerkmal extends Merkmal {
    * @param bild  Bild, aus dem der Merkmalswert gelesen wird
    */
   public void leseMerkmalAus(GeoeffnetesBild bild) {
-    this.wert = bild.getBild().getWidth() + "";
+    this.wert = new Integer(bild.getBild().getWidth());
   }
 
   /**
@@ -39,7 +40,7 @@ public class BildbreiteMerkmal extends Merkmal {
    *    gehoerigen Field der Wert ausgelesen wird
    */
   public void leseMerkmalAusLuceneDocument(Document doc) {   
-    this.wert = doc.getField(FELDNAME).stringValue();
+    this.wert = new Integer(doc.get(FELDNAME));
   }
   
   

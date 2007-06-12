@@ -91,10 +91,10 @@ public class ThumbnailAnzeige extends JPanel {
    */
   protected void paintComponent(Graphics g) {
     
-    double originalBreite = 
-      Double.parseDouble((String) dok.getMerkmal(BildbreiteMerkmal.FELDNAME).getWert());
-    double originalHoehe = 
-      Double.parseDouble((String) dok.getMerkmal(BildhoeheMerkmal.FELDNAME).getWert());
+    double originalBreite = (Integer) 
+                        dok.getMerkmal(BildbreiteMerkmal.FELDNAME).getWert();
+    double originalHoehe = (Integer)
+                        dok.getMerkmal(BildhoeheMerkmal.FELDNAME).getWert();
     double hoeheBild = this.thumbnail.getHeight(this);
     double breiteBild = this.thumbnail.getWidth(this);
     double dieseBreite = groesze;

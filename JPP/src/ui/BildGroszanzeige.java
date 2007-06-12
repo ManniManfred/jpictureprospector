@@ -398,9 +398,9 @@ class BildGroszanzeigeZeichner extends JPanel {
               dok.getMerkmal(DateipfadMerkmal.FELDNAME).getWert()));
       fireBildGeladen();
       double originalBreite = 
-        Double.parseDouble((String) dok.getMerkmal(BildbreiteMerkmal.FELDNAME).getWert());
+        (Integer) dok.getMerkmal(BildbreiteMerkmal.FELDNAME).getWert();
       double originalHoehe = 
-        Double.parseDouble((String) dok.getMerkmal(BildhoeheMerkmal.FELDNAME).getWert());
+        (Integer) dok.getMerkmal(BildhoeheMerkmal.FELDNAME).getWert();
       double hoeheBild = bild.getHeight(this);
       double breiteBild = bild.getWidth(this);
       double dieseBreite = getWidth();

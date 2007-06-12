@@ -9,7 +9,8 @@ import org.apache.lucene.document.Field;
 
 /**
  * Ein Objekt dieser Klasse stellt das Merkmal Bildhoehe eines 
- * Bilddokumentes dar.
+ * Bilddokumentes dar. Der Typ dieses Merkmalwertes ist ein Integer.
+ * @author Manfred Rosskamp
  * @author Marion Mecking
  */
 public class BildhoeheMerkmal extends Merkmal {   
@@ -30,7 +31,7 @@ public class BildhoeheMerkmal extends Merkmal {
    * @param bild  Bild, aus dem der Merkmalswert gelesen wird
    */
   public void leseMerkmalAus(GeoeffnetesBild bild) {
-    this.wert = bild.getBild().getHeight() + "";
+    this.wert = new Integer(bild.getBild().getHeight());
   }
 
   /**
@@ -40,7 +41,7 @@ public class BildhoeheMerkmal extends Merkmal {
    *    gehoerigen Field der Wert ausgelesen wird
    */
   public void leseMerkmalAusLuceneDocument(Document doc) {   
-    this.wert = doc.get(FELDNAME);  
+    this.wert = new Integer(doc.get(FELDNAME));  
   }
    
   /**

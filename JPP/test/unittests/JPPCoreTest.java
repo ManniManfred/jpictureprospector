@@ -1,7 +1,5 @@
 package unittests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +10,9 @@ import java.io.OutputStream;
 import java.util.Arrays;
 
 import javax.imageio.ImageIO;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.Before;
