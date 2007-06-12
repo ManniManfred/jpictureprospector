@@ -15,7 +15,7 @@ import javax.swing.JTable;
  * @author Marion Mecking
  */
 public class MerkmaleJTable extends JTable implements Observer {
-
+  
   /** Bilddokumente, zu denen die Merkmale angezeigt werden. */
   private List<BildDokument> bilddokumente = new ArrayList();
 
@@ -110,21 +110,5 @@ public class MerkmaleJTable extends JTable implements Observer {
       this.setzeRenderer();
       this.setzeSpaltenBreite();
     }
-//    if (arg instanceof BildDokument) {
-//
-//      /*
-//       * Tabellenmodell wird aktualisiert, sowie Renderer und Spaltenbreite,
-//       * falls die dritte Spalte hinzufuegt.
-//       */
-//      if (bilddokumente.contains((BildDokument) arg)) {
-//        bilddokumente.remove((BildDokument) arg);
-//      } else {
-//        this.bilddokumente.add((BildDokument) arg);
-//      }
-//
-//      this.tabellenmodell.aktualisiereBilddokumente(bilddokumente);
-//      this.setzeRenderer();
-//      this.setzeSpaltenBreite();
-//    }
   }
 }
