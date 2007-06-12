@@ -397,6 +397,7 @@ public class Hauptfenster extends JFrame {
       	}
       }
       for (ThumbnailAnzeigePanel tap : zuLoeschendeBilder) {
+        tap.setzeFokus(false);
         listeAnzeigePanel.remove(tap);
       }
     }
