@@ -66,16 +66,30 @@ public class BGATabellenModell extends DefaultTableModel {
     
   }
   
+  /**
+   * Wird aufgerufen, wenn ein Bild fertig geladen wurde.
+   */
   private void fireBildGeladen() {
     for (BildGeladenListener l : listener) {
       l.bildWurdeGeladen();
     }
   }
   
+  /**
+   * Fuegt einen <code>BildGeladenListener</code> zur Liste der Listener
+   * hinzu.
+   * @param l  der <code>BildGeladenListener</code> der zur Liste der Listener
+   *           hinzugefuegt wird
+   */
   public void addBildGeladenListener(BildGeladenListener l) {
     listener.add(l);
   }
   
+  /**
+   * Loescht einen <code>BildGeladenListener</code> aus der Liste
+   * der Listener.
+   * @param l  der zu loeschende Listener
+   */
   public void removeBildGeladenListener(BildGeladenListener l) {
     if (listener.contains(l)) {
       listener.remove(l);
