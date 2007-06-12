@@ -39,7 +39,9 @@ public class Vorschaupanel extends JPanel implements Observer {
   /** Enthaelt das Bild, was anzeigt werden soll. */
   private Image bild = null;
   
-  private BildDokument dok = null;
+  private BildDokument dok = null;  //  @jve:decl-index=0:
+  
+  private Vorschaubildlader bildlader;
   
   /**
    * This is the default constructor
@@ -72,17 +74,20 @@ public class Vorschaupanel extends JPanel implements Observer {
    */
   public void update(Observable o, Object arg) {
     
-    if (arg instanceof BildDokument) {
+    if (arg instanceof ThumbnailAnzeigePanel) {
       
-      dok = (BildDokument) arg;
-      final Vorschaubildlader bildlader = new Vorschaubildlader(dok);
-      bildlader.addVorschaubildListener(new VorschauBildListener() {
-        public void bildGeladen() {
-          bild = bildlader.getBild();
-          repaint();
-        }
-      });
-      bildlader.start();
+      ThumbnailAnzeigePanel tap = (ThumbnailAnzeigePanel) arg;
+      if (tap.istAusgewaehlt()) {
+        dok = tap.gibBildDokument();
+        final Vorschaubildlader bildlader = new Vorschaubildlader(dok);
+        bildlader.addVorschaubildListener(new VorschauBildListener() {
+          public void bildGeladen() {
+            bild = bildlader.getBild();
+            repaint();
+          }
+        });
+        bildlader.start();
+      }
     }
   }
 
@@ -95,6 +100,7 @@ public class Vorschaupanel extends JPanel implements Observer {
     this.setSize(300, 300);
     this.setLayout(new BorderLayout());
     this.setBackground(Color.WHITE);
+    this.bildlader = new Vorschaubildlader(dok);
     this.setBorder(BorderFactory.createTitledBorder(
         BorderFactory.createEmptyBorder(0, 0, 0, 0), "Vorschau",
         TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, 

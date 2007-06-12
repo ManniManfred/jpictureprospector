@@ -96,23 +96,35 @@ public class MerkmaleJTable extends JTable implements Observer {
    */
   public void update(Observable o, Object arg) {
 
-    if (arg instanceof BildDokument) {
-
-      /*
-       * Tabellenmodell wird aktualisiert, sowie Renderer und Spaltenbreite,
-       * falls die dritte Spalte hinzufuegt.
-       */
-      if (bilddokumente.contains((BildDokument) arg)) {
-        bilddokumente.remove((BildDokument) arg);
+    if (arg instanceof ThumbnailAnzeigePanel) {
+      
+      BildDokument dok = ((ThumbnailAnzeigePanel) arg).gibBildDokument();
+      
+      if (bilddokumente.contains(dok)) {
+        bilddokumente.remove(dok);
       } else {
-        this.bilddokumente.add((BildDokument) arg);
+        this.bilddokumente.add(dok);
       }
-
-      System.out.println(bilddokumente);
 
       this.tabellenmodell.aktualisiereBilddokumente(bilddokumente);
       this.setzeRenderer();
       this.setzeSpaltenBreite();
     }
+//    if (arg instanceof BildDokument) {
+//
+//      /*
+//       * Tabellenmodell wird aktualisiert, sowie Renderer und Spaltenbreite,
+//       * falls die dritte Spalte hinzufuegt.
+//       */
+//      if (bilddokumente.contains((BildDokument) arg)) {
+//        bilddokumente.remove((BildDokument) arg);
+//      } else {
+//        this.bilddokumente.add((BildDokument) arg);
+//      }
+//
+//      this.tabellenmodell.aktualisiereBilddokumente(bilddokumente);
+//      this.setzeRenderer();
+//      this.setzeSpaltenBreite();
+//    }
   }
 }

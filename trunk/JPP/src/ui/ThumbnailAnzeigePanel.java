@@ -45,6 +45,11 @@ public class ThumbnailAnzeigePanel extends JPanel {
   /** Enthaelt das Label fuer den Dateinamen des Bildes. */
   private JLabel lDateiname = null;
   
+  /** Enthaelt den Listenindex den dieses Objekt in der Liste von
+   * Anzeigepaneln hat.
+   */
+  private int listenindex;
+  
   /** Enthaelt das Panel fuer die Anzeige des Thumbnails. */
   private ThumbnailAnzeige thumbnailAnzeige = null;
   
@@ -65,9 +70,9 @@ public class ThumbnailAnzeigePanel extends JPanel {
    * 
    */
   public ThumbnailAnzeigePanel(BildDokument dok, int groesze,
-      List<Observer> observer) {
+      List<Observer> observer, int index) {
   	super();
-    initialize(dok, groesze, observer);
+    initialize(dok, groesze, observer, index);
   }
   
   /**
@@ -86,7 +91,7 @@ public class ThumbnailAnzeigePanel extends JPanel {
     }
     
     this.observable.setChanged();
-    this.observable.notifyObservers(dok);
+    this.observable.notifyObservers(this);
     this.observable.clearChanged();
     this.thumbnailAnzeige.repaint();
   }
@@ -177,8 +182,10 @@ public class ThumbnailAnzeigePanel extends JPanel {
    * This method initializes this
    * 
    */
-  private void initialize(BildDokument dok, int groesze, List<Observer> observer) {
+  private void initialize(BildDokument dok, int groesze,
+      List<Observer> observer, int index) {
 
+    this.listenindex = index;
     this.listener = new ArrayList<BildAusgewaehltListener>();
     this.dok = dok;
     dateiname = gibDateinamen((String)
@@ -222,7 +229,7 @@ public class ThumbnailAnzeigePanel extends JPanel {
   
   public void fireBildAusgewaehlt() {
     for (BildAusgewaehltListener l : listener) {
-      l.setzeZuletztAusgewaehltesBild(this);
+      l.setzeZuletztAusgewaehltesBild(this, this.listenindex);
     }
   }
 }

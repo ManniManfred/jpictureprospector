@@ -81,7 +81,7 @@ public class Hauptfenster extends JFrame {
   private JPPCore kern;
   
   /** Enthaelt alle Observer fuer ThumbnailAnzeigePanel. */
-  private List<Observer> tapObserver = null;
+  private List<Observer> tapObserver = null;  //  @jve:decl-index=0:
   
   /** Enthaelt eine Liste an Paneln die zustaendig fuer die Anzeige der
    * Thumbnails sind.
@@ -92,6 +92,8 @@ public class Hauptfenster extends JFrame {
   private Trefferliste trefferliste = null;
   
   private ThumbnailAnzeigePanel zuletztGewaehltesPanel = null;
+  
+  private int indexZuletztGewaehltesPanel;
   
   /** Enthaelt die Inhaltsflaeche dieses Objekts. */
   private JPanel pInhaltsflaeche = null;
@@ -212,7 +214,6 @@ public class Hauptfenster extends JFrame {
       }
       public void ladevorgangAbgeschlossen() {
         ladebalken.dispose();
-        erzeugeThumbnailansicht();
       }
     });
     
@@ -246,10 +247,12 @@ public class Hauptfenster extends JFrame {
       for (int i = 0; i < trefferliste.getAnzahlTreffer(); i++) {
         ThumbnailAnzeigePanel tap = 
           new ThumbnailAnzeigePanel(trefferliste.getBildDokument(i),
-                sGroesze.getValue(), tapObserver);
+                sGroesze.getValue(), tapObserver, i);
         tap.addBildAusgewaehltListener(new BildAusgewaehltListener() {
-          public void setzeZuletztAusgewaehltesBild(ThumbnailAnzeigePanel tap) {
+          public void setzeZuletztAusgewaehltesBild(ThumbnailAnzeigePanel tap,
+              int index) {
             zuletztGewaehltesPanel = tap;
+            indexZuletztGewaehltesPanel = index;
           }
         });
         listeAnzeigePanel.add(tap);
@@ -285,7 +288,6 @@ public class Hauptfenster extends JFrame {
       noch angezeigt werden */
       pVorschau.resetAnsicht();
       pThumbnails.removeAll();
-      
       
       double thumbnailPanelBreite = spThumbnails.getViewport().getWidth();
       double anzahlThumbnailsProZeile = Math.floor(thumbnailPanelBreite /
@@ -326,20 +328,17 @@ public class Hauptfenster extends JFrame {
    */
   public void waehleLetztesBildAus() {
     
-    boolean gewaehltesBildGefunden = false;
-    for (int i = 0; listeAnzeigePanel != null && !gewaehltesBildGefunden
-      && i < listeAnzeigePanel.size(); i++) {
-      if (listeAnzeigePanel.get(i).istAusgewaehlt()) {
-        gewaehltesBildGefunden = true;
-        listeAnzeigePanel.get(i).setzeFokus(false);
-        if (i == 0) {
-          listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
-        } else {
-          listeAnzeigePanel.get(i - 1).setzeFokus(true);
-        }
-      } else if (i == listeAnzeigePanel.size() - 1) {
-        listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
+    for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
+      if (tap != zuletztGewaehltesPanel && tap.istAusgewaehlt()) {
+        tap.setzeFokus(false);
       }
+    }
+    if (indexZuletztGewaehltesPanel == 0) {
+      listeAnzeigePanel.get(0).setzeFokus(false);
+      listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
+    } else {
+      listeAnzeigePanel.get(indexZuletztGewaehltesPanel).setzeFokus(false);
+      listeAnzeigePanel.get(indexZuletztGewaehltesPanel - 1).setzeFokus(true);
     }
   }
   
@@ -352,21 +351,17 @@ public class Hauptfenster extends JFrame {
    */
   public void waehleNaechstesBildAus() {
     
-    boolean gewaehltesBildGefunden = false;
-    for (int i = 0; listeAnzeigePanel != null && !gewaehltesBildGefunden
-      && i < listeAnzeigePanel.size(); i++) {
-      
-      if (listeAnzeigePanel.get(i).istAusgewaehlt()) {
-        gewaehltesBildGefunden = true;
-        listeAnzeigePanel.get(i).setzeFokus(false);
-        if (i == listeAnzeigePanel.size() - 1) {
-          listeAnzeigePanel.get(0).setzeFokus(true);
-        } else {
-          listeAnzeigePanel.get(i + 1).setzeFokus(true);
-        }
-      } else if (i == listeAnzeigePanel.size() - 1) {
-        listeAnzeigePanel.get(0).setzeFokus(true);
+    for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
+      if (tap != zuletztGewaehltesPanel && tap.istAusgewaehlt()) {
+        tap.setzeFokus(false);
       }
+    }
+    if (indexZuletztGewaehltesPanel == listeAnzeigePanel.size() - 1) {
+      listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(false);
+      listeAnzeigePanel.get(0).setzeFokus(true);
+    } else {
+      listeAnzeigePanel.get(indexZuletztGewaehltesPanel).setzeFokus(false);
+      listeAnzeigePanel.get(indexZuletztGewaehltesPanel + 1).setzeFokus(true);
     }
   }
   
