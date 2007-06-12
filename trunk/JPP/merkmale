@@ -4,6 +4,7 @@ merkmale.BildhoeheMerkmal
 merkmale.BildtypMerkmal
 merkmale.DateigroesseMerkmal
 merkmale.DateipfadMerkmal
+merkmale.DateinameMerkmal
 merkmale.LetzterZugriffMerkmal
 merkmale.SchluesselWoerterMerkmal
 merkmale.ThumbnailMerkmal

@@ -47,7 +47,7 @@ public class DateipfadMerkmal extends Merkmal {
    */
   public Field erzeugeLuceneField() {
     return new Field(FELDNAME, this.getWert().toString(), Field.Store.YES, 
-      Field.Index.TOKENIZED);
+      Field.Index.UN_TOKENIZED);
   }
   
   /**
