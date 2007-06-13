@@ -95,6 +95,7 @@ public class BilddetailsPanel extends JPanel implements Observer {
     GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
     gridBagConstraints5.gridx = 0;
     gridBagConstraints5.gridy = 4;
+    
     GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
     gridBagConstraints4.fill = GridBagConstraints.BOTH;
     gridBagConstraints4.gridy = 4;
@@ -103,6 +104,7 @@ public class BilddetailsPanel extends JPanel implements Observer {
     gridBagConstraints4.anchor = GridBagConstraints.WEST;
     gridBagConstraints4.insets = new Insets(0, 10, 10, 0);
     gridBagConstraints4.gridx = 2;
+    
     GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
     gridBagConstraints3.gridx = 2;
     gridBagConstraints3.anchor = GridBagConstraints.WEST;
@@ -110,13 +112,15 @@ public class BilddetailsPanel extends JPanel implements Observer {
     gridBagConstraints3.gridy = 3;
     lBildbeschreibung = new JLabel();
     lBildbeschreibung.setText(BESCHREIBUNG);
+    
     GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-    gridBagConstraints2.fill = GridBagConstraints.VERTICAL;
+    gridBagConstraints2.fill = GridBagConstraints.BOTH;
     gridBagConstraints2.gridy = 2;
     gridBagConstraints2.weightx = 1.0;
     gridBagConstraints2.anchor = GridBagConstraints.WEST;
     gridBagConstraints2.insets = new Insets(0, 10, 10, 0);
     gridBagConstraints2.gridx = 2;
+    
     GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
     gridBagConstraints1.gridx = 2;
     gridBagConstraints1.anchor = GridBagConstraints.WEST;

@@ -2,16 +2,11 @@ package ui;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
-
-import ui.listener.BildGeladenListener;
 
 import merkmale.AlleMerkmale;
-import merkmale.DateipfadMerkmal;
+import ui.listener.BildGeladenListener;
 import core.BildDokument;
 
 /**

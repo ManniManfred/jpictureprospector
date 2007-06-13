@@ -1,19 +1,13 @@
 package ui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.image.ImageObserver;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.JPanel;
 
 import merkmale.BildbreiteMerkmal;
 import merkmale.BildhoeheMerkmal;
-
 import core.BildDokument;
 
 /**
