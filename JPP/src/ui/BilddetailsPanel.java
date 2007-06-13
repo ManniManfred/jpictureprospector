@@ -18,8 +18,10 @@ import java.util.Observable;
 import java.util.Observer;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.text.JTextComponent;
+import javax.swing.border.SoftBevelBorder;
 
 /**
  * Ein Objekt der Klasse stellt die Oberflaeche zu den Bilddetails fuer 
@@ -85,8 +87,9 @@ public class BilddetailsPanel extends JPanel implements Observer {
     
     JTextField schluesselwoerterFeld = new JTextField();
     schluesselwoerterFeld.setPreferredSize(new Dimension(200, 20));
-    JTextArea beschreibungsbereich = new JTextArea();
-    beschreibungsbereich.setPreferredSize(new Dimension(200, 60));
+    JTextArea beschreibungsbereich = new JTextArea(5, 30);
+    beschreibungsbereich.setLineWrap(true);
+    JScrollPane spBeschreibung = new JScrollPane(beschreibungsbereich);
     this.textkomponenten.put(SCHLUESSELWOERTER, schluesselwoerterFeld);
     this.textkomponenten.put(BESCHREIBUNG, beschreibungsbereich);
     this.checkboxen.put(SCHLUESSELWOERTER, new JCheckBox());
@@ -147,7 +150,7 @@ public class BilddetailsPanel extends JPanel implements Observer {
     this.add(this.textkomponenten.get(SCHLUESSELWOERTER), gridBagConstraints2);
     
     /* Setzen der Elemente fuer Bildbeschreibung. */
-    this.add(this.textkomponenten.get(BESCHREIBUNG), gridBagConstraints4);
+    this.add(spBeschreibung, gridBagConstraints4);
     this.add(this.checkboxen.get(BESCHREIBUNG), gridBagConstraints5);
     
     /* ActionListener fuer Button. */
