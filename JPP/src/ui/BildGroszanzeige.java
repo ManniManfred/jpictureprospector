@@ -169,10 +169,12 @@ public class BildGroszanzeige extends JFrame {
                 && i < listeAnzeigePanel.size() - 1) {
               dok = listeAnzeigePanel.get(i + 1).gibBildDokument();
               pGroszanzeige.setzeDok(dok);
+              detailsTableModel.setzeDokument(dok);
               neuesBildGewaehlt = true;
             } else if (i == listeAnzeigePanel.size() - 1){
               dok = listeAnzeigePanel.get(0).gibBildDokument();
               pGroszanzeige.setzeDok(dok);
+              detailsTableModel.setzeDokument(dok);
               neuesBildGewaehlt = true;
             }
           }
@@ -201,11 +203,13 @@ public class BildGroszanzeige extends JFrame {
                 && i > 0) {
               dok = listeAnzeigePanel.get(i - 1).gibBildDokument();
               pGroszanzeige.setzeDok(dok);
+              detailsTableModel.setzeDokument(dok);
               neuesBildGewaehlt = true;
             } else if (dok.equals(listeAnzeigePanel.get(i).gibBildDokument()) 
                 && i == 0){
               dok = listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).gibBildDokument();
               pGroszanzeige.setzeDok(dok);
+              detailsTableModel.setzeDokument(dok);
               neuesBildGewaehlt = true;
             }
           }
