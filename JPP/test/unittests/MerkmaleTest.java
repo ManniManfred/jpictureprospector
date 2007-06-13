@@ -1,7 +1,6 @@
 package unittests;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import merkmale.BildbreiteMerkmal;
 import merkmale.BildhoeheMerkmal;
@@ -13,11 +12,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
 
 import core.BildDokument;
 import core.JPPCore;
-import core.exceptions.ErzeugeException;
 import core.exceptions.ImportException;
 
 /**
