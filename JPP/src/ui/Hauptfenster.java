@@ -58,10 +58,10 @@ import java.awt.Color;
 public class Hauptfenster extends JFrame {
   
   /** Enthaelt die Standardhoehe des Fensters. */
-  private static final int STD_HOEHE = 600;
+  private static final int STD_HOEHE = 700;
   
   /** Enthaelt die Standardbreite des Fensters. */
-  private static final int STD_BREITE = 800;
+  private static final int STD_BREITE = 1000;
   
   /** Enthaelt den Standardabstand den Komponenten ggfs. zueinander besitzen. */
   private static final int STD_ABSTAND = 10;
@@ -200,6 +200,11 @@ public class Hauptfenster extends JFrame {
       this.listeAnzeigePanel = new ArrayList<ThumbnailAnzeigePanel>();
     } else {
       // es existiert schon eine liste mit anzeigepaneln
+      for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
+        if (tap.istAusgewaehlt()) {
+          tap.setzeFokus(false);
+        }
+      }
       this.listeAnzeigePanel.clear();
       this.pThumbnails.removeAll();
     }
@@ -271,7 +276,7 @@ public class Hauptfenster extends JFrame {
    */
   private void zeigeFehlermeldung(String titel, String meldung) {
     
-    JOptionPane.showMessageDialog(this.getParent(), meldung, titel,
+    JOptionPane.showMessageDialog(this, meldung, titel,
         JOptionPane.ERROR_MESSAGE);
   }
   
@@ -284,9 +289,6 @@ public class Hauptfenster extends JFrame {
     
     if (listeAnzeigePanel != null) {
       
-      /* Neuzeichnen der Vorschau da ansonsten evtl nicht vorhandene Bilder
-      noch angezeigt werden */
-      pVorschau.resetAnsicht();
       pThumbnails.removeAll();
       
       double thumbnailPanelBreite = spThumbnails.getViewport().getWidth();
