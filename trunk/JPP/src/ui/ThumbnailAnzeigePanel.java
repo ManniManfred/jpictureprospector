@@ -6,28 +6,19 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 
-import ui.listener.BildAusgewaehltListener;
-
 import merkmale.DateipfadMerkmal;
-import merkmale.Merkmal;
 import merkmale.ThumbnailMerkmal;
-
+import ui.listener.BildAusgewaehltListener;
 import core.BildDokument;
 
 /**
@@ -170,6 +161,11 @@ public class ThumbnailAnzeigePanel extends JPanel {
     return this.istAusgewaehlt;
   }
   
+  /**
+   * Liefert den Dateinamen aus einem bestimmten Dateipfad.
+   * @param pfad  der gesamte Pfad mit dem Dateinamen
+   * @return  der Dateiname ohne Endung
+   */
   private static String gibDateinamen(String pfad) {
     
     String dateiname = "";
@@ -223,14 +219,28 @@ public class ThumbnailAnzeigePanel extends JPanel {
     this.add(lDateiname, BorderLayout.SOUTH);
   }
   
+  /**
+   * Fuegt einen <code>BildAusgewaehltListener</code> der Liste der
+   * Listener hinzu.
+   * @param l  der hinzuzufuegende Listener
+   */
   public void addBildAusgewaehltListener(BildAusgewaehltListener l) {
     this.listener.add(l);
   }
   
+  /**
+   * Loescht einen <code>BildAusgewaehltListener</code> aus der Liste der
+   * Listener.
+   * @param l  der zu loeschende Listener
+   */
   public void removeBildAusgewaehltListener(BildAusgewaehltListener l) {
     this.listener.remove(l);
   }
   
+  /**
+   * Kontaktiert alle Listener darueber, dass dieses Panel ausgwaehlt
+   * wurde.
+   */
   public void fireBildAusgewaehlt() {
     for (BildAusgewaehltListener l : listener) {
       l.setzeZuletztAusgewaehltesBild(this, this.listenindex);

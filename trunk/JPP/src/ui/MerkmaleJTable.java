@@ -1,12 +1,13 @@
 package ui;
 
-import core.BildDokument;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+
 import javax.swing.JTable;
+
+import core.BildDokument;
 
 /**
  * Ein Objekt der Klasse stellt die Tablle der Merkmale zu den ausgewaehlten
@@ -17,7 +18,7 @@ import javax.swing.JTable;
 public class MerkmaleJTable extends JTable implements Observer {
   
   /** Bilddokumente, zu denen die Merkmale angezeigt werden. */
-  private List<BildDokument> bilddokumente = new ArrayList();
+  private List<BildDokument> bilddokumente = new ArrayList<BildDokument>();
 
   /** Tabellenmodell, in dem die Daten verwaltet werden. */
   private MerkmaleTableModel tabellenmodell = null;
@@ -38,7 +39,7 @@ public class MerkmaleJTable extends JTable implements Observer {
     super();
 
     /* Anfangs ist kein Bilddokumente ausgewaehlt. */
-    bilddokumente = new ArrayList();
+    bilddokumente = new ArrayList<BildDokument>();
 
     /* Tabellenmodell zuweisen. */
     this.tabellenmodell = new MerkmaleTableModel(this.bilddokumente);

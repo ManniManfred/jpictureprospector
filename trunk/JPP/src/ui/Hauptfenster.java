@@ -29,13 +29,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
@@ -134,10 +131,7 @@ public class Hauptfenster extends JFrame {
   
   private JMenuItem miLoeschen = null;
   
-  private JSlider sGroesze = null;
-  
-  private JTextField tfSchluesselwoerter = null;
-  
+  private JSlider sGroesze = null;  
   private JPanel pBildinformationen = null;
   
   private JPanel pBilddetails = null;
@@ -393,6 +387,10 @@ public class Hauptfenster extends JFrame {
     erzeugeThumbnailansicht();
   }
   
+  /**
+   * Setzt fuer alle <code>ThumbnailAnzeigePanel</code> die entsprechenden
+   * Listener.
+   */
   private void setzeBildAusgewaehltListener() {
     
     if (listeAnzeigePanel != null) {
@@ -416,6 +414,14 @@ public class Hauptfenster extends JFrame {
    */
   public void setzeZuletztAusgewaehltesBild(ThumbnailAnzeigePanel tap) {
     this.zuletztGewaehltesPanel = tap;
+  }
+  
+  /**
+   * Liefert die Tabelle, in der die Grundmerkmale geladen sind.
+   * @return  die Tabelle fuer die Grundmerkmale
+   */
+  public MerkmaleJTable gibMerkmaleTable() {
+    return this.tBilddetails;
   }
   
   /**
@@ -571,7 +577,7 @@ public class Hauptfenster extends JFrame {
       miInfo.addActionListener(new java.awt.event.ActionListener() {
       	public void actionPerformed(java.awt.event.ActionEvent e) {
       	  JOptionPane.showMessageDialog(cpInhalt, "Programmierprojekt " +
-      	      "der FH Gelsenkirchen\n\nJPictureProspector\n\nv0.1",
+      	      "der FH Gelsenkirchen\n\nJPictureProspector\n\nv1.0",
       	      "Info", JOptionPane.INFORMATION_MESSAGE);
       	}
       });
@@ -780,20 +786,6 @@ public class Hauptfenster extends JFrame {
   }
   
   /**
-   * This method initializes tfSchluesselwoerter
-   *
-   * @return javax.swing.JTextField
-   */
-  private JTextField getTfSchluesselwoerter() {
-    
-    if (tfSchluesselwoerter == null) {
-      tfSchluesselwoerter = new JTextField();
-    }
-    return tfSchluesselwoerter;
-  }
-  
-  
-  /**
    * This method initializes pBildinformationen
    *
    * @return javax.swing.JPanel
@@ -816,61 +808,8 @@ public class Hauptfenster extends JFrame {
   private JPanel getPBilddetails() {
     
     if (pBilddetails == null) {
-//      
-//      // Bedingungen fuer den Textbereich zur Bildbeschreibung
-//      GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-//      gridBagConstraints3.fill = GridBagConstraints.BOTH;
-//      gridBagConstraints3.gridx = 0;
-//      gridBagConstraints3.gridy = 3;
-//      gridBagConstraints3.ipadx = MIN_BREITE_BILDINFO;
-//      gridBagConstraints3.ipady = 50;
-//      gridBagConstraints3.weightx = 1.0;
-//      gridBagConstraints3.weighty = 1.0;
-//      gridBagConstraints3.insets = new Insets(0, 0, STD_ABSTAND, 0);
-//      
-//      // Bedingungen fuer das Label zur Bildbeschreibung
-//      GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-//      gridBagConstraints2.insets = new Insets(0, STD_ABSTAND, STD_ABSTAND, 0);
-//      gridBagConstraints2.gridy = 2;
-//      gridBagConstraints2.ipadx = MIN_BREITE_BILDINFO;
-//      gridBagConstraints2.ipady = 5;
-//      gridBagConstraints2.anchor = GridBagConstraints.WEST;
-//      gridBagConstraints2.gridx = 0;
-//      
-//      // Bedingungen fuer das Textfeld zu den Schluesselwoertern
-//      GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-//      gridBagConstraints1.fill = GridBagConstraints.BOTH;
-//      gridBagConstraints1.gridx = 0;
-//      gridBagConstraints1.gridy = 1;
-//      gridBagConstraints1.ipadx = MIN_BREITE_BILDINFO;
-//      gridBagConstraints1.ipady = 1;
-//      gridBagConstraints1.weightx = 1.0;
-//      gridBagConstraints1.anchor = GridBagConstraints.WEST;
-//      gridBagConstraints1.insets = new Insets(0, 0, STD_ABSTAND, 0);
-//      
-//      // Bedingungen fuer Label "Schluesselwoerter"
-//      GridBagConstraints gridBagConstraints = new GridBagConstraints();
-//      gridBagConstraints.insets = new Insets(STD_ABSTAND, STD_ABSTAND,
-//	  STD_ABSTAND, 0);
-//      gridBagConstraints.gridy = 0;
-//      gridBagConstraints.ipadx = MIN_BREITE_BILDINFO;
-//      gridBagConstraints.ipady = 5;
-//      gridBagConstraints.anchor = GridBagConstraints.WEST;
-//      gridBagConstraints.gridx = 0;
-//      
-//      // Erstellen der Komponenten und hinzufuegen zum Layout
-//      lBildbeschreibung = new JLabel();
-//      lBildbeschreibung.setText("Bildbeschreibung");
-//      lSchluesselwoerter = new JLabel();
-//      lSchluesselwoerter.setText("Schlüsselwörter");
-//      pBilddetails = new JPanel();
+
       pBilddetails = new BilddetailsPanel(kern);
-//      pBilddetails.setLayout(new GridBagLayout());
-//      pBilddetails.setPreferredSize(new Dimension(MIN_BREITE_BILDINFO, 160));
-//      pBilddetails.add(lSchluesselwoerter, gridBagConstraints);
-//      pBilddetails.add(getTfSchluesselwoerter(), gridBagConstraints1);
-//      pBilddetails.add(lBildbeschreibung, gridBagConstraints2);
-//      pBilddetails.add(getTaBildbeschreibung(), gridBagConstraints3);
     }
     return pBilddetails;
   }

@@ -1,15 +1,14 @@
 package ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.table.DefaultTableModel;
+
+import merkmale.Merkmal;
 import core.BildDokument;
 import core.JPPCore;
 import core.exceptions.ErzeugeException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-import javax.swing.table.DefaultTableModel;
-import merkmale.Merkmal;
 
 public class MerkmaleTableModel extends DefaultTableModel {
 
@@ -20,14 +19,14 @@ public class MerkmaleTableModel extends DefaultTableModel {
   private int spaltenAnzahl;
 
   /** Enthaelt die Daten in der Tabelle. */
-  private ArrayList<Object[]> daten = new ArrayList();
+  private ArrayList<Object[]> daten = new ArrayList<Object[]>();
 
   /* Enthaelt die Information, ob eine Zelle editierbar sein soll oder nicht. */
-  private ArrayList<Boolean> zeilenEditierbar = new ArrayList();
+  private ArrayList<Boolean> zeilenEditierbar = new ArrayList<Boolean>();
 
-  private ArrayList<Boolean> checkboxAnzeige = new ArrayList();
+  private ArrayList<Boolean> checkboxAnzeige = new ArrayList<Boolean>();
 
-  private ArrayList<String> merkmalsnamen = new ArrayList();
+  private ArrayList<String> merkmalsnamen = new ArrayList<String>();
 
   /** Enthaelt die Bilddokumente, deren Merkmale angezeigt werden. */
   private List<BildDokument> bilddokumente = null;
@@ -96,7 +95,7 @@ public class MerkmaleTableModel extends DefaultTableModel {
 
       /* Leere Datensaetze erzeugen */
       Object[] datensatz = { "", "", false };
-      this.daten = new ArrayList();
+      this.daten = new ArrayList<Object[]>();
       for (int i = 0; i < this.zeilenAnzahl; i++) {
         this.daten.add(datensatz);
         this.zeilenEditierbar.add(false);
