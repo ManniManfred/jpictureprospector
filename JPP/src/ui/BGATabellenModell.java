@@ -6,6 +6,7 @@ import java.util.List;
 import javax.swing.table.DefaultTableModel;
 
 import merkmale.AlleMerkmale;
+import merkmale.ThumbnailMerkmal;
 import ui.listener.BildGeladenListener;
 import core.BildDokument;
 
@@ -62,9 +63,11 @@ public class BGATabellenModell extends DefaultTableModel {
     List<AlleMerkmale> alleMerkmale = dok.gibAlleMerkmale();
     this.setRowCount(0);
     for (AlleMerkmale merkmal : alleMerkmale) {
-      Object[] daten = new Object[]{merkmal.getName(),
-          merkmal.getWert().toString()};
-      this.addRow(daten);
+      if (!merkmal.getName().equals(ThumbnailMerkmal.FELDNAME)) {
+        Object[] daten = new Object[]{merkmal.getName(),
+            merkmal.getWert().toString()};
+        this.addRow(daten);
+      }
     }
     fireBildGeladen();
     

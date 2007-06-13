@@ -307,7 +307,6 @@ public class BildGroszanzeige extends JFrame {
       tZusatzdetails = new JTable();
       tZusatzdetails.setRowHeight(20);
       tZusatzdetails.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-      tZusatzdetails.setIntercellSpacing(new Dimension(10, 10));
       detailsTableModel = new BGATabellenModell(this.dok);
       tZusatzdetails.setModel(detailsTableModel);
       detailsTableModel.addBildGeladenListener(new BildGeladenListener() {
