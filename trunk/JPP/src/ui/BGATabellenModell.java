@@ -44,6 +44,15 @@ public class BGATabellenModell extends DefaultTableModel {
   public boolean isCellEditable(int zeile, int spalte) {
     return false;
   }
+  
+  /**
+   * Setzt das Dokument dieses Objekts neu.
+   * @param dok  das neue <code>BildDokument</code>
+   */
+  public void setzeDokument(BildDokument dok) {
+    this.dok = dok;
+    ladeDaten();
+  }
 
   /**
    * Laedt die Daten des Bildokuments in die Tabelle.
