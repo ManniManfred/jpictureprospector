@@ -1,12 +1,11 @@
 package ui;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -42,13 +41,11 @@ import javax.swing.filechooser.FileFilter;
 
 import ui.listener.BildAusgewaehltListener;
 import ui.listener.BildimportListener;
-import core.BildDokument;
 import core.JPPCore;
 import core.Trefferliste;
 import core.exceptions.EntferneException;
 import core.exceptions.ErzeugeException;
 import core.exceptions.SucheException;
-import java.awt.Color;
 
 /**
  * Ein Objekt der Klasse stellt das Hauptanzeigefenster der Software zur
@@ -91,12 +88,14 @@ public class Hauptfenster extends JFrame {
   /** Enthaelt die Trefferliste nach einer ausgeführten Suche. */
   private Trefferliste trefferliste = null;
   
+  /** Enthaelt das zuletzte gewaehlte Panel. */
   private ThumbnailAnzeigePanel zuletztGewaehltesPanel = null;
   
+  /** Enthaelt den Index des zuletzt gewaehlten Panels. */
   private int indexZuletztGewaehltesPanel;
   
   /** Enthaelt die Inhaltsflaeche dieses Objekts. */
-  private JPanel pInhaltsflaeche = null;
+  private JPanel cpInhalt = null;
   
   /** Enthaelt das Hauptmenue dieses Objektes. */
   private JMenuBar hauptmenu = null;
@@ -116,8 +115,6 @@ public class Hauptfenster extends JFrame {
   private JMenuItem miInfo = null;
   
   private Vorschaupanel pVorschau = null;
-  
-  private MerkmaleTableModel tabellenmodell = null;
   
   private SuchPanel pSuche = null;
   
@@ -144,12 +141,6 @@ public class Hauptfenster extends JFrame {
   private JPanel pBildinformationen = null;
   
   private JPanel pBilddetails = null;
-  
-  private JLabel lSchluesselwoerter = null;
-  
-  private JLabel lBildbeschreibung = null;
-  
-  private JTextPane taBildbeschreibung = null;
   
   private JScrollPane spBilddetails = null;
   
@@ -186,7 +177,7 @@ public class Hauptfenster extends JFrame {
     File[] files;
     dateiauswahl.setMultiSelectionEnabled(true);
     dateiauswahl.setFileFilter(filter);
-    final int ergebnis = dateiauswahl.showOpenDialog(pInhaltsflaeche);
+    final int ergebnis = dateiauswahl.showOpenDialog(cpInhalt);
     files = dateiauswahl.getSelectedFiles();
     final Bildimportierer importierer = new Bildimportierer(files, kern,
         sGroesze.getValue(), tapObserver);
@@ -194,6 +185,7 @@ public class Hauptfenster extends JFrame {
     final LadebalkenDialog ladebalken =
       new LadebalkenDialog(this, anzahlDateien);
     ladebalken.setzeAnzahl(0);
+    pVorschau.resetAnsicht();
     
     // Neue liste fuer die Anzeigepanel erzeugen
     if (this.listeAnzeigePanel == null) {
@@ -219,6 +211,7 @@ public class Hauptfenster extends JFrame {
       }
       public void ladevorgangAbgeschlossen() {
         ladebalken.dispose();
+        setzeBildAusgewaehltListener();
       }
     });
     
@@ -253,15 +246,9 @@ public class Hauptfenster extends JFrame {
         ThumbnailAnzeigePanel tap = 
           new ThumbnailAnzeigePanel(trefferliste.getBildDokument(i),
                 sGroesze.getValue(), tapObserver, i);
-        tap.addBildAusgewaehltListener(new BildAusgewaehltListener() {
-          public void setzeZuletztAusgewaehltesBild(ThumbnailAnzeigePanel tap,
-              int index) {
-            zuletztGewaehltesPanel = tap;
-            indexZuletztGewaehltesPanel = index;
-          }
-        });
         listeAnzeigePanel.add(tap);
       }
+      setzeBildAusgewaehltListener();
     } catch (SucheException se) {
       zeigeFehlermeldung("Suche fehlgeschlagen", "Die Suche konnte " +
           "nicht erfolgreich ausgeführt werden.\n\n" + se.getMessage());
@@ -381,15 +368,15 @@ public class Hauptfenster extends JFrame {
       true : false;
     if (listeAnzeigePanel != null && ergebnis != JOptionPane.CANCEL_OPTION) {
       
-      List<ThumbnailAnzeigePanel> zuLoeschendeBilder =
-        new ArrayList<ThumbnailAnzeigePanel>();
-      
+      ArrayList<ThumbnailAnzeigePanel> zuLoeschendeBilder 
+        = new ArrayList<ThumbnailAnzeigePanel>();
       for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
 	
       	if (tap.istAusgewaehlt()) {
       	  
       	  try {
-      	    zuLoeschendeBilder.add(tap);
+      	    tap.setzeFokus(false);
+            zuLoeschendeBilder.add(tap);
       	    kern.entferne(tap.gibBildDokument(), auchVonFestplatte);
       	  } catch (EntferneException e) {
       	    zeigeFehlermeldung("Fehler beim Löschen", "Die Datei konnte " +
@@ -399,11 +386,28 @@ public class Hauptfenster extends JFrame {
       	}
       }
       for (ThumbnailAnzeigePanel tap : zuLoeschendeBilder) {
-        tap.setzeFokus(false);
         listeAnzeigePanel.remove(tap);
       }
     }
+    pVorschau.resetAnsicht();
     erzeugeThumbnailansicht();
+  }
+  
+  private void setzeBildAusgewaehltListener() {
+    
+    if (listeAnzeigePanel != null) {
+      for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
+        tap.addBildAusgewaehltListener(new BildAusgewaehltListener() {
+          public void setzeZuletztAusgewaehltesBild(ThumbnailAnzeigePanel tap,
+              int index) {
+            if (tap.istAusgewaehlt()) {
+              zuletztGewaehltesPanel = tap;
+              indexZuletztGewaehltesPanel = index;
+            }
+          }
+        });
+      }
+    }
   }
   
   /**
@@ -458,7 +462,7 @@ public class Hauptfenster extends JFrame {
       miBeenden.addActionListener(new java.awt.event.ActionListener() {
       	public void actionPerformed(java.awt.event.ActionEvent e) {
       	  
-      	  int ergebnis = JOptionPane.showConfirmDialog(pInhaltsflaeche,
+      	  int ergebnis = JOptionPane.showConfirmDialog(cpInhalt,
       	      "Wollen Sie das Programm beenden?", "Beenden",
       	      JOptionPane.OK_CANCEL_OPTION);
       	  if (ergebnis == JOptionPane.OK_OPTION) {
@@ -566,7 +570,7 @@ public class Hauptfenster extends JFrame {
       miInfo.setMnemonic(KeyEvent.VK_I);
       miInfo.addActionListener(new java.awt.event.ActionListener() {
       	public void actionPerformed(java.awt.event.ActionEvent e) {
-      	  JOptionPane.showMessageDialog(pInhaltsflaeche, "Programmierprojekt " +
+      	  JOptionPane.showMessageDialog(cpInhalt, "Programmierprojekt " +
       	      "der FH Gelsenkirchen\n\nJPictureProspector\n\nv0.1",
       	      "Info", JOptionPane.INFORMATION_MESSAGE);
       	}
@@ -687,7 +691,7 @@ public class Hauptfenster extends JFrame {
       bGroszanzeige.setText("Bild anzeigen");
       bGroszanzeige.addActionListener(new java.awt.event.ActionListener() {
       	public void actionPerformed(java.awt.event.ActionEvent e) {
-      	  if (zuletztGewaehltesPanel != null) {
+          if (zuletztGewaehltesPanel != null) {
             BildGroszanzeige anzeige = new BildGroszanzeige(listeAnzeigePanel,
                 zuletztGewaehltesPanel.gibBildDokument());
             anzeige.setVisible(true);
@@ -872,20 +876,6 @@ public class Hauptfenster extends JFrame {
   }
   
   /**
-   * This method initializes tfBildbeschreibung
-   *
-   * @return javax.swing.JTextPane
-   */
-  private JTextPane getTaBildbeschreibung() {
-    
-    if (taBildbeschreibung == null) {
-      taBildbeschreibung = new JTextPane();
-      taBildbeschreibung.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-    }
-    return taBildbeschreibung;
-  }
-  
-  /**
    * This method initializes spBilddetails
    *
    * @return javax.swing.JScrollPane
@@ -962,6 +952,7 @@ public class Hauptfenster extends JFrame {
                 tap.setzeFokus(false);
               }
       	    }
+            pVorschau.resetAnsicht();
       	  }
       	}
       });
@@ -1015,13 +1006,13 @@ public class Hauptfenster extends JFrame {
    * @return javax.swing.JPanel
    */
   private JPanel getJContentPane() {
-    if (pInhaltsflaeche == null) {
-      pInhaltsflaeche = new JPanel();
-      pInhaltsflaeche.setLayout(new BorderLayout());
-      pInhaltsflaeche.add(getSuchPanel(), BorderLayout.NORTH);
-      pInhaltsflaeche.add(getSpAnzeige(), BorderLayout.CENTER);
+    if (cpInhalt == null) {
+      cpInhalt = new JPanel();
+      cpInhalt.setLayout(new BorderLayout());
+      cpInhalt.add(getSuchPanel(), BorderLayout.NORTH);
+      cpInhalt.add(getSpAnzeige(), BorderLayout.CENTER);
     }
-    return pInhaltsflaeche;
+    return cpInhalt;
   }
   
 }

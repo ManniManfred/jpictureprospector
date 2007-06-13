@@ -33,7 +33,7 @@ public class BilddetailsPanel extends JPanel implements Observer {
   
   /** Textkomponenten der Merkmale. */
   private HashMap<String, JTextComponent> textkomponenten =
-      new HashMap<String, JTextComponent>();
+      new HashMap<String, JTextComponent>();  //  @jve:decl-index=0:
   
   /** Checkboxen der Merkmale. */
   private HashMap<String, JCheckBox> checkboxen =
@@ -44,7 +44,7 @@ public class BilddetailsPanel extends JPanel implements Observer {
   private static final String BESCHREIBUNG = "Beschreibung";
   private static final String[] merkmale = {SCHLUESSELWOERTER, BESCHREIBUNG};
   
-  /** String für verschiedene Werte. */
+  /** String fï¿½r verschiedene Werte. */
   private static final String VERSCH_WERTE = "Verschiedene Werte";
   
   private static final long serialVersionUID = 1L;
@@ -56,7 +56,7 @@ public class BilddetailsPanel extends JPanel implements Observer {
 
   private JButton bAendern = null;
   
-  /** Kern, der die Aenderungen übernimmt. */
+  /** Kern, der die Aenderungen ï¿½bernimmt. */
   private JPPCore kern;
   
   /**
@@ -79,16 +79,18 @@ public class BilddetailsPanel extends JPanel implements Observer {
   private void initialize() {
     
     JTextField schluesselwoerterFeld = new JTextField();
-    schluesselwoerterFeld.setPreferredSize(new Dimension(150, 20));
+    schluesselwoerterFeld.setPreferredSize(new Dimension(200, 20));
+    JTextArea beschreibungsbereich = new JTextArea();
+    beschreibungsbereich.setPreferredSize(new Dimension(200, 60));
     this.textkomponenten.put(SCHLUESSELWOERTER, schluesselwoerterFeld);
-    this.textkomponenten.put(BESCHREIBUNG, new JTextArea());
+    this.textkomponenten.put(BESCHREIBUNG, beschreibungsbereich);
     this.checkboxen.put(SCHLUESSELWOERTER, new JCheckBox());
     this.checkboxen.put(BESCHREIBUNG, new JCheckBox());
     
     GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
     gridBagConstraints11.gridx = 2;
     gridBagConstraints11.anchor = GridBagConstraints.WEST;
-    gridBagConstraints11.insets = new Insets(10, 0, 10, 0);
+    gridBagConstraints11.insets = new Insets(0, 10, 10, 0);
     gridBagConstraints11.gridy = 5;
     GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
     gridBagConstraints5.gridx = 0;
@@ -99,12 +101,12 @@ public class BilddetailsPanel extends JPanel implements Observer {
     gridBagConstraints4.weightx = 1.0;
     gridBagConstraints4.weighty = 1.0;
     gridBagConstraints4.anchor = GridBagConstraints.WEST;
-    gridBagConstraints4.insets = new Insets(10, 0, 10, 0);
+    gridBagConstraints4.insets = new Insets(0, 10, 10, 0);
     gridBagConstraints4.gridx = 2;
     GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
     gridBagConstraints3.gridx = 2;
     gridBagConstraints3.anchor = GridBagConstraints.WEST;
-    gridBagConstraints3.insets = new Insets(10, 0, 10, 0);
+    gridBagConstraints3.insets = new Insets(0, 10, 10, 0);
     gridBagConstraints3.gridy = 3;
     lBildbeschreibung = new JLabel();
     lBildbeschreibung.setText(BESCHREIBUNG);
@@ -113,12 +115,12 @@ public class BilddetailsPanel extends JPanel implements Observer {
     gridBagConstraints2.gridy = 2;
     gridBagConstraints2.weightx = 1.0;
     gridBagConstraints2.anchor = GridBagConstraints.WEST;
-    gridBagConstraints2.insets = new Insets(10, 0, 10, 0);
+    gridBagConstraints2.insets = new Insets(0, 10, 10, 0);
     gridBagConstraints2.gridx = 2;
     GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
     gridBagConstraints1.gridx = 2;
     gridBagConstraints1.anchor = GridBagConstraints.WEST;
-    gridBagConstraints1.insets = new Insets(10, 0, 10, 0);
+    gridBagConstraints1.insets = new Insets(0, 10, 10, 0);
     gridBagConstraints1.gridy = 1;
     lSchluesselworter = new JLabel();
     lSchluesselworter.setText(SCHLUESSELWOERTER);
@@ -127,17 +129,17 @@ public class BilddetailsPanel extends JPanel implements Observer {
     gridBagConstraints.gridy = 2;
     this.setSize(300, 250);
     this.setLayout(new GridBagLayout());
+    this.add(lSchluesselworter, gridBagConstraints1);
+    this.add(lBildbeschreibung, gridBagConstraints3);
+    this.add(getBAendern(), gridBagConstraints11);
     
     /* Setzen der Elemente fuer Schluesselwoerter. */
     this.add(this.checkboxen.get(SCHLUESSELWOERTER), gridBagConstraints);
-    this.add(lSchluesselworter, gridBagConstraints1);
     this.add(this.textkomponenten.get(SCHLUESSELWOERTER), gridBagConstraints2);
     
     /* Setzen der Elemente fuer Bildbeschreibung. */
-    this.add(lBildbeschreibung, gridBagConstraints3);
     this.add(this.textkomponenten.get(BESCHREIBUNG), gridBagConstraints4);
     this.add(this.checkboxen.get(BESCHREIBUNG), gridBagConstraints5);
-    this.add(getBAendern(), gridBagConstraints11);
     
     /* ActionListener fuer Button. */
     this.bAendern.addActionListener(new java.awt.event.ActionListener() {

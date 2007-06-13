@@ -157,6 +157,10 @@ public class ThumbnailAnzeigePanel extends JPanel {
     return this.thumbnailAnzeige.gibBild();
   }
   
+  public int gibListenIndex() {
+    return this.listenindex;
+  }
+  
   /**
    * Liefert die Information ob das Objekt ausgewaehlt ist oder nicht.
    * 

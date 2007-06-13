@@ -5,31 +5,16 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReadParam;
-import javax.imageio.ImageReader;
-import javax.imageio.ImageTypeSpecifier;
-import javax.imageio.stream.ImageInputStream;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
-
-import ui.listener.VorschauBildListener;
 
 import merkmale.BildbreiteMerkmal;
 import merkmale.BildhoeheMerkmal;
-import merkmale.DateipfadMerkmal;
-
+import ui.listener.VorschauBildListener;
 import core.BildDokument;
 
 public class Vorschaupanel extends JPanel implements Observer {
@@ -39,9 +24,7 @@ public class Vorschaupanel extends JPanel implements Observer {
   /** Enthaelt das Bild, was anzeigt werden soll. */
   private Image bild = null;
   
-  private BildDokument dok = null;  //  @jve:decl-index=0:
-  
-  private Vorschaubildlader bildlader;
+  private BildDokument dok = null;
   
   /**
    * This is the default constructor
@@ -100,7 +83,6 @@ public class Vorschaupanel extends JPanel implements Observer {
     this.setSize(300, 300);
     this.setLayout(new BorderLayout());
     this.setBackground(Color.WHITE);
-    this.bildlader = new Vorschaubildlader(dok);
     this.setBorder(BorderFactory.createTitledBorder(
         BorderFactory.createEmptyBorder(0, 0, 0, 0), "Vorschau",
         TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, 
