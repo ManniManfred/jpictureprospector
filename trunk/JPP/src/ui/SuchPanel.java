@@ -82,7 +82,7 @@ public class SuchPanel extends JPanel {
       tfSuchFeld = new JTextField();
       tfSuchFeld.setPreferredSize(new Dimension(300, 25));
       tfSuchFeld.addKeyListener(new java.awt.event.KeyAdapter() {
-        public void keyReleased(java.awt.event.KeyEvent e) {
+        public void keyPressed(java.awt.event.KeyEvent e) {
           if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             hauptfenster.erzeugeDatenNachSuche();
             hauptfenster.erzeugeThumbnailansicht();
