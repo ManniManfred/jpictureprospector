@@ -4,7 +4,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
 import core.GeoeffnetesBild;
-import core.exceptions.LeseMerkmalAusException;
 
 public class DateinameMerkmal extends Merkmal {
 

@@ -292,7 +292,7 @@ public class JPPCore {
      */
     if (auchVonFestplatte) {
       File datei = new File(pfad);
-      System.out.println(datei);
+      
       if (!datei.delete()) {
         /* Fehlerbehandlung, falls das Loeschen misslang */
         throw new EntferneException("Das Entfernen von der Festplatte misslang.");

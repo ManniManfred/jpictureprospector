@@ -1,10 +1,6 @@
 
 package merkmale;
 
-import core.*;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-
 /**
  * Ein Objekt dieser Klasse repraesentiert ein Exif - Merkmal mit einem 
  * Mermalsnamen und einem zu dem Merkmal gehoerenden Wert. 

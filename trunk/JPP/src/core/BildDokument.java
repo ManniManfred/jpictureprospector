@@ -89,17 +89,25 @@ public class BildDokument {
     return doc;
   }
 
+  /**
+   * Berechnet den Hashwert dieses BildDokuments.
+   * @return Hashwert dieses BildDokuments
+   */
   public int hashCode() {
+    
+    /* Berechne den Hashwert ueber das SchluesselMerkmal "Dateipfad" */
     return getMerkmal(DateipfadMerkmal.FELDNAME).getWert().hashCode();
   }
   
+  /**
+   * Gibt true zurueck wenn dieses BildDokument gleich dem uebergebenem ist.
+   * Zwei BildDokumente sind gleich, wenn all ihre Merkmale uebereinstimmen.
+   * @param obj  das Object mit dem verglichen wird
+   */
   public boolean equals(Object obj) {
+    
     if (obj instanceof BildDokument) {
       BildDokument b2 = (BildDokument) obj;
-      /* TODO Wann sind zwei BildDokumente gleich?
-       * Entweder, wenn nur die Pfadangabe uebereinstimmt, oder wenn alle
-       * Merkmale uebereinstimmen?
-       */
       
       for (Merkmal m : merkmale.values()) {
         if (!m.equals(b2.getMerkmal(m.getName()))) {
@@ -112,9 +120,10 @@ public class BildDokument {
   }
   
   /**
-   * Gibt das Merkmal mit dem <code>merkmalName</code> zu diesem BildDokument 
-   * @param name
-   * @return
+   * Gibt das Merkmal mit dem <code>merkmalName</code> dieses BildDokuments
+   * zurueck
+   * @param name  Name des Merkmals, welches zurueckgegeben werden soll
+   * @return Merkmal dieses BildDokuments mit dem <code>merkmalName</code>
    */
   public Merkmal getMerkmal(String merkmalName) {
     return merkmale.get(merkmalName);
@@ -210,7 +219,11 @@ public class BildDokument {
     merkmale.put(merkmal.getName(), merkmal);
   }
   
-  
+  /**
+   * Gibt eine Collection mit den Grundmerkmalen zurueck. Grundmerkmale sind
+   * die, die in Lucene abgelegt werden und nach den gesucht werden kann.
+   * @return Collection mit den Grundmerkmalen
+   */
   public Collection<Merkmal> gibGrundMerkmale() {
     return merkmale.values();
   }

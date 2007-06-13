@@ -8,6 +8,14 @@ package core.exceptions;
 public class ImportException extends Exception {
   
   /**
+   * Generated serialVersionUID.
+   */
+  private static final long serialVersionUID = 2725408003019234287L;
+
+  
+  
+  
+  /**
    * Erzeugt eine neue ImportException.
    */
   public ImportException() {
