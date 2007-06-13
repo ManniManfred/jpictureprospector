@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JTextArea;
 import javax.swing.text.JTextComponent;
 
@@ -59,6 +60,9 @@ public class BilddetailsPanel extends JPanel implements Observer {
   /** Kern, der die Aenderungen �bernimmt. */
   private JPPCore kern;
   
+  /** Hauptfenster der Anweundung. */
+  private Hauptfenster hauptfenster;
+  
   /**
    * Erzeugt ein neues Panel fuer die Bilddetails. 
    * Es wird davon ausgegangen, dass das Panel nur editierbare Merkmale 
@@ -66,10 +70,11 @@ public class BilddetailsPanel extends JPanel implements Observer {
    *
    * @param kern  Kern der Anwendung.
    */
-  public BilddetailsPanel(JPPCore kern) {
+  public BilddetailsPanel(JFrame hauptfenster, JPPCore kern) {
     super();
     initialize();
     this.kern = kern;
+    this.hauptfenster = (Hauptfenster) hauptfenster;
   }
   
   /**
@@ -292,6 +297,9 @@ public class BilddetailsPanel extends JPanel implements Observer {
     } catch (AendereException e) {
       System.out.println("Fehler beim aendern der Merkmale");
     }
+    
+    /* Daten im Tabellenmodell aendern. */
+    this.hauptfenster.gibMerkmaleTable().aendereDaten();
     
   }
   
