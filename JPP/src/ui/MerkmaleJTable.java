@@ -8,6 +8,7 @@ import java.util.Observer;
 import javax.swing.JTable;
 
 import core.BildDokument;
+import core.JPPCore;
 
 /**
  * Ein Objekt der Klasse stellt die Tablle der Merkmale zu den ausgewaehlten
@@ -23,26 +24,30 @@ public class MerkmaleJTable extends JTable implements Observer {
   /** Tabellenmodell, in dem die Daten verwaltet werden. */
   private MerkmaleTableModel tabellenmodell = null;
 
-  /** Spaltenbreite 1. Spalte Merkmal */
+  /** Spaltenbreite 1. Spalte Merkmal. */
   private static final int SPALTENBREITE_MERKMAL = 140;
 
-  /** Spaltenbreite 2. Spalte Merkmalswert */
+  /** Spaltenbreite 2. Spalte Merkmalswert. */
   private static final int SPALTENBREITE_WERT = 120;
 
   /** Spaltenbreite 3. Spalte Checkbox */
   private static final int SPALTENBREITE_BOX = 45;
+  
+  /** Kern der Anwendung. */
+  private JPPCore kern;
 
   /**
    * Erzeugt eine neue Instanz der Tabelle.
    */
-  public MerkmaleJTable() {
+  public MerkmaleJTable(JPPCore kern) {
     super();
+    this.kern = kern;
 
     /* Anfangs ist kein Bilddokumente ausgewaehlt. */
     bilddokumente = new ArrayList<BildDokument>();
 
     /* Tabellenmodell zuweisen. */
-    this.tabellenmodell = new MerkmaleTableModel(this.bilddokumente);
+    this.tabellenmodell = new MerkmaleTableModel(this.bilddokumente, this.kern);
     this.setModel(tabellenmodell);
     this.setName("Bilddetails");
 
@@ -111,5 +116,12 @@ public class MerkmaleJTable extends JTable implements Observer {
       this.setzeRenderer();
       this.setzeSpaltenBreite();
     }
+  }
+  
+  /**
+   * Aendert die Daten der Bilddokumente.
+   */   
+  public void aendereDaten() {
+    this.tabellenmodell.aendereDaten();
   }
 }
