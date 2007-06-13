@@ -145,6 +145,8 @@ public class Hauptfenster extends JFrame {
   private JScrollPane spThumbnails = null;
   
   private JButton bAuswahlAufheben = null;
+
+  private JMenuItem miAuswahlAufheben = null;
   
   /**
    * Erstellt ein neues Objekt der Klasse.
@@ -543,8 +545,9 @@ public class Hauptfenster extends JFrame {
     if (mEinstellungen == null) {
       mEinstellungen = new JMenu();
       mEinstellungen.setText("Bearbeiten");
-      mEinstellungen.setMnemonic(KeyEvent.VK_E);
+      mEinstellungen.setMnemonic(KeyEvent.VK_B);
       mEinstellungen.add(getMiLoeschen());
+      mEinstellungen.add(getMiAuswahlAufheben());
     }
     return mEinstellungen;
   }
@@ -899,6 +902,33 @@ public class Hauptfenster extends JFrame {
     return bAuswahlAufheben;
   }
   
+  /**
+   * This method initializes miAuswahlAufheben	
+   * 	
+   * @return javax.swing.JMenuItem	
+   */
+  private JMenuItem getMiAuswahlAufheben() {
+    if (miAuswahlAufheben == null) {
+      miAuswahlAufheben = new JMenuItem();
+      miAuswahlAufheben.setText("Auswahl aufheben");
+      miAuswahlAufheben.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, Event.CTRL_MASK | Event.SHIFT_MASK, false));
+      miAuswahlAufheben.setMnemonic(KeyEvent.VK_A);
+      miAuswahlAufheben.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+          if (listeAnzeigePanel != null) {
+            for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
+              if (tap.istAusgewaehlt()) {
+                tap.setzeFokus(false);
+              }
+            }
+            pVorschau.resetAnsicht();
+          }
+        }
+      });
+    }
+    return miAuswahlAufheben;
+  }
+
   /**
    * @param args
    */
