@@ -117,7 +117,7 @@ public class Bildimportierer extends Thread {
           ThumbnailAnzeigePanel tap = new ThumbnailAnzeigePanel(dok,
               tapGroesze, tapObserver, i);
           tap.setzeDateinamen(dateien[i].getName(), tapGroesze);
-          listeAnzeigePanel.add(tap);
+          listeAnzeigePanel.add(tap);          
         } catch (ImportException ie) {
           
           /* Bereits importierte Dateien und defekt Dateien werden

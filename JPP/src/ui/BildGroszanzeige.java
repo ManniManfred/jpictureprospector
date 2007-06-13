@@ -7,6 +7,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +57,7 @@ public class BildGroszanzeige extends JFrame {
   
   private List<ThumbnailAnzeigePanel> listeAnzeigePanel = null;
 
-  private JPanel jContentPane = null;
+  private JPanel cpInhalt = null;
 
   private JPanel pToolbar = null;
   
@@ -130,7 +131,8 @@ public class BildGroszanzeige extends JFrame {
   private void initialize() {
     this.setSize(800, 600);
     this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-    this.setContentPane(getJContentPane());
+    this.setContentPane(getCpInhalt());
+    this.setFocusable(true);
     this.setTitle("Groszanzeige - JPictureProspector");
   }
 
@@ -139,14 +141,14 @@ public class BildGroszanzeige extends JFrame {
    * 
    * @return javax.swing.JPanel
    */
-  private JPanel getJContentPane() {
-    if (jContentPane == null) {
-      jContentPane = new JPanel();
-      jContentPane.setLayout(new BorderLayout());
-      jContentPane.add(getPToolbar(), BorderLayout.SOUTH);
-      jContentPane.add(getTpGroszanzeige(), BorderLayout.CENTER);
+  private JPanel getCpInhalt() {
+    if (cpInhalt == null) {
+      cpInhalt = new JPanel();
+      cpInhalt.setLayout(new BorderLayout());
+      cpInhalt.add(getPToolbar(), BorderLayout.SOUTH);
+      cpInhalt.add(getTpGroszanzeige(), BorderLayout.CENTER);
     }
-    return jContentPane;
+    return cpInhalt;
   }
 
   /**
@@ -332,12 +334,20 @@ class BildGroszanzeigeZeichner extends JPanel {
   private List<BildGeladenListener> listener = null;
   
   /**
+   * Enthaelt das <code>ImageIcon</code> zu diesem Bild was den 
+   * Ladevorgang uebernimmt.
+   */
+  private ImageIcon icon = null;
+  
+  /**
    * Erzeugt ein neues Objekt der Klasse mit den entsprechenden Daten.
    * @param dok  das Bilddokument, dass den Pfad zur Datei enthaelt
    */
   public BildGroszanzeigeZeichner(BildDokument dok) {
     this.dok = dok;
     this.listener = new ArrayList<BildGeladenListener>();
+    icon = new ImageIcon((String)
+        dok.getMerkmal(DateipfadMerkmal.FELDNAME).getWert());
     repaint();
   }
   
@@ -377,6 +387,8 @@ class BildGroszanzeigeZeichner extends JPanel {
    */
   public void setzeDok(BildDokument dok) {
     this.dok = dok;
+    icon = new ImageIcon((String)
+        dok.getMerkmal(DateipfadMerkmal.FELDNAME).getWert());
     this.repaint();
   }
   
@@ -385,48 +397,43 @@ class BildGroszanzeigeZeichner extends JPanel {
    */
   protected void paintComponent(Graphics g) {
     
-    try {
-      Image bild = ImageIO.read(
-          new File((String)
-              dok.getMerkmal(DateipfadMerkmal.FELDNAME).getWert()));
-      fireBildGeladen();
-      double originalBreite = 
-        (Integer) dok.getMerkmal(BildbreiteMerkmal.FELDNAME).getWert();
-      double originalHoehe = 
-        (Integer) dok.getMerkmal(BildhoeheMerkmal.FELDNAME).getWert();
-      double hoeheBild = bild.getHeight(this);
-      double breiteBild = bild.getWidth(this);
-      double dieseBreite = getWidth();
-      double dieseHoehe = getHeight();
-      g.setColor(Color.WHITE);
-      g.fillRect(0, 0, getWidth(), getHeight());
-    
-      if (originalBreite <= dieseBreite && originalHoehe <= dieseHoehe) {
-        
-        g.drawImage(bild, 
-            (int) (dieseBreite - originalBreite) / 2,
-            (int) (dieseHoehe - originalHoehe) / 2,
-            (int) originalBreite, (int) originalHoehe, this);
-      } else if (Math.abs(dieseBreite / breiteBild) < Math.abs(dieseHoehe / hoeheBild)) {
-        // Anpassung der Größe an dieses Objekt
-        
-        // Breite voll ausgefuellt, Hoehe muss neu berechnet werden
-        g.drawImage(bild,
-            0,
-            (int) (dieseHoehe - hoeheBild * (dieseBreite / breiteBild)) / 2,
-            (int) dieseBreite,
-            (int) (hoeheBild * (dieseBreite / breiteBild)), this);
-      } else {
-        
-        // Hoehe voll ausgefuellt, Breite muss neu berechnet werden
-        g.drawImage(bild, 
-            (int) (dieseBreite - breiteBild * (dieseHoehe / hoeheBild)) / 2,
-            0,
-            (int) (breiteBild * (dieseHoehe / hoeheBild)),
-            (int) dieseHoehe, this);
-      }
-    } catch (IOException e) {
-      System.out.println("Konnte das Bild nicht laden.");
+    Image bild = icon.getImage();
+    fireBildGeladen();
+    double originalBreite = 
+      (Integer) dok.getMerkmal(BildbreiteMerkmal.FELDNAME).getWert();
+    double originalHoehe = 
+      (Integer) dok.getMerkmal(BildhoeheMerkmal.FELDNAME).getWert();
+    double hoeheBild = bild.getHeight(this);
+    double breiteBild = bild.getWidth(this);
+    double dieseBreite = getWidth();
+    double dieseHoehe = getHeight();
+    g.setColor(Color.WHITE);
+    g.fillRect(0, 0, getWidth(), getHeight());
+  
+    if (originalBreite <= dieseBreite && originalHoehe <= dieseHoehe) {
+      
+      g.drawImage(bild, 
+          (int) (dieseBreite - originalBreite) / 2,
+          (int) (dieseHoehe - originalHoehe) / 2,
+          (int) originalBreite, (int) originalHoehe, this);
+    } else if (Math.abs(dieseBreite / breiteBild) < Math.abs(dieseHoehe / hoeheBild)) {
+      // Anpassung der Größe an dieses Objekt
+      
+      // Breite voll ausgefuellt, Hoehe muss neu berechnet werden
+      g.drawImage(bild,
+          0,
+          (int) (dieseHoehe - hoeheBild * (dieseBreite / breiteBild)) / 2,
+          (int) dieseBreite,
+          (int) (hoeheBild * (dieseBreite / breiteBild)), this);
+    } else {
+      
+      // Hoehe voll ausgefuellt, Breite muss neu berechnet werden
+      g.drawImage(bild, 
+          (int) (dieseBreite - breiteBild * (dieseHoehe / hoeheBild)) / 2,
+          0,
+          (int) (breiteBild * (dieseHoehe / hoeheBild)),
+          (int) dieseHoehe, this);
     }
+    
   }
 }
