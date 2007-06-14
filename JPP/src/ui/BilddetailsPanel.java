@@ -59,11 +59,11 @@ public class BilddetailsPanel extends JPanel implements Observer {
 
   private JButton bAendern = null;
   
-  /** Kern, der die Aenderungen �bernimmt. */
+  /** Kern, der die Aenderungen uebernimmt. */
   private JPPCore kern;
   
-  /** Hauptfenster der Anweundung. */
-  private Hauptfenster hauptfenster;
+  /** Tabelle, die die uebrigen Merkmale anzeigt. */
+  private MerkmaleJTable tabelle;
   
   /**
    * Erzeugt ein neues Panel fuer die Bilddetails. 
@@ -72,11 +72,11 @@ public class BilddetailsPanel extends JPanel implements Observer {
    *
    * @param kern  Kern der Anwendung.
    */
-  public BilddetailsPanel(JFrame hauptfenster, JPPCore kern) {
+  public BilddetailsPanel(MerkmaleJTable tabelle, JPPCore kern) {
     super();
     initialize();
+    this.tabelle = tabelle;
     this.kern = kern;
-    this.hauptfenster = (Hauptfenster) hauptfenster;
   }
   
   /**
@@ -302,7 +302,7 @@ public class BilddetailsPanel extends JPanel implements Observer {
     }
     
     /* Daten im Tabellenmodell aendern. */
-    this.hauptfenster.gibMerkmaleTable().aendereDaten();
+    this.tabelle.aendereDaten();
     
   }
   
