@@ -816,7 +816,7 @@ public class Hauptfenster extends JFrame {
     
     if (pBilddetails == null) {
 
-      pBilddetails = new BilddetailsPanel(this, kern);
+      pBilddetails = new BilddetailsPanel(this.getTBilddetails(), kern);
     }
     return pBilddetails;
   }
@@ -842,7 +842,7 @@ public class Hauptfenster extends JFrame {
    *
    * @return javax.swing.JTable
    */
-  private JTable getTBilddetails() {
+  private MerkmaleJTable getTBilddetails() {
     if (tBilddetails == null) {
          
       tBilddetails = new MerkmaleJTable(this.kern);

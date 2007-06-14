@@ -153,7 +153,7 @@ public class MerkmaleTableModel extends DefaultTableModel {
 	  }
 	}
 	
-	Object[] datensatz = { merkmal.getName(), merkmalswert, editierbar };
+	Object[] datensatz = {merkmal.getName(), merkmalswert, editierbar};
 	this.daten.add(datensatz);
 	this.zeilenEditierbar.add(editierbar);
 	this.checkboxAnzeige.add(checkbox_anzeigen);
@@ -163,8 +163,7 @@ public class MerkmaleTableModel extends DefaultTableModel {
     
     /* Spaltennamen neu setzen, falls Spalte hinzugekommen ist */
     this.setColumnIdentifiers(SPALTENNAMEN);
-    fireTableDataChanged();
-    
+    fireTableDataChanged();    
   }
   
   /**
@@ -342,8 +341,8 @@ public class MerkmaleTableModel extends DefaultTableModel {
 	}
 	
 	/* Update geaenderte Bilddokumente. */
-	for (int k = 0; i < this.bilddokumente.size(); k++)  {
-	  this.kern.aendere(bilddokumente.get(i));
+	for (int k = 0; k < this.bilddokumente.size(); k++)  {
+	  this.kern.aendere(bilddokumente.get(k));
 	}
       }
       
