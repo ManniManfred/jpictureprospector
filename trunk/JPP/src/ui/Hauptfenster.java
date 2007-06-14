@@ -89,7 +89,7 @@ public class Hauptfenster extends JFrame {
   private ThumbnailAnzeigePanel zuletztGewaehltesPanel = null;
   
   /** Enthaelt den Index des zuletzt gewaehlten Panels. */
-  private int indexZuletztGewaehltesPanel;
+  private int indexZuletztGewaehltesPanel = -1;
   
   /** Enthaelt die Inhaltsflaeche dieses Objekts. */
   private JPanel cpInhalt = null;
@@ -318,7 +318,9 @@ public class Hauptfenster extends JFrame {
         tap.setzeFokus(false);
       }
     }
-    if (indexZuletztGewaehltesPanel == 0) {
+    if (indexZuletztGewaehltesPanel == -1) {
+      listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
+    } else if (indexZuletztGewaehltesPanel == 0) {
       listeAnzeigePanel.get(0).setzeFokus(false);
       listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
     } else {
@@ -341,7 +343,9 @@ public class Hauptfenster extends JFrame {
         tap.setzeFokus(false);
       }
     }
-    if (indexZuletztGewaehltesPanel == listeAnzeigePanel.size() - 1) {
+    if (indexZuletztGewaehltesPanel == -1) {
+      listeAnzeigePanel.get(0).setzeFokus(true);
+    } else if (indexZuletztGewaehltesPanel == listeAnzeigePanel.size() - 1) {
       listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(false);
       listeAnzeigePanel.get(0).setzeFokus(true);
     } else {
