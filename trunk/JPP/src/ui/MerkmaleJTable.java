@@ -38,6 +38,8 @@ public class MerkmaleJTable extends JTable implements Observer {
 
   /**
    * Erzeugt eine neue Instanz der Tabelle.
+   *
+   * @param  Kern der Anwendung.
    */
   public MerkmaleJTable(JPPCore kern) {
     super();
@@ -62,9 +64,8 @@ public class MerkmaleJTable extends JTable implements Observer {
    * Setzt die Renderer dieser Tabelle.
    */
   private void setzeRenderer() {
-
-    /*
-     * DefaultRenderer ist MerkmaleTableCellRenderer, mit dem Zellen gerendert
+    
+    /* DefaultRenderer ist MerkmaleTableCellRenderer, mit dem Zellen gerendert
      * werden, die Strings enthalten.
      */
     this.setDefaultRenderer(String.class, new MerkmaleTableCellRenderer(
@@ -104,8 +105,7 @@ public class MerkmaleJTable extends JTable implements Observer {
 
     if (arg instanceof ThumbnailAnzeigePanel) {
       
-      BildDokument dok = ((ThumbnailAnzeigePanel) arg).gibBildDokument();
-      
+      BildDokument dok = ((ThumbnailAnzeigePanel) arg).gibBildDokument();     
       if (bilddokumente.contains(dok)) {
         bilddokumente.remove(dok);
       } else {
@@ -120,8 +120,9 @@ public class MerkmaleJTable extends JTable implements Observer {
   
   /**
    * Aendert die Daten der Bilddokumente.
-   */   
-  public void aendereDaten() {
-    this.tabellenmodell.aendereDaten();
+   * @return  Liste der geaenderten Bilddokumente.
+   */
+  public List<BildDokument> aendereDaten() {
+    return this.tabellenmodell.aendereDaten();
   }
 }

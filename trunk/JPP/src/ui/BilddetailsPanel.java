@@ -153,23 +153,15 @@ public class BilddetailsPanel extends JPanel implements Observer {
     this.add(spBeschreibung, gridBagConstraints4);
     this.add(this.checkboxen.get(BESCHREIBUNG), gridBagConstraints5);
     
-    /* ActionListener fuer Button. */
-    this.bAendern.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-	datenaendern(evt);
-      }
-    });
-    
     /* ActionListener zu den Checkboxen hinzufuegen. */
     for(int i = 0; i < merkmale.length; i++) {
       this.checkboxen.get(merkmale[i]).addActionListener(new java.awt.event.ActionListener() {
-	public void actionPerformed(java.awt.event.ActionEvent evt) {
-	  checkBoxGewaehlt(evt);
-	}
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+          checkBoxGewaehlt(evt);
+        }
       });
       this.checkboxen.get(merkmale[i]).setVisible(false);
-    }
-    
+    }    
   }
   
   /**
@@ -181,6 +173,12 @@ public class BilddetailsPanel extends JPanel implements Observer {
     if (bAendern == null) {
       bAendern = new JButton();
       bAendern.setText("\u00C4nderungen \u00FCbernehmen");
+      /* ActionListener fuer Button. */
+      this.bAendern.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+          datenaendern(evt);
+        }
+      });      
     }
     return bAendern;
   }
@@ -201,9 +199,9 @@ public class BilddetailsPanel extends JPanel implements Observer {
       
       /* Bilddokument hinzufuegen oder loeschen. */
       if (bilddokumente.contains(dok)) {
-	bilddokumente.remove(dok);
+        bilddokumente.remove(dok);
       } else {
-	this.bilddokumente.add(dok);
+        this.bilddokumente.add(dok);
       }
       
       this.aktualisiereDaten();     
@@ -224,26 +222,31 @@ public class BilddetailsPanel extends JPanel implements Observer {
     
     if (bilddokumente.size() != 0) {
       for (int i = 0; i < merkmale.length; i++) {
-	if (hatMerkmalGleichenWert(merkmale[i])) {
+        if (hatMerkmalGleichenWert(merkmale[i])) {
 	  
-	  /* Bei gleichem Merkmalswert wird Wert des ersten Bilddokumentes 
-	   * angezeigt und die Textkomponente editierbar gemacht. */
-	  merkmalText =
-	      (String) bilddokumente.get(0).getMerkmal(merkmale[i]).getWert();
-	  this.textkomponenten.get(merkmale[i]).setEditable(true);
-	} else {
-	  
-	  /* Merkmal hat unterschiedliche Werte, Checkbox false, 
-	   * Textkomponente nicht editierbar 
-	   */
-	  merkmalText = VERSCH_WERTE;
-	  this.textkomponenten.get(merkmale[i]).setEditable(false);
-	  this.checkboxen.get(merkmale[i]).setVisible(true);
-	  this.checkboxen.get(merkmale[i]).setSelected(false);
-	}
-	
-	this.textkomponenten.get(merkmale[i]).setText(merkmalText);	
+          /* Bei gleichem Merkmalswert wird Wert des ersten Bilddokumentes 
+           * angezeigt und die Textkomponente editierbar gemacht. */
+          merkmalText =
+            (String) bilddokumente.get(0).getMerkmal(merkmale[i]).getWert();
+          this.textkomponenten.get(merkmale[i]).setEditable(true);
+        } else {
+  
+          /* Merkmal hat unterschiedliche Werte, Checkbox false, 
+           * Textkomponente nicht editierbar 
+           */
+          merkmalText = VERSCH_WERTE;
+          this.textkomponenten.get(merkmale[i]).setEditable(false);
+          this.checkboxen.get(merkmale[i]).setVisible(true);
+          this.checkboxen.get(merkmale[i]).setSelected(false);
+        }
+
+        this.textkomponenten.get(merkmale[i]).setText(merkmalText);	
       }      
+    } else {
+      // Felder leeren 
+      for (int i = 0; i < merkmale.length; i++) {
+	this.textkomponenten.get(merkmale[i]).setText("");
+      }
     }
   }
   
@@ -259,17 +262,17 @@ public class BilddetailsPanel extends JPanel implements Observer {
       if (this.checkboxen.get(merkmale[i]).isVisible()) {
 	JCheckBox aktCheckBox = checkboxen.get(merkmale[i]);
 	JTextComponent aktTextKomponente =
-	    this.textkomponenten.get(merkmale[i]);
-	boolean neuerWert = aktCheckBox.isSelected();
-	
-	if (neuerWert) {
-	  // Checkbox war zuvor false
-	  aktTextKomponente.setText("");
-	  aktTextKomponente.setEditable(true);
-	} else {
-	  aktTextKomponente.setText(VERSCH_WERTE);
-	  aktTextKomponente.setEditable(false);
-	}
+          this.textkomponenten.get(merkmale[i]);
+        boolean neuerWert = aktCheckBox.isSelected();
+ 	
+        if (neuerWert) {
+          // Checkbox war zuvor false
+          aktTextKomponente.setText("");
+          aktTextKomponente.setEditable(true); 
+        } else {
+          aktTextKomponente.setText(VERSCH_WERTE);
+          aktTextKomponente.setEditable(false);
+        }
       }
     }
   }
@@ -281,29 +284,28 @@ public class BilddetailsPanel extends JPanel implements Observer {
    */  
   private void datenaendern(java.awt.event.ActionEvent evt) {
     
+    /* Bilddokumente in der Tabelle aendern. */
+    this.bilddokumente =  this.tabelle.aendereDaten();
+    
     try {
       for (int i = 0; i < merkmale.length; i++) {
-	JCheckBox aktCheckBox = checkboxen.get(merkmale[i]);
-	JTextComponent aktTextKomponente =
-	    this.textkomponenten.get(merkmale[i]);
+        JCheckBox aktCheckBox = checkboxen.get(merkmale[i]);
+        JTextComponent aktTextKomponente =
+          this.textkomponenten.get(merkmale[i]);
 	
 	/* Daten werden nur geaendert wenn die Checkbox nicht 
 	 * deaktiviert ist */
-	if(!(aktCheckBox.isVisible() && !aktCheckBox.isSelected())) {
+        if(!(aktCheckBox.isVisible() && !aktCheckBox.isSelected())) {
 	  for (int j = 0; j < bilddokumente.size(); j++ ) {
-	    bilddokumente.get(j).getMerkmal(merkmale[i]).setWert(
-		aktTextKomponente.getText());
-	    this.kern.aendere(bilddokumente.get(j));
-	  }
+            bilddokumente.get(j).getMerkmal(merkmale[i]).setWert(
+              aktTextKomponente.getText());
+            this.kern.aendere(bilddokumente.get(j));
+          }
 	}
       }
     } catch (AendereException e) {
       System.out.println("Fehler beim aendern der Merkmale");
     }
-    
-    /* Daten im Tabellenmodell aendern. */
-    this.tabelle.aendereDaten();
-    
   }
   
   /**
@@ -321,12 +323,11 @@ public class BilddetailsPanel extends JPanel implements Observer {
     int i = 0;
     while ((i < (bilddokumente.size() - 1)) && istGleich) {
       istGleich =
-	  bilddokumente.get(i).getMerkmal(merkmalsname).getWert().equals(
-	  bilddokumente.get(i + 1).getMerkmal(merkmalsname).getWert());
+          bilddokumente.get(i).getMerkmal(merkmalsname).getWert().equals(
+          bilddokumente.get(i + 1).getMerkmal(merkmalsname).getWert());
       i++;
     }
     
     return istGleich;
-  }
-  
+  } 
 }

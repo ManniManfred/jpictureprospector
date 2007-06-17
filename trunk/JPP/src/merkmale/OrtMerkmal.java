@@ -7,19 +7,18 @@ import org.apache.lucene.document.Field;
 
 
 /**
- * Ein Objekt dieser Klasse stellt das Merkmal Schluesselwoerter eines 
+ * Ein Objekt dieser Klasse stellt das Merkmal Schl�sselw�rter eines 
  * Bilddokumentes dar.
- *
  */
-public class SchluesselWoerterMerkmal extends Merkmal {
+public class OrtMerkmal extends Merkmal {
     
   /** Name des Lucene-Feldes f�r dieses Merkmal. */
-  public static final String FELDNAME = "Schl\u00fcsselw\u00f6rter";
+  public static final String FELDNAME = "Ort";
   
   /** 
    * Erzeugt ein neues BeschreibungMerkmal.
    */
-  public SchluesselWoerterMerkmal() {
+  public OrtMerkmal() {
     super(FELDNAME);
   }  
   
