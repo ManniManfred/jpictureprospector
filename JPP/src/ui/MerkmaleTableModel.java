@@ -8,7 +8,6 @@ import javax.swing.table.DefaultTableModel;
 import merkmale.Merkmal;
 import core.BildDokument;
 import core.JPPCore;
-import core.exceptions.AendereException;
 import core.exceptions.ErzeugeException;
 
 public class MerkmaleTableModel extends DefaultTableModel {
@@ -38,7 +37,7 @@ public class MerkmaleTableModel extends DefaultTableModel {
   
   /** Merkmale, die nicht in die Tabelle aufgenommen werden. */
   private static final String[] MERKMAL_FELDER = { "Schl\u00fcsselw\u00f6rter",
-    "Beschreibung", "Thumbnail" };
+  "Beschreibung", "Thumbnail" };
   
   /** Namen der einzelnen Spalten. */
   private static final String[] SPALTENNAMEN = { "Merkmal", "Wert", "edit" };
@@ -163,7 +162,7 @@ public class MerkmaleTableModel extends DefaultTableModel {
     
     /* Spaltennamen neu setzen, falls Spalte hinzugekommen ist */
     this.setColumnIdentifiers(SPALTENNAMEN);
-    fireTableDataChanged();    
+    fireTableDataChanged();
   }
   
   /**
@@ -324,31 +323,25 @@ public class MerkmaleTableModel extends DefaultTableModel {
   
   /**
    * Aendert die Daten der Bilddokumente.
+   *
+   * @return  Liste der geaenderten Bilddokumente.
    */
-  public void aendereDaten() {
+  public List<BildDokument> aendereDaten() {
     
-    try {
-      for (int i = 0; i < this.getRowCount(); i++) {
-	
-	if (this.istZeileEditierbar(i)) {
-	  String merkmalsname = this.daten.get(i)[0].toString();
-	  String merkmalswert = this.daten.get(i)[1].toString();
-	  
-	  /* Bilddokumente aendern. */
-	  for (int j = 0; j < this.bilddokumente.size(); j++) {
-	    bilddokumente.get(j).getMerkmal(merkmalsname).setWert(merkmalswert);
-	  }
-	}
-	
-	/* Update geaenderte Bilddokumente. */
-	for (int k = 0; k < this.bilddokumente.size(); k++)  {
-	  this.kern.aendere(bilddokumente.get(k));
-	}
-      }
+    for (int i = 0; i < this.getRowCount(); i++) {
       
-    } catch (AendereException e) {
-      System.out.println("Fehler beim aendern der Merkmale");
+      if (this.istZeileEditierbar(i)) {
+        String merkmalsname = this.daten.get(i)[0].toString();
+        String merkmalswert = this.daten.get(i)[1].toString();
+	
+        /* Bilddokumente aendern. */
+        for (int j = 0; j < this.bilddokumente.size(); j++) {
+          bilddokumente.get(j).getMerkmal(merkmalsname).setWert(merkmalswert);
+        }
+      }
     }
+    
+    return this.bilddokumente;
   }
   
 }
