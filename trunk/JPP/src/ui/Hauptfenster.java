@@ -181,21 +181,7 @@ public class Hauptfenster extends JFrame {
     final LadebalkenDialog ladebalken =
       new LadebalkenDialog(this, anzahlDateien);
     ladebalken.setzeAnzahl(0);
-    pVorschau.resetAnsicht();
-    
-    // Neue liste fuer die Anzeigepanel erzeugen
-    if (this.listeAnzeigePanel == null) {
-      this.listeAnzeigePanel = new ArrayList<ThumbnailAnzeigePanel>();
-    } else {
-      // es existiert schon eine liste mit anzeigepaneln
-      for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
-        if (tap.istAusgewaehlt()) {
-          tap.setzeFokus(false);
-        }
-      }
-      this.listeAnzeigePanel.clear();
-      this.pThumbnails.removeAll();
-    }
+    resetAnsicht();
     
     /* Listener hinzufuegen die entsprechende Aktionen ausführen, wenn
      * neue Bilder geladen wurden. */
@@ -228,16 +214,7 @@ public class Hauptfenster extends JFrame {
     
     try {
       trefferliste = kern.suche(pSuche.gibSuchtext());
-      if (listeAnzeigePanel == null) {
-        listeAnzeigePanel = new ArrayList<ThumbnailAnzeigePanel>();
-      } else {
-        for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
-          if (tap.istAusgewaehlt()) {
-            tap.setzeFokus(false);
-          }
-        }
-        listeAnzeigePanel.clear();
-      }
+      resetAnsicht();
       for (int i = 0; i < trefferliste.getAnzahlTreffer(); i++) {
         ThumbnailAnzeigePanel tap = 
           new ThumbnailAnzeigePanel(trefferliste.getBildDokument(i),
@@ -248,6 +225,26 @@ public class Hauptfenster extends JFrame {
     } catch (SucheException se) {
       zeigeFehlermeldung("Suche fehlgeschlagen", "Die Suche konnte " +
           "nicht erfolgreich ausgeführt werden.\n\n" + se.getMessage());
+    }
+  }
+  
+  /**
+   * Wird aufgerufen, wenn eine Suche oder Importvorgang durchgefuehrt
+   * wurde und stellt die Grundansicht des Fensters widerher.
+   */
+  private void resetAnsicht() {
+    
+    if (listeAnzeigePanel == null) {
+      listeAnzeigePanel = new ArrayList<ThumbnailAnzeigePanel>();
+    } else {
+      for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
+        if (tap.istAusgewaehlt()) {
+          tap.setzeFokus(false);
+        }
+      }
+      listeAnzeigePanel.clear();
+      pThumbnails.removeAll();
+      pVorschau.resetAnsicht();
     }
   }
   
