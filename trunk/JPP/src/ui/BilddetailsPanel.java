@@ -243,7 +243,6 @@ public class BilddetailsPanel extends JPanel implements Observer {
         this.textkomponenten.get(merkmale[i]).setText(merkmalText);	
       }      
     } else {
-      System.out.println("Felder leeren");
       // Felder leeren 
       for (int i = 0; i < merkmale.length; i++) {
 	this.textkomponenten.get(merkmale[i]).setText("");
