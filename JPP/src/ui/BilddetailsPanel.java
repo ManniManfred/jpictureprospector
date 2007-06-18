@@ -204,7 +204,7 @@ public class BilddetailsPanel extends JPanel implements Observer {
         this.bilddokumente.add(dok);
       }
       
-      this.aktualisiereDaten();     
+      this.aktualisiereDaten();   
     }
   }
   
@@ -243,6 +243,7 @@ public class BilddetailsPanel extends JPanel implements Observer {
         this.textkomponenten.get(merkmale[i]).setText(merkmalText);	
       }      
     } else {
+      System.out.println("Felder leeren");
       // Felder leeren 
       for (int i = 0; i < merkmale.length; i++) {
 	this.textkomponenten.get(merkmale[i]).setText("");
@@ -284,8 +285,8 @@ public class BilddetailsPanel extends JPanel implements Observer {
    */  
   private void datenaendern(java.awt.event.ActionEvent evt) {
     
-    /* Bilddokumente in der Tabelle aendern. */
-    this.bilddokumente =  this.tabelle.aendereDaten();
+    /* Geaenderte Werte aus der Tabelle uebernehmen. */
+    List<BildDokument> bilddok = this.tabelle.aendereDaten();
     
     try {
       for (int i = 0; i < merkmale.length; i++) {
@@ -297,14 +298,14 @@ public class BilddetailsPanel extends JPanel implements Observer {
 	 * deaktiviert ist */
         if(!(aktCheckBox.isVisible() && !aktCheckBox.isSelected())) {
 	  for (int j = 0; j < bilddokumente.size(); j++ ) {
-            bilddokumente.get(j).getMerkmal(merkmale[i]).setWert(
+            bilddok.get(j).getMerkmal(merkmale[i]).setWert(
               aktTextKomponente.getText());
-            this.kern.aendere(bilddokumente.get(j));
+            this.kern.aendere(bilddok.get(j));
           }
 	}
       }
     } catch (AendereException e) {
-      System.out.println("Fehler beim aendern der Merkmale");
+      System.out.println("Fehler beim Aendern der Merkmale");
     }
   }
   
