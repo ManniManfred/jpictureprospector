@@ -42,6 +42,9 @@ public class MerkmaleTableModel extends DefaultTableModel {
   /** Namen der einzelnen Spalten. */
   private static final String[] SPALTENNAMEN = { "Merkmal", "Wert", "edit" };
   
+  /** Wird angezeigt, wenn Merkmale verschiedene Werte aufweisen. */
+  private static final String VERSCH_WERTE = "Verschiedene Werte";
+  
   /** Kern der Anwendung. */
   private JPPCore kern;
   
@@ -130,7 +133,7 @@ public class MerkmaleTableModel extends DefaultTableModel {
 	
 	/*
 	 * Werte einfuegen: Merkmal editierbar, gleicher Wert -> Anzeige Wert
-	 * Checkbox aktiviert Merkmal editierbar, ungleicher Wert -> Vorerst
+	 * Merkmal editierbar, ungleicher Wert -> Vorerst
 	 * nicht editierbar, "verschiedene Werte", Checkbox deaktiviert
 	 *
 	 * Merkmal nicht editierbar, gleicher Wert -> Anzeige Wert, keine
@@ -138,16 +141,18 @@ public class MerkmaleTableModel extends DefaultTableModel {
 	 * Werte", keine Checkbox
 	 */
 	if (editierbar) {
-	  checkbox_anzeigen = true;
+	  
 	  if (gleicherWert) {
 	    merkmalswert = merkmal.getWert().toString();
+	    checkbox_anzeigen = false;
 	  } else {
 	    editierbar = false;
-	    merkmalswert = "verschiedene Werte";
+	    merkmalswert = VERSCH_WERTE;
+	    checkbox_anzeigen = true;
 	  }
 	} else {
 	  if (!gleicherWert) {
-	    merkmalswert = "verschiedene Werte";
+	    merkmalswert = VERSCH_WERTE;
 	    checkbox_anzeigen = false;
 	  }
 	}
