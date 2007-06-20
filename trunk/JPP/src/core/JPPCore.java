@@ -42,6 +42,9 @@ public class JPPCore {
   /** Enthaelt eine Liste mit den Klassen aller zu verwendenen Merkmale. */
   private static List<Class> merkmalsklassen;
 
+  /** Enthaelt eine Liste mit den Namen aller zu verwendenen Merkmale. */
+  private static List<String> merkmalsNamen;
+
   /** Enthaelt den Pfad zu dem Index-Verzeichnis von Lucene. */
   private static final String INDEX_DIR = "imageIndex";
 
@@ -112,17 +115,19 @@ public class JPPCore {
    * @return Array mit allen Namen der möglichen Merkmale
    * @throws Exception wenn die Klassennamen nicht erzeugt werden konnten
    */
-  public String[] getMerkmalsnamen() throws Exception {
-    ArrayList<String> namen = new ArrayList<String>();
+  public static String[] getMerkmalsnamen() throws Exception {
+    if (merkmalsNamen == null) {
+      merkmalsNamen = new ArrayList<String>();
 
-    for (Class klasse : getMerkmalsKlassen()) {
-      Merkmal m = (Merkmal) klasse.newInstance();
+      for (Class klasse : getMerkmalsKlassen()) {
+        Merkmal m = (Merkmal) klasse.newInstance();
 
-      /* Den Namen aus dem Object holen und in der Liste einfuegen */
-      namen.add(m.getName());
+        /* Den Namen aus dem Object holen und in der Liste einfuegen */
+        merkmalsNamen.add(m.getName());
+      }
     }
 
-    return namen.toArray(new String[0]);
+    return merkmalsNamen.toArray(new String[0]);
   }
 
   /**
@@ -191,6 +196,37 @@ public class JPPCore {
   }
 
   /**
+   * Gibt eine Liste mit allen BildDokumenten zurueck, die im Index dieser
+   * Anwendung vorhanden sind.
+   * 
+   * @return Liste mit allen BildDokumenten, die im Index dieser Anwendung
+   *         vorhanden sind.
+   * @throws IOException wird geworfen, wenn der Index nicht geoeffnet oder die
+   *           Documents nicht gelesen werden konnten
+   * @throws ErzeugeBildDokumentException wird geworfen, wenn aus dem
+   *           Lucene-Document kein BildDokument erzeugt werden konnte
+   */
+  private List<BildDokument> gibAlleDokumente()
+      throws ErzeugeBildDokumentException, IOException {
+    List<BildDokument> ergebnis;
+    IndexReader reader = IndexReader.open(INDEX_DIR);
+
+    int anzahl = reader.maxDoc();
+    ergebnis = new ArrayList<BildDokument>(anzahl);
+
+    for (int i = 0; i < anzahl; i++) {
+      /* Die Documente, die als geloescht markiert sind nicht mehr auslesen. */
+      if (!reader.isDeleted(i)) {
+        ergebnis.add(BildDokument.erzeugeAusLucene(reader.document(i)));
+      }
+    }
+
+    reader.close();
+    return ergebnis;
+  }
+
+
+  /**
    * Gibt zurueck, ob sich die uebergebene Datei bereits im Index befindet.
    * 
    * @param datei Datei, die ueberprueft wird
@@ -234,23 +270,32 @@ public class JPPCore {
 
     Trefferliste treffer;
     try {
+      /* wenn das Schluesselwort zur Anzeige aller Bilder angegeben wurde, */
+      if (suchtext.equalsIgnoreCase(Einstellungen.ALLEBILDER_SCHLUESSEL)) {
 
-      /* Anfrage aufbauen */
-      Query anfrage = parser.parse(suchtext);
+        /* dann alle BildDokumente der Trefferliste uebergeben. */
+        treffer = new Trefferliste(gibAlleDokumente());
+      } else {
 
-      /* Suche durchfuehren */
-      Searcher sucher = new IndexSearcher(INDEX_DIR);
-      treffer = new Trefferliste(sucher.search(anfrage));
-      sucher.close();
+        /* Anfrage aufbauen */
+        Query anfrage = parser.parse(suchtext);
 
+        /* Suche durchfuehren */
+        Searcher sucher = new IndexSearcher(INDEX_DIR);
+        treffer = new Trefferliste(sucher.search(anfrage));
+        sucher.close();
+      }
     } catch (ParseException e) {
-      /* Bei einer ParseException ein leere Trefferliste zurueckgeben */
-      treffer = new Trefferliste();
+       /* Bei einer ParseException ein leere Trefferliste zurueckgeben */
+       treffer = new Trefferliste();
     } catch (IOException e) {
       throw new SucheException("Konnte den Index nicht öffnen.", e);
     } catch (ErzeugeException e) {
       throw new SucheException("Die Trefferliste konnte nicht erzeugt werden.",
           e);
+    } catch (ErzeugeBildDokumentException e) {
+      throw new SucheException("Ein BildDokument konnte nicht gelesen und "
+          + "erzeugt werden.", e);
     }
 
     /* Trefferliste aus dem Lucene SuchErgebnis erzeugen und zurueckgeben */
