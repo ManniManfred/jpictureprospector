@@ -310,19 +310,21 @@ public class Hauptfenster extends JFrame {
    */
   public void waehleLetztesBildAus() {
     
-    for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
-      if (tap != zuletztGewaehltesPanel && tap.istAusgewaehlt()) {
-        tap.setzeFokus(false);
+    if (listeAnzeigePanel != null) {
+      for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
+        if (tap != zuletztGewaehltesPanel && tap.istAusgewaehlt()) {
+          tap.setzeFokus(false);
+        }
       }
-    }
-    if (indexZuletztGewaehltesPanel == -1) {
-      listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
-    } else if (indexZuletztGewaehltesPanel == 0) {
-      listeAnzeigePanel.get(0).setzeFokus(false);
-      listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
-    } else {
-      listeAnzeigePanel.get(indexZuletztGewaehltesPanel).setzeFokus(false);
-      listeAnzeigePanel.get(indexZuletztGewaehltesPanel - 1).setzeFokus(true);
+      if (indexZuletztGewaehltesPanel == -1) {
+        listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
+      } else if (indexZuletztGewaehltesPanel == 0) {
+        listeAnzeigePanel.get(0).setzeFokus(false);
+        listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
+      } else {
+        listeAnzeigePanel.get(indexZuletztGewaehltesPanel).setzeFokus(false);
+        listeAnzeigePanel.get(indexZuletztGewaehltesPanel - 1).setzeFokus(true);
+      }
     }
   }
   
@@ -335,19 +337,21 @@ public class Hauptfenster extends JFrame {
    */
   public void waehleNaechstesBildAus() {
     
-    for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
-      if (tap != zuletztGewaehltesPanel && tap.istAusgewaehlt()) {
-        tap.setzeFokus(false);
+    if (listeAnzeigePanel != null) {
+      for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
+        if (tap != zuletztGewaehltesPanel && tap.istAusgewaehlt()) {
+          tap.setzeFokus(false);
+        }
       }
-    }
-    if (indexZuletztGewaehltesPanel == -1) {
-      listeAnzeigePanel.get(0).setzeFokus(true);
-    } else if (indexZuletztGewaehltesPanel == listeAnzeigePanel.size() - 1) {
-      listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(false);
-      listeAnzeigePanel.get(0).setzeFokus(true);
-    } else {
-      listeAnzeigePanel.get(indexZuletztGewaehltesPanel).setzeFokus(false);
-      listeAnzeigePanel.get(indexZuletztGewaehltesPanel + 1).setzeFokus(true);
+      if (indexZuletztGewaehltesPanel == -1) {
+        listeAnzeigePanel.get(0).setzeFokus(true);
+      } else if (indexZuletztGewaehltesPanel == listeAnzeigePanel.size() - 1) {
+        listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(false);
+        listeAnzeigePanel.get(0).setzeFokus(true);
+      } else {
+        listeAnzeigePanel.get(indexZuletztGewaehltesPanel).setzeFokus(false);
+        listeAnzeigePanel.get(indexZuletztGewaehltesPanel + 1).setzeFokus(true);
+      }
     }
   }
   
@@ -358,11 +362,16 @@ public class Hauptfenster extends JFrame {
    */
   public void loescheBilder() {
     
-    int ergebnis = JOptionPane.showConfirmDialog(this, "Wollen Sie die " +
-        "Bilder auch von der Festplatte loeschen?", "Löschen",
-        JOptionPane.YES_NO_CANCEL_OPTION);
-    boolean auchVonFestplatte = (ergebnis == JOptionPane.YES_OPTION) ?
-      true : false;
+    int ergebnis = 0;
+    boolean auchVonFestplatte = false;
+    if (listeAnzeigePanel !=  null) {
+      ergebnis = JOptionPane.showConfirmDialog(this, "Wollen Sie die " +
+          "Bilder auch von der Festplatte loeschen?", "Löschen",
+          JOptionPane.YES_NO_CANCEL_OPTION);
+      auchVonFestplatte = (ergebnis == JOptionPane.YES_OPTION) ?
+        true : false;
+    }
+    
     if (listeAnzeigePanel != null && ergebnis != JOptionPane.CANCEL_OPTION) {
       
       ArrayList<ThumbnailAnzeigePanel> zuLoeschendeBilder 
