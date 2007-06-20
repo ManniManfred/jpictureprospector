@@ -41,6 +41,7 @@ public class CheckboxTableCellRenderer implements TableCellRenderer {
    *          Tabellenmodell der entsprechenden Tabelle
    */
   public CheckboxTableCellRenderer(MerkmaleTableModel model) {
+
     checkBox.setEnabled(false);
     this.model = model;
   }
@@ -71,14 +72,14 @@ public class CheckboxTableCellRenderer implements TableCellRenderer {
      */
     if (!this.model.enthaeltZeileCheckbox(zeile)) {
       /* Checkbox wird nicht angezeigt, Appereance bestimmt Hintergrundfarbe */
-      updateAppearance(label, istAusgewaehlt, zeile);
+      updateAppearance(label, istAusgewaehlt, zeile, spalte);
       return label;
     } else {
 
       /* Anzeige der Checkbox */
       checkBox.setSelected((Boolean) wert);
       checkBox.setHorizontalAlignment(SwingConstants.CENTER);
-      updateAppearance(checkBox, istAusgewaehlt, zeile);
+      updateAppearance(checkBox, istAusgewaehlt, zeile, spalte);
       return checkBox;
     }
   }
@@ -97,7 +98,7 @@ public class CheckboxTableCellRenderer implements TableCellRenderer {
    *          Zeile der Zelle, deren Komponente geliefert wird.
    */
   private void updateAppearance(Component component, boolean istAusgewaehlt,
-      int zeile) {
+      int zeile, int spalte) {
 
     /* Hintergrund ueberschreiben */
     if (component instanceof JLabel) {
@@ -114,7 +115,6 @@ public class CheckboxTableCellRenderer implements TableCellRenderer {
         component.setBackground(FARBE_EDIT_HINTERGRUND);
       }
     } else {
-      component.setForeground(FARBE_NONEDIT_HINTERGRUND);
       component.setBackground(FARBE_NONEDIT_HINTERGRUND);
     }
 

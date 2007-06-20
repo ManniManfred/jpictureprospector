@@ -29,6 +29,10 @@ public class MerkmaleTableModel extends DefaultTableModel {
    * wird oder nicht. */
   private ArrayList<Boolean> checkboxAnzeige = new ArrayList();
   
+  /** Enthaelt die Informationen, ob das Merkmal, dass sich in der Zeile 
+   * befindet den gleichen oder unterschiedliche Werte besitzt. */
+  private ArrayList<Boolean> merkmalUebereinstimmung = new ArrayList();  
+  
   /** Namen, der Merkmale, die in der Tabelle verwaltet werden. */
   private ArrayList<String> merkmalsnamen = new ArrayList<String>();
   
@@ -97,6 +101,7 @@ public class MerkmaleTableModel extends DefaultTableModel {
     this.daten.clear();
     this.checkboxAnzeige.clear();
     this.zeilenEditierbar.clear();
+    this.merkmalUebereinstimmung.clear();
     
     if (bilddokumente.size() == 0) {
       this.zeilenAnzahl = 3;
@@ -140,15 +145,14 @@ public class MerkmaleTableModel extends DefaultTableModel {
 	 * Checkbox Merkmal nicht editierbar, ungleicher Wert -> Anzeige "versch
 	 * Werte", keine Checkbox
 	 */
-	if (editierbar) {
+	if (editierbar) {	 
+	  checkbox_anzeigen = true;
 	  
 	  if (gleicherWert) {
 	    merkmalswert = merkmal.getWert().toString();
-	    checkbox_anzeigen = false;
 	  } else {
 	    editierbar = false;
-	    merkmalswert = VERSCH_WERTE;
-	    checkbox_anzeigen = true;
+	    merkmalswert = VERSCH_WERTE;	    
 	  }
 	} else {
 	  if (!gleicherWert) {
@@ -161,6 +165,7 @@ public class MerkmaleTableModel extends DefaultTableModel {
 	this.daten.add(datensatz);
 	this.zeilenEditierbar.add(editierbar);
 	this.checkboxAnzeige.add(checkbox_anzeigen);
+	this.merkmalUebereinstimmung.add(gleicherWert);
 	
       }
     }
@@ -189,7 +194,7 @@ public class MerkmaleTableModel extends DefaultTableModel {
      * wenn sie eine Checkbox enthaelt.
      */
     return (spalte == 2 && this.enthaeltZeileCheckbox(zeile))
-    || (this.istZeileEditierbar(zeile) && spalte != 0);
+      || (this.istZeileEditierbar(zeile) && spalte != 0);
   }
   
   /**
@@ -288,8 +293,12 @@ public class MerkmaleTableModel extends DefaultTableModel {
     if (value instanceof Boolean) {
       if ((Boolean) value) {
 	zeileninhalt[1] = "";
-      } else {
-	zeileninhalt[1] = "verschiedene Werte";
+      } else {	
+         if (merkmalUebereinstimmung.get(zeile)) {
+	   zeileninhalt[1] = "";
+	 } else {
+	   zeileninhalt[1] = VERSCH_WERTE;
+	 }	
       }
       
       this.zeilenEditierbar.set(zeile, (Boolean) value);
