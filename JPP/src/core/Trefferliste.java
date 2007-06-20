@@ -33,6 +33,23 @@ public class Trefferliste {
   }
 
   /**
+   * Erzeugt eine neue Trefferliste, mit den uebergebenen BildDokumenten als
+   * Treffer. Der Score wird fuer jeden Treffer auf 1 gesetzt.
+   * 
+   * @param dokumente BildDokumente, die in dieser Trefferliste als Treffer
+   *          gesetzt werden
+   */
+  public Trefferliste(List<BildDokument> dokumente) {
+    this.bildDokumente = dokumente;
+    score = new ArrayList<Float>();
+    
+    /* Score fuer alle Dokumente auf 1 setzten. */
+    for (int i = 0; i < bildDokumente.size(); i++) {
+      score.add(1f);
+    }
+  }
+
+  /**
    * Erzeugt eine neue Trefferliste aus der Lucene-Trefferliste.
    * 
    * @param treffer Trefferliste aus Lucene, aus der diese erzeugt wird

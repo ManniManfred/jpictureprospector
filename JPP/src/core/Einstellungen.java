@@ -14,8 +14,13 @@ public class Einstellungen {
    */
   public static final String MERKMAL_DATEI = "merkmale";
 
+  /**
+   * Enthaelt das Schuesselwort, welches bei der Suche eingegeben werden kann,
+   * um alle Bilder als Treffer zu erhalten.
+   */
+  public static final String ALLEBILDER_SCHLUESSEL = "ALLEBILDER";
 
-
+  
   /******************* Einstellungen fuer Thumbnails ****************/
 
 
