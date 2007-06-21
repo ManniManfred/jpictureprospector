@@ -273,7 +273,8 @@ public class Hauptfenster extends JFrame {
       
       double thumbnailPanelBreite = spThumbnails.getViewport().getWidth();
       double anzahlThumbnailsProZeile = Math.floor(thumbnailPanelBreite /
-          (sGroesze.getValue() + STD_ABSTAND));
+          ((sGroesze.getValue() + STD_ABSTAND 
+              + spThumbnails.getVerticalScrollBar().getWidth()) + STD_ABSTAND));
       anzahlThumbnailsProZeile = anzahlThumbnailsProZeile == 0 ?
           1 : anzahlThumbnailsProZeile;
       double anzahlBenoetigteZeilen = Math.ceil(listeAnzeigePanel.size() /
@@ -281,7 +282,7 @@ public class Hauptfenster extends JFrame {
       double benoetigteBreite = anzahlThumbnailsProZeile *
         (sGroesze.getValue() + STD_ABSTAND) + STD_ABSTAND;
       double benoetigteHoehe = anzahlBenoetigteZeilen *
-        (sGroesze.getValue() + 20 + STD_ABSTAND);
+        (sGroesze.getValue() + 20 + STD_ABSTAND) + STD_ABSTAND;
       
       /* MUSS GESETZT WERDEN!!! Ansonsten wird nur eine Zeile mit den
       Thumbnails angezeigt */
