@@ -7,8 +7,13 @@ import java.awt.Event;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observer;
@@ -26,6 +31,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
@@ -35,8 +41,12 @@ import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
+import settingsystem.core.SettingsDialog;
+import settingsystem.reader.IniReader;
+import settingsystem.writer.IniWriter;
 import ui.listener.BildAusgewaehltListener;
 import ui.listener.BildimportListener;
+import core.Einstellungen;
 import core.JPPCore;
 import core.Trefferliste;
 import core.exceptions.EntferneException;
@@ -50,11 +60,7 @@ import core.exceptions.SucheException;
  */
 public class Hauptfenster extends JFrame {
   
-  /** Enthaelt die Standardhoehe des Fensters. */
-  private static final int STD_HOEHE = 700;
   
-  /** Enthaelt die Standardbreite des Fensters. */
-  private static final int STD_BREITE = 1000;
   
   /** Enthaelt den Standardabstand den Komponenten ggfs. zueinander besitzen. */
   private static final int STD_ABSTAND = 10;
@@ -139,7 +145,7 @@ public class Hauptfenster extends JFrame {
   
   private MerkmaleJTable tBilddetails = null;
   
-  private JPanel pThumbnails = null;
+  private ScrollableFlowPanel pThumbnails = null;
   
   private JScrollPane spThumbnails = null;
   
@@ -152,12 +158,60 @@ public class Hauptfenster extends JFrame {
    */
   public Hauptfenster() {
     super();
+
+    /* Settings laden */
+    loadSettings();
+    
+    /* JPPCore erzeugen */
     try {
       kern = new JPPCore();
     } catch (ErzeugeException e) {
       e.printStackTrace();
     }
+
+    /* Graphic initialisieren */
     initialize();
+    
+  }
+  /**
+   * Läd alle Einstellungen aus der Datei settingFilename
+   * und speichert diese in der Klasse Settings.
+   */
+  private void loadSettings() {
+    IniReader loader = new IniReader();
+    try {
+      loader.loadSettings(Einstellungen.SETTING_FILENAME, Einstellungen.class);
+    } catch (IOException e) {
+      System.out.println("Konnte Einstellungen aus der"
+          + " Datei " + Einstellungen.SETTING_FILENAME + " nicht laden.");
+    }
+  }
+  
+  /**
+   * Speichert alle Einstellungen aus der Klasse Settings.
+   */
+  private void saveSettings() {
+    IniWriter writer = new IniWriter();
+    try {
+      writer.writeSettings(Einstellungen.SETTING_FILENAME, new Einstellungen());
+    } catch (IOException e) {
+      System.out.println("Konnte Einstellungen in der "
+          + " Datei " + Einstellungen.SETTING_FILENAME + " nicht speichern.");
+    }
+  }
+  
+  /**
+   * Oeffnent den Einstellungs-Dialog.
+   */
+  private void oeffneEinstellungsDialog() {
+    SettingsDialog settingsDialog = new SettingsDialog(this, 
+        "Einstellungen", true, new Einstellungen());
+    settingsDialog.setVisible(true);
+    
+    if (settingsDialog.wurdenSettingsGeaendert()) {
+      //werteDatenAus();
+      //TODO irgendwelche aenderungen
+    }
   }
   
   /**
@@ -266,28 +320,10 @@ public class Hauptfenster extends JFrame {
    */
   public void erzeugeThumbnailansicht() {
     
+    
     if (listeAnzeigePanel != null) {
       
       pThumbnails.removeAll();
-      
-      double thumbnailPanelBreite = spThumbnails.getViewport().getWidth();
-      double anzahlThumbnailsProZeile = Math.floor(thumbnailPanelBreite /
-          ((sGroesze.getValue() + STD_ABSTAND 
-              + spThumbnails.getVerticalScrollBar().getWidth()) + STD_ABSTAND));
-      anzahlThumbnailsProZeile = anzahlThumbnailsProZeile == 0 ?
-          1 : anzahlThumbnailsProZeile;
-      double anzahlBenoetigteZeilen = Math.ceil(listeAnzeigePanel.size() /
-          anzahlThumbnailsProZeile);
-      double benoetigteBreite = anzahlThumbnailsProZeile *
-        (sGroesze.getValue() + STD_ABSTAND) + STD_ABSTAND;
-      double benoetigteHoehe = anzahlBenoetigteZeilen *
-        (sGroesze.getValue() + 20 + STD_ABSTAND) + STD_ABSTAND;
-      
-      /* MUSS GESETZT WERDEN!!! Ansonsten wird nur eine Zeile mit den
-      Thumbnails angezeigt */
-      pThumbnails.setPreferredSize(
-          new Dimension((int) Math.ceil(benoetigteBreite),
-              (int) Math.ceil(benoetigteHoehe)));
       
       for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
 	
@@ -468,6 +504,36 @@ public class Hauptfenster extends JFrame {
   }
   
   /**
+   * Beendet dieses Anwendung nach einer Nachfrage beim Benutzer.
+   *
+   */
+  private void beende() {
+//    int ergebnis = JOptionPane.showConfirmDialog(cpInhalt,
+//        "Wollen Sie das Programm beenden?", "Beenden",
+//        JOptionPane.OK_CANCEL_OPTION);
+//    
+//    if (ergebnis == JOptionPane.OK_OPTION) {
+      if (Einstellungen.SAVE_FENSTER_GROESSE) {
+        Einstellungen.FENSTER_BREITE = this.getWidth();
+        Einstellungen.FENSTER_HOEHE = this.getHeight();
+      }
+      
+      if (Einstellungen.SAVE_FENSTER_POSITION) {
+        Einstellungen.FENSTER_POSX = this.getX();
+        Einstellungen.FENSTER_POSY = this.getY();
+      }
+      
+      if (Einstellungen.SAVE_THUMB_SIZE) {
+        Einstellungen.THUMB_SIZE = getSGroesze().getValue();
+      }
+      /* Einstellungen speichern */
+      saveSettings();
+      
+      System.exit(0);
+//    }
+  }
+  
+  /**
    * This method initializes miBeenden
    *
    * @return javax.swing.JMenuItem
@@ -479,14 +545,7 @@ public class Hauptfenster extends JFrame {
       miBeenden.setMnemonic(KeyEvent.VK_B);
       miBeenden.addActionListener(new java.awt.event.ActionListener() {
       	public void actionPerformed(java.awt.event.ActionEvent e) {
-      	  
-      	  int ergebnis = JOptionPane.showConfirmDialog(cpInhalt,
-      	      "Wollen Sie das Programm beenden?", "Beenden",
-      	      JOptionPane.OK_CANCEL_OPTION);
-      	  if (ergebnis == JOptionPane.OK_OPTION) {
-      	    
-      	    System.exit(0);
-      	  }
+      	  beende();
       	}
       });
     }
@@ -558,8 +617,24 @@ public class Hauptfenster extends JFrame {
       mEinstellungen.setMnemonic(KeyEvent.VK_B);
       mEinstellungen.add(getMiLoeschen());
       mEinstellungen.add(getMiAuswahlAufheben());
+      mEinstellungen.add(new JSeparator());
+      mEinstellungen.add(getMiEinstellungen());
     }
     return mEinstellungen;
+  }
+  
+  private JMenuItem getMiEinstellungen() {
+    JMenuItem einst = new JMenuItem("Einstellungen");
+    einst.setMnemonic(KeyEvent.VK_E);
+    einst.addActionListener(new ActionListener() {
+
+      public void actionPerformed(ActionEvent e) {
+        oeffneEinstellungsDialog();
+      }
+      
+    });
+    
+    return einst;
   }
   
   /**
@@ -785,10 +860,15 @@ public class Hauptfenster extends JFrame {
   private JSlider getSGroesze() {
     if (sGroesze == null) {
       sGroesze = new JSlider();
-      sGroesze.setMaximum(256);
-      sGroesze.setValue(256);
+      sGroesze.setMinimum(Einstellungen.SLIDER_MIN);
+      sGroesze.setMaximum(Einstellungen.SLIDER_MAX);
+
+      if (Einstellungen.SAVE_THUMB_SIZE) {
+        sGroesze.setValue(Einstellungen.THUMB_SIZE);
+      } else {
+        sGroesze.setValue(Einstellungen.SLIDER_VALUE);
+      }
       sGroesze.setMaximumSize(new Dimension(200, 16));
-      sGroesze.setMinimum(48);
       sGroesze.addMouseListener(new java.awt.event.MouseAdapter() {
       	public void mouseReleased(java.awt.event.MouseEvent e) {
       	  erzeugeThumbnailansicht();
@@ -861,11 +941,11 @@ public class Hauptfenster extends JFrame {
    *
    * @return javax.swing.JPanel
    */
-  private JPanel getPThumbnails() {
+  private ScrollableFlowPanel getPThumbnails() {
     if (pThumbnails == null) {
-      pThumbnails = new JPanel();
+      pThumbnails = new ScrollableFlowPanel();
       pThumbnails.setLayout(new FlowLayout(FlowLayout.LEADING, STD_ABSTAND, STD_ABSTAND));
-      pThumbnails.setBackground(Color.white);
+      pThumbnails.setBackground(Color.WHITE);
     }
     return pThumbnails;
   }
@@ -877,12 +957,9 @@ public class Hauptfenster extends JFrame {
    */
   private JScrollPane getSpThumbnails() {
     if (spThumbnails == null) {
-      JScrollBar jScrollBar = new JScrollBar();
-      jScrollBar.setUnitIncrement(10);
       spThumbnails = new JScrollPane();
-      spThumbnails.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-      spThumbnails.setVerticalScrollBar(jScrollBar);
       spThumbnails.setViewportView(getPThumbnails());
+      spThumbnails.getViewport().setBackground(Color.WHITE);
     }
     return spThumbnails;
   }
@@ -952,7 +1029,6 @@ public class Hauptfenster extends JFrame {
           e.printStackTrace(); 
         }
         Hauptfenster hauptfenster = new Hauptfenster();
-        hauptfenster.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         hauptfenster.setVisible(true);
       }
     });
@@ -962,9 +1038,19 @@ public class Hauptfenster extends JFrame {
    * Initialisiert das dieses Objekt.
    */
   private void initialize() {
-    this.setSize(new Dimension(STD_BREITE, STD_HOEHE));
+    this.setSize(new Dimension(Einstellungen.FENSTER_BREITE, Einstellungen.FENSTER_HOEHE));
+    this.setLocation(Einstellungen.FENSTER_POSX, Einstellungen.FENSTER_POSY);
     this.setJMenuBar(getHauptmenu());
-    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    setDefaultCloseOperation(
+        javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+    
+    this.addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowClosing(final WindowEvent e) {
+        beende();
+      }
+    });
+    
     this.setContentPane(getJContentPane());
     this.setTitle("JPictureProspector");
     this.addComponentListener(new java.awt.event.ComponentAdapter() {
