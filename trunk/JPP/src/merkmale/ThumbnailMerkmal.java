@@ -126,7 +126,8 @@ public class ThumbnailMerkmal extends Merkmal {
       ByteArrayOutputStream baos = new ByteArrayOutputStream(1000);
       
       /* schreiben */
-      ImageIO.write((BufferedImage) this.getWert(), Einstellungen.THUMB_FORMAT, 
+      ImageIO.write((BufferedImage) this.getWert(), 
+          Einstellungen.THUMB_FORMAT.getAusgewaehlt().toString(), 
           baos);
       
       baos.flush();
