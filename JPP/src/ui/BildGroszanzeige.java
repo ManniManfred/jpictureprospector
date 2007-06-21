@@ -132,6 +132,7 @@ public class BildGroszanzeige extends JFrame {
     this.setContentPane(getCpInhalt());
     this.setFocusable(true);
     this.setTitle("Groszanzeige - JPictureProspector");
+    updateAnsicht();
   }
 
   /**
