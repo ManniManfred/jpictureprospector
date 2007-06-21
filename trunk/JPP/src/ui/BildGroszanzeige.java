@@ -2,15 +2,17 @@ package ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -332,11 +334,8 @@ class BildGroszanzeigeZeichner extends JPanel {
    * Bild geladen wurde. */
   private List<BildGeladenListener> listener = null;
   
-  /**
-   * Enthaelt das <code>ImageIcon</code> zu diesem Bild was den 
-   * Ladevorgang uebernimmt.
-   */
-  private ImageIcon icon = null;
+  /** Enthaehlt das anzuzeigende Bild. */
+  private Image bild = null;
   
   /**
    * Erzeugt ein neues Objekt der Klasse mit den entsprechenden Daten.
@@ -345,9 +344,7 @@ class BildGroszanzeigeZeichner extends JPanel {
   public BildGroszanzeigeZeichner(BildDokument dok) {
     this.dok = dok;
     this.listener = new ArrayList<BildGeladenListener>();
-    icon = new ImageIcon((String)
-        dok.getMerkmal(DateipfadMerkmal.FELDNAME).getWert());
-    repaint();
+    setzeDok(dok);
   }
   
   /**
@@ -386,8 +383,14 @@ class BildGroszanzeigeZeichner extends JPanel {
    */
   public void setzeDok(BildDokument dok) {
     this.dok = dok;
-    icon = new ImageIcon((String)
-        dok.getMerkmal(DateipfadMerkmal.FELDNAME).getWert());
+    try {
+      this.bild = ImageIO.read(
+          new File((String) dok.getMerkmal(DateipfadMerkmal.FELDNAME).getWert()));
+      fireBildGeladen();
+    } catch (IOException e) {
+      System.out.println("Das Bild konnte nicht geladen werden.\n"
+          + e.getMessage());
+    }
     this.repaint();
   }
   
@@ -396,8 +399,6 @@ class BildGroszanzeigeZeichner extends JPanel {
    */
   protected void paintComponent(Graphics g) {
     
-    Image bild = icon.getImage();
-    fireBildGeladen();
     double originalBreite = 
       (Integer) dok.getMerkmal(BildbreiteMerkmal.FELDNAME).getWert();
     double originalHoehe = 
