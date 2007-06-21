@@ -1,27 +1,27 @@
 package ui;
 
-import core.BildDokument;
-import core.JPPCore;
-import core.exceptions.AendereException;
 import java.awt.Dimension;
-import java.awt.GridBagLayout;
-import javax.swing.JPanel;
-import javax.swing.JCheckBox;
 import java.awt.GridBagConstraints;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+
 import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
-import javax.swing.border.SoftBevelBorder;
+
+import core.BildDokument;
+import core.JPPCore;
+import core.exceptions.AendereException;
 
 /**
  * Ein Objekt der Klasse stellt die Oberflaeche zu den Bilddetails fuer 
