@@ -24,6 +24,9 @@ public class Vorschaupanel extends JPanel implements Observer {
   /** Enthaelt das Bild, was anzeigt werden soll. */
   private Image bild = null;
   
+  /** Enthaelt das <code>BildDokument</code> was die Grundlage fuer die
+   * Zeichnung des Bildes bildet.
+   */
   private BildDokument dok = null;
   
   /**
@@ -34,6 +37,10 @@ public class Vorschaupanel extends JPanel implements Observer {
     initialize();
   }
   
+  /**
+   * Liefert das <code>BildDokument</code> dieses Objekts
+   * @return
+   */
   public BildDokument gibBildDokument() {
     return this.dok;
   }

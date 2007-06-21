@@ -122,11 +122,7 @@ public class ThumbnailAnzeigePanel extends JPanel {
       }
       this.lDateiname.setText(dateinameNeu + dateiEndung);
     } else {
-      if (dateiname.length() > 4) {
-        this.lDateiname.setText(dateiname.substring(0, dateiname.length() - 4));
-      } else {
-        this.lDateiname.setText("currywurst");
-      }
+      this.lDateiname.setText(dateiname.substring(0, dateiname.length() - 4));
     }
   }
   
@@ -148,6 +144,11 @@ public class ThumbnailAnzeigePanel extends JPanel {
     return this.thumbnailAnzeige.gibBild();
   }
   
+  /**
+   * Liefert den Index des Panels an welcher Stelle es in der Anzeigeliste
+   * angezeigt ist.
+   * @return  den Index des Panels in der Anzeigelistes
+   */
   public int gibListenIndex() {
     return this.listenindex;
   }

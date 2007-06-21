@@ -26,6 +26,10 @@ public class Vorschaubildlader extends Thread {
   /** Enthaelt das fertig geladene Bild. */
   private Image bild = null;
   
+  /**
+   * Erzeugt ein neues Objekt der Klasse
+   * @param dok  das zu ladende <code>BildDokument</code>
+   */
   public Vorschaubildlader(BildDokument dok) {
     
     this.dok = dok;
