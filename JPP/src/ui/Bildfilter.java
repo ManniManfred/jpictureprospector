@@ -1,8 +1,10 @@
 package ui;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
 
 /**
@@ -14,7 +16,7 @@ import javax.swing.filechooser.FileFilter;
 public class Bildfilter extends FileFilter {
   
   /** Enthaelt die zu akzeptierenden Dateitypen. */
-  private static ArrayList<String> dateitypen = null;
+  private static List<String> dateitypen = null;
   
   /**
    * Erstellt ein neues Objekt der Klasse mit den entsprechenden
@@ -22,16 +24,7 @@ public class Bildfilter extends FileFilter {
    */
   public Bildfilter() {
     
-    dateitypen = new ArrayList<String>();
-    dateitypen.add("jpg");
-    dateitypen.add("jpeg");
-    dateitypen.add("gif");
-    dateitypen.add("bmp");
-    dateitypen.add("png");
-    
-    /* Benoetigen JavaAdvancedImageIO */
-//  dateitypen.add("tif");
-//  dateitypen.add("tiff");
+    dateitypen = Arrays.asList(ImageIO.getReaderFormatNames());
   }
 
   /**
