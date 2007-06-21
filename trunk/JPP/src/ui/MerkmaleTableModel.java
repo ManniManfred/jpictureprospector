@@ -27,11 +27,11 @@ public class MerkmaleTableModel extends DefaultTableModel {
   
   /** Enthaelt die Informationen, ob in einer Zeile eine Checkbox angezeigt
    * wird oder nicht. */
-  private ArrayList<Boolean> checkboxAnzeige = new ArrayList();
+  private ArrayList<Boolean> checkboxAnzeige = new ArrayList<Boolean>();
   
   /** Enthaelt die Informationen, ob das Merkmal, dass sich in der Zeile 
    * befindet den gleichen oder unterschiedliche Werte besitzt. */
-  private ArrayList<Boolean> merkmalUebereinstimmung = new ArrayList();  
+  private ArrayList<Boolean> merkmalUebereinstimmung = new ArrayList<Boolean>();  
   
   /** Namen, der Merkmale, die in der Tabelle verwaltet werden. */
   private ArrayList<String> merkmalsnamen = new ArrayList<String>();
@@ -85,7 +85,10 @@ public class MerkmaleTableModel extends DefaultTableModel {
   }
   
   /**
-   * Aktualisiert die Liste der Bilddokumente;
+   * Aktualisiert die Liste der Bilddokumente.
+   *
+   * @param bilddokumente  Dokumente, die in der Tabelle 
+   *                       verwaltet werden sollen.
    */
   public void aktualisiereBilddokumente(List<BildDokument> bilddokumente) {
     
@@ -262,8 +265,9 @@ public class MerkmaleTableModel extends DefaultTableModel {
     /** Dritte Spalte enthaelt boolschen Wert */
     if (spaltenIndex == 2) {
       return Boolean.class;
-    } else
+    } else {
       return String.class;
+    }
   }
   
   /**
