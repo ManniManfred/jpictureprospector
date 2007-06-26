@@ -11,6 +11,14 @@ import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
+import jpp.core.BildDokument;
+import jpp.core.JPPCore;
+import jpp.core.Trefferliste;
+import jpp.core.exceptions.AendereException;
+import jpp.core.exceptions.EntferneException;
+import jpp.core.exceptions.ImportException;
+import jpp.core.exceptions.SucheException;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -18,13 +26,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import core.BildDokument;
-import core.JPPCore;
-import core.Trefferliste;
-import core.exceptions.AendereException;
-import core.exceptions.EntferneException;
-import core.exceptions.ImportException;
-import core.exceptions.SucheException;
 
 /**
  * Ein Objekt der Klasse testet Objekte der Klasse <code>JPPCore</code> auf

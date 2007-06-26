@@ -2,10 +2,6 @@ package unittests;
 
 import static org.junit.Assert.assertEquals;
 
-import merkmale.BildbreiteMerkmal;
-import merkmale.BildhoeheMerkmal;
-import merkmale.BildtypMerkmal;
-import merkmale.DateigroesseMerkmal;
 
 import org.junit.After;
 import org.junit.Before;
@@ -13,9 +9,14 @@ import org.junit.Test;
 
 import java.io.File;
 
-import core.BildDokument;
-import core.JPPCore;
-import core.exceptions.ImportException;
+import jpp.core.BildDokument;
+import jpp.core.JPPCore;
+import jpp.core.exceptions.ImportException;
+import jpp.merkmale.BildbreiteMerkmal;
+import jpp.merkmale.BildhoeheMerkmal;
+import jpp.merkmale.BildtypMerkmal;
+import jpp.merkmale.DateigroesseMerkmal;
+
 
 /**
  * Testklasse fuer die verschiedenen Merkmale

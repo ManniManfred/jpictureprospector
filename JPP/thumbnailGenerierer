@@ -1,2 +1,2 @@
-jpg, gif, png = core.thumbnail.SchnellerGenerierer
-* = core.thumbnail.AlleFormateGenerierer
+jpg, gif, png = jpp.core.thumbnail.SchnellerGenerierer
+* = jpp.core.thumbnail.AlleFormateGenerierer
