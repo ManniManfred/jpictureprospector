@@ -1,0 +1,2 @@
+jpg, gif, png = jpp.core.thumbnail.SchnellerGenerierer
+* = jpp.core.thumbnail.AlleFormateGenerierer
