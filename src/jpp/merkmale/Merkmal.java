@@ -1,7 +1,7 @@
 
 package jpp.merkmale;
 
-import jpp.core.*;
+import jpp.core.GeoeffnetesBild;
 import jpp.core.exceptions.LeseMerkmalAusException;
 
 import org.apache.lucene.document.Document;

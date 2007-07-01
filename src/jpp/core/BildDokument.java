@@ -17,7 +17,6 @@ import jpp.merkmale.DateipfadMerkmal;
 import jpp.merkmale.ExifMerkmal;
 import jpp.merkmale.Merkmal;
 
-
 import org.apache.lucene.document.Document;
 
 import com.drew.imaging.jpeg.JpegMetadataReader;
