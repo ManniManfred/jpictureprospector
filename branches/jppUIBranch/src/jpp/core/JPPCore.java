@@ -16,7 +16,6 @@ import jpp.core.exceptions.SucheException;
 import jpp.merkmale.DateipfadMerkmal;
 import jpp.merkmale.Merkmal;
 
-
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.de.GermanAnalyzer;
 import org.apache.lucene.document.Document;

@@ -16,12 +16,14 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JToggleButton;
 import javax.swing.WindowConstants;
 import javax.swing.table.TableColumn;
 
@@ -31,39 +33,40 @@ import jpp.merkmale.BildhoeheMerkmal;
 import jpp.merkmale.DateipfadMerkmal;
 import jpp.ui.listener.BildGeladenListener;
 
-
 public class BildGroszanzeige extends JFrame {
-  
+
   /** Enthaelt den Wert fuer die Spalte der Exif-Bezeichnungen. */
   private static final int KEYSPALTE = 0;
-  
+
   /** Enthaelt den Wert fuer die Spalte der Exif-Werte. */
   private static final int WERTSPALTE = 1;
-  
+
   /** Enthaelt den Standardabstand fuer Komponenten. */
   private static final int STD_ABSTAND = 15;
-  
+
   private static final long serialVersionUID = 1L;
-  
-  /** Enthaelt das BildDokument zu dem die Informationen angezeigt werden
-   * sollen. */
+
+  /**
+   * Enthaelt das BildDokument zu dem die Informationen angezeigt werden sollen.
+   */
   private BildDokument dok = null;
-  
-  /** Enthaehlt das Tabellenmodell fuer die Tabelle in denen Zusatzdetails
+
+  /**
+   * Enthaehlt das Tabellenmodell fuer die Tabelle in denen Zusatzdetails
    * angezeigt werden.
    */
   private BGATabellenModell detailsTableModel = null;
-  
+
   private List<ThumbnailAnzeigePanel> listeAnzeigePanel = null;
 
   private JPanel cpInhalt = null;
 
   private JPanel pToolbar = null;
-  
+
   private JLabel lLetztesBild = null;
-  
+
   private JLabel lNaechstesBild = null;
-  
+
   private JButton bSchlieszen = null;
 
   private JTabbedPane tpGroszanzeige = null;
@@ -74,6 +77,10 @@ public class BildGroszanzeige extends JFrame {
 
   private JTable tZusatzdetails = null;
 
+  private JToggleButton tbGroeszeAnpassen = null;
+
+  private JComboBox cbGroesze = null;
+
   /**
    * This is the default constructor
    */
@@ -83,39 +90,41 @@ public class BildGroszanzeige extends JFrame {
     this.dok = dok;
     initialize();
   }
-  
+
   /**
    * Liefert das Tabellenmodell der Tabelle.
    * 
-   * @return  das entsprechenden Tabellenmodell.
+   * @return das entsprechenden Tabellenmodell.
    */
   public BGATabellenModell gibTabellenModell() {
     return this.detailsTableModel;
   }
 
   /**
-   * Die Groesze der Spaltenbreite wird automatisch angepasst an die
-   * Laenge der darin enthaltenen Strings.
+   * Die Groesze der Spaltenbreite wird automatisch angepasst an die Laenge der
+   * darin enthaltenen Strings.
    */
   private void updateAnsicht() {
 
-    TableColumn keySpalte = tZusatzdetails.getColumnModel().getColumn(KEYSPALTE);
-    TableColumn wertSpalte = tZusatzdetails.getColumnModel().getColumn(WERTSPALTE);
+    TableColumn keySpalte = tZusatzdetails.getColumnModel()
+        .getColumn(KEYSPALTE);
+    TableColumn wertSpalte = tZusatzdetails.getColumnModel().getColumn(
+        WERTSPALTE);
     Font font = tZusatzdetails.getFont();
     FontMetrics metrics = getFontMetrics(font);
     int maxBreiteKey = 0;
     int maxBreiteWert = 0;
     for (int i = 0; i < tZusatzdetails.getRowCount(); i++) {
-      
-      if (maxBreiteKey < metrics.stringWidth((String)
-                           tZusatzdetails.getValueAt(i, KEYSPALTE))) {
-        maxBreiteKey = metrics.stringWidth((String) 
-                         tZusatzdetails.getValueAt(i, KEYSPALTE));
+
+      if (maxBreiteKey < metrics.stringWidth((String) tZusatzdetails
+          .getValueAt(i, KEYSPALTE))) {
+        maxBreiteKey = metrics.stringWidth((String) tZusatzdetails.getValueAt(
+            i, KEYSPALTE));
       }
-      if (maxBreiteWert < metrics.stringWidth((String) 
-                            tZusatzdetails.getValueAt(i, WERTSPALTE))) {
-        maxBreiteWert = metrics.stringWidth((String) 
-                          tZusatzdetails.getValueAt(i, WERTSPALTE));
+      if (maxBreiteWert < metrics.stringWidth((String) tZusatzdetails
+          .getValueAt(i, WERTSPALTE))) {
+        maxBreiteWert = metrics.stringWidth((String) tZusatzdetails.getValueAt(
+            i, WERTSPALTE));
       }
     }
     keySpalte.setPreferredWidth(maxBreiteKey + 20);
@@ -152,20 +161,22 @@ public class BildGroszanzeige extends JFrame {
   }
 
   /**
-   * This method initializes pToolbar	
-   * 	
-   * @return javax.swing.JPanel	
+   * This method initializes pToolbar
+   * 
+   * @return javax.swing.JPanel
    */
   private JPanel getPToolbar() {
     if (pToolbar == null) {
       lNaechstesBild = new JLabel();
-      lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeilrechts.png")));
+      lNaechstesBild.setIcon(new ImageIcon(getClass().getResource(
+          "uiimgs/pfeilrechts.png")));
       lNaechstesBild.setText("");
-      lNaechstesBild.addMouseListener(new java.awt.event.MouseAdapter() {   
-      	public void mouseClicked(java.awt.event.MouseEvent e) {   
-          
-          /* Waehlt das naechste Bild in der Liste aus
-           * oder das erste wenn das letzte Bild der Liste angezeigt wird
+      lNaechstesBild.addMouseListener(new java.awt.event.MouseAdapter() {
+        public void mouseClicked(java.awt.event.MouseEvent e) {
+
+          /*
+           * Waehlt das naechste Bild in der Liste aus oder das erste wenn das
+           * letzte Bild der Liste angezeigt wird
            */
           boolean neuesBildGewaehlt = false;
           for (int i = 0; i < listeAnzeigePanel.size() && !neuesBildGewaehlt; i++) {
@@ -175,72 +186,85 @@ public class BildGroszanzeige extends JFrame {
               pGroszanzeige.setzeDok(dok);
               detailsTableModel.setzeDokument(dok);
               neuesBildGewaehlt = true;
-            } else if (i == listeAnzeigePanel.size() - 1){
+            } else if (i == listeAnzeigePanel.size() - 1) {
               dok = listeAnzeigePanel.get(0).gibBildDokument();
               pGroszanzeige.setzeDok(dok);
               detailsTableModel.setzeDokument(dok);
               neuesBildGewaehlt = true;
             }
           }
-      	}   
-      	public void mouseExited(java.awt.event.MouseEvent e) {    
+        }
+
+        public void mouseExited(java.awt.event.MouseEvent e) {
           lNaechstesBild.removeAll();
-          lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeilrechts.png")));
-      	}
+          lNaechstesBild.setIcon(new ImageIcon(getClass().getResource(
+              "uiimgs/pfeilrechts.png")));
+        }
+
         public void mouseEntered(java.awt.event.MouseEvent e) {
           lNaechstesBild.removeAll();
-          lNaechstesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeilrechtsKlick.png")));
+          lNaechstesBild.setIcon(new ImageIcon(getClass().getResource(
+              "uiimgs/pfeilrechtsKlick.png")));
         }
       });
       lLetztesBild = new JLabel();
-      lLetztesBild.setIcon(new ImageIcon(getClass().getResource("/ui/uiimgs/pfeillinks.png")));
+      lLetztesBild.setIcon(new ImageIcon(getClass().getResource(
+          "uiimgs/pfeillinks.png")));
       lLetztesBild.setText("");
-      lLetztesBild.addMouseListener(new java.awt.event.MouseAdapter() {   
-      	public void mouseClicked(java.awt.event.MouseEvent e) {   
-          
-          /* Waehlt das vorige Bild in der Liste aus und das letzte Bild
-           * wenn das erste Bild der Liste ausgewaehlt ist
+      lLetztesBild.addMouseListener(new java.awt.event.MouseAdapter() {
+        public void mouseClicked(java.awt.event.MouseEvent e) {
+
+          /*
+           * Waehlt das vorige Bild in der Liste aus und das letzte Bild wenn
+           * das erste Bild der Liste ausgewaehlt ist
            */
           boolean neuesBildGewaehlt = false;
           for (int i = 0; i < listeAnzeigePanel.size() && !neuesBildGewaehlt; i++) {
-            if (dok.equals(listeAnzeigePanel.get(i).gibBildDokument()) 
-                && i > 0) {
+            if (dok.equals(listeAnzeigePanel.get(i).gibBildDokument()) && i > 0) {
               dok = listeAnzeigePanel.get(i - 1).gibBildDokument();
               pGroszanzeige.setzeDok(dok);
               detailsTableModel.setzeDokument(dok);
               neuesBildGewaehlt = true;
-            } else if (dok.equals(listeAnzeigePanel.get(i).gibBildDokument()) 
-                && i == 0){
-              dok = listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).gibBildDokument();
+            } else if (dok.equals(listeAnzeigePanel.get(i).gibBildDokument())
+                && i == 0) {
+              dok = listeAnzeigePanel.get(listeAnzeigePanel.size() - 1)
+                  .gibBildDokument();
               pGroszanzeige.setzeDok(dok);
               detailsTableModel.setzeDokument(dok);
               neuesBildGewaehlt = true;
             }
           }
-      	}
-        public void mouseExited(java.awt.event.MouseEvent e) {    
-          lLetztesBild.removeAll();
-          lLetztesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeillinks.png")));
         }
+
+        public void mouseExited(java.awt.event.MouseEvent e) {
+          lLetztesBild.removeAll();
+          lLetztesBild.setIcon(new ImageIcon(getClass().getResource(
+              "uiimgs/pfeillinks.png")));
+        }
+
         public void mouseEntered(java.awt.event.MouseEvent e) {
           lLetztesBild.removeAll();
-          lLetztesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeillinksKlick.png")));
+          lLetztesBild.setIcon(new ImageIcon(getClass().getResource(
+              "uiimgs/pfeillinksKlick.png")));
         }
       });
-      
+
       pToolbar = new JPanel();
-      pToolbar.setLayout(new FlowLayout(FlowLayout.CENTER, STD_ABSTAND, STD_ABSTAND));
+      pToolbar.setLayout(new FlowLayout(FlowLayout.CENTER, STD_ABSTAND,
+          STD_ABSTAND));
       pToolbar.add(lLetztesBild, null);
       pToolbar.add(lNaechstesBild, null);
+      pToolbar.add(getCbGroesze(), null);
+      pToolbar.add(getTbGroeszeAnpassen(), null);
       pToolbar.add(getBSchlieszen(), null);
     }
     return pToolbar;
   }
 
   /**
-   * This method initializes jButton	
-   * 	
-   * @return javax.swing.JButton	
+   * This method initializes jButton
+   * 
+   * @return javax.swing.JButton
    */
   private JButton getBSchlieszen() {
     if (bSchlieszen == null) {
@@ -256,29 +280,42 @@ public class BildGroszanzeige extends JFrame {
   }
 
   /**
-   * This method initializes tpGroszanzeige	
-   * 	
-   * @return javax.swing.JTabbedPane	
+   * This method initializes tpGroszanzeige
+   * 
+   * @return javax.swing.JTabbedPane
    */
   private JTabbedPane getTpGroszanzeige() {
     if (tpGroszanzeige == null) {
       tpGroszanzeige = new JTabbedPane();
       tpGroszanzeige.setBackground(new Color(238, 238, 238));
-      tpGroszanzeige.addTab("Groszanzeige", null, getPGroszanzeige(), null);
+      tpGroszanzeige.addTab("Großanzeige", null, getPGroszanzeige(), null);
       tpGroszanzeige.addTab("Zusatzdetails", null, getSpZusatzdetails(), null);
     }
     return tpGroszanzeige;
   }
 
   /**
-   * This method initializes pGroszanzeige	
-   * 	
-   * @return javax.swing.JPanel	
+   * This method initializes pGroszanzeige
+   * 
+   * @return javax.swing.JPanel
    */
   private BildGroszanzeigeZeichner getPGroszanzeige() {
     if (pGroszanzeige == null) {
-      pGroszanzeige = new BildGroszanzeigeZeichner(dok);
+      double skalierungPro = 100.0;
+      if (((String) cbGroesze.getSelectedItem()).matches("[0-9]+")) {
+
+        skalierungPro = Double
+            .parseDouble((String) cbGroesze.getSelectedItem());
+      } else if (((String) cbGroesze.getSelectedItem()).matches("[0-9]+(%)?")) {
+
+        String skalierung = (String) cbGroesze.getSelectedItem();
+        skalierungPro = Double.parseDouble(skalierung.substring(0, skalierung
+            .length() - 1));
+      }
+      pGroszanzeige = new BildGroszanzeigeZeichner(dok, skalierungPro,
+          tbGroeszeAnpassen.isEnabled());
       pGroszanzeige.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+      pGroszanzeige.setLayout(new FlowLayout());
       pGroszanzeige.addBildGeladenListener(new BildGeladenListener() {
         public void bildWurdeGeladen() {
           updateAnsicht();
@@ -289,9 +326,9 @@ public class BildGroszanzeige extends JFrame {
   }
 
   /**
-   * This method initializes spZusatzdetails	
-   * 	
-   * @return javax.swing.JScrollPane	
+   * This method initializes spZusatzdetails
+   * 
+   * @return javax.swing.JScrollPane
    */
   private JScrollPane getSpZusatzdetails() {
     if (spZusatzdetails == null) {
@@ -302,9 +339,9 @@ public class BildGroszanzeige extends JFrame {
   }
 
   /**
-   * This method initializes tZusatzdetails	
-   * 	
-   * @return javax.swing.JTable	
+   * This method initializes tZusatzdetails
+   * 
+   * @return javax.swing.JTable
    */
   private JTable getTZusatzdetails() {
     if (tZusatzdetails == null) {
@@ -321,6 +358,66 @@ public class BildGroszanzeige extends JFrame {
     }
     return tZusatzdetails;
   }
+
+  /**
+   * This method initializes tbGroeszeAnpassen
+   * 
+   * @return javax.swing.JToggleButton
+   */
+  private JToggleButton getTbGroeszeAnpassen() {
+    if (tbGroeszeAnpassen == null) {
+      tbGroeszeAnpassen = new JToggleButton();
+      tbGroeszeAnpassen.setText("Anpassen");
+      tbGroeszeAnpassen.setSelected(true);
+      tbGroeszeAnpassen.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+          if (tbGroeszeAnpassen.isSelected()) {
+            pGroszanzeige.setzeAnpassung(true);
+          } else {
+            pGroszanzeige.setzeAnpassung(false);
+          }
+        }
+      });
+    }
+    return tbGroeszeAnpassen;
+  }
+
+  /**
+   * This method initializes cbGroesze
+   * 
+   * @return javax.swing.JComboBox
+   */
+  private JComboBox getCbGroesze() {
+    if (cbGroesze == null) {
+      cbGroesze = new JComboBox();
+      cbGroesze.setEditable(true);
+      cbGroesze.addItem("50%");
+      cbGroesze.addItem("100%");
+      cbGroesze.addItem("200%");
+      cbGroesze.setSelectedItem("100%");
+      cbGroesze.addItemListener(new java.awt.event.ItemListener() {
+        public void itemStateChanged(java.awt.event.ItemEvent e) {
+          if (!cbGroesze.getSelectedItem().toString().matches("[0-9]+%?")) {
+
+            cbGroesze.setSelectedItem("100%");
+          } else {
+
+            if (cbGroesze.getSelectedItem().toString().matches("[0-9]+")) {
+
+              pGroszanzeige.setzeSkalierung(Double.parseDouble(cbGroesze
+                  .getSelectedItem().toString()));
+            } else {
+
+              String skalierung = cbGroesze.getSelectedItem().toString();
+              pGroszanzeige.setzeSkalierung(Double.parseDouble(skalierung
+                  .substring(0, skalierung.length() - 1)));
+            }
+          }
+        }
+      });
+    }
+    return cbGroesze;
+  }
 }
 
 /**
@@ -328,47 +425,70 @@ public class BildGroszanzeige extends JFrame {
  * Anzeigebereich.
  */
 class BildGroszanzeigeZeichner extends JPanel {
-  
+
   /** Enthaelt das Dokument, dass den Pfad zur Datei enthaelt. */
   private BildDokument dok = null;
-  
-  /** Enthaelt eine Liste an Listenern die darauf reagieren, wenn ein
-   * Bild geladen wurde. */
+
+  /**
+   * Enthaelt eine Liste an Listenern die darauf reagieren, wenn ein Bild
+   * geladen wurde.
+   */
   private List<BildGeladenListener> listener = null;
-  
+
   /** Enthaehlt das anzuzeigende Bild. */
   private Image bild = null;
-  
+
+  /** Enthaelt die Skalierung die das Bild erfahren soll. */
+  private double skalierungProzent;
+
+  /**
+   * Enthaelt die Information ob das Bild an die Groesze des Panels angepasst
+   * werden muss.
+   */
+  private boolean mussAngepasstWerden;
+
   /**
    * Erzeugt ein neues Objekt der Klasse mit den entsprechenden Daten.
-   * @param dok  das Bilddokument, dass den Pfad zur Datei enthaelt
+   * 
+   * @param dok
+   *          das Bilddokument, dass den Pfad zur Datei enthaelt
+   * @param skalierung
+   *          enthaelt die Skalierung in Prozent, die das Bild Bild erfahren
+   *          soll
    */
-  public BildGroszanzeigeZeichner(BildDokument dok) {
+  public BildGroszanzeigeZeichner(BildDokument dok, double skalierung,
+      boolean mussAngepasstWerden) {
     this.dok = dok;
     this.listener = new ArrayList<BildGeladenListener>();
+    this.skalierungProzent = skalierung;
+    this.mussAngepasstWerden = mussAngepasstWerden;
     setzeDok(dok);
   }
-  
+
   /**
    * Fuegt einen <code>BildGeladenListener</code> zur Liste der Listener
    * hinzu.
-   * @param l  der hinzuzufuegende Listener
+   * 
+   * @param l
+   *          der hinzuzufuegende Listener
    */
   public void addBildGeladenListener(BildGeladenListener l) {
     listener.add(l);
   }
-  
+
   /**
    * Loescht einen <code>BildGeladenListener</code> aus der Liste der
    * Listener.
-   * @param l  der zu loeschende Listener
+   * 
+   * @param l
+   *          der zu loeschende Listener
    */
   public void removeBildGeladenListener(BildGeladenListener l) {
     if (l != null && listener.contains(l)) {
       listener.remove(l);
     }
   }
-  
+
   /**
    * Wird aufgerufen, wenn das anzuzeigende Bild geladen wurde und
    * benachrichtigt alle Listener
@@ -378,16 +498,18 @@ class BildGroszanzeigeZeichner extends JPanel {
       l.bildWurdeGeladen();
     }
   }
-  
+
   /**
    * Setzt das Dokument in der Anzeige neu.
-   * @param dok  das Dokument mit den benoetigten Informationen
+   * 
+   * @param dok
+   *          das Dokument mit den benoetigten Informationen
    */
   public void setzeDok(BildDokument dok) {
     this.dok = dok;
     try {
-      this.bild = ImageIO.read(
-          new File((String) dok.getMerkmal(DateipfadMerkmal.FELDNAME).getWert()));
+      this.bild = ImageIO.read(new File((String) dok.getMerkmal(
+          DateipfadMerkmal.FELDNAME).getWert()));
       fireBildGeladen();
     } catch (IOException e) {
       System.out.println("Das Bild konnte nicht geladen werden.\n"
@@ -395,47 +517,78 @@ class BildGroszanzeigeZeichner extends JPanel {
     }
     this.repaint();
   }
-  
+
   /**
-   * Zeichnet das Bild in die Oberflaeche, mit den entsprechenden Abmessungen. 
+   * Setzt die Skalierung die das Bild erfahren soll neu und zeichnet das Bild
+   * dementsprechend.
+   * 
+   * @param skalierung
+   *          die Skalerierung in Prozent
+   */
+  public void setzeSkalierung(double skalierung) {
+
+    this.skalierungProzent = skalierung;
+    this.repaint();
+  }
+
+  /**
+   * Setzt den Status ob das Bild der Fenstergroesze angepasst werden soll oder
+   * nicht.
+   * 
+   * @param mussAngepasstWerden
+   *          <code>true</code> wen das Bild der Fenstergroesze angepasst
+   *          werden soll
+   */
+  public void setzeAnpassung(boolean mussAngepasstWerden) {
+
+    this.mussAngepasstWerden = mussAngepasstWerden;
+    this.repaint();
+  }
+
+  /**
+   * Zeichnet das Bild in die Oberflaeche, mit den entsprechenden Abmessungen.
    */
   protected void paintComponent(Graphics g) {
-    
-    double originalBreite = 
-      (Integer) dok.getMerkmal(BildbreiteMerkmal.FELDNAME).getWert();
-    double originalHoehe = 
-      (Integer) dok.getMerkmal(BildhoeheMerkmal.FELDNAME).getWert();
+
+    double originalBreite = (Integer) dok
+        .getMerkmal(BildbreiteMerkmal.FELDNAME).getWert();
+    double originalHoehe = (Integer) dok.getMerkmal(BildhoeheMerkmal.FELDNAME)
+        .getWert();
     double hoeheBild = bild.getHeight(this);
     double breiteBild = bild.getWidth(this);
     double dieseBreite = getWidth();
     double dieseHoehe = getHeight();
     g.setColor(Color.WHITE);
     g.fillRect(0, 0, getWidth(), getHeight());
-  
-    if (originalBreite <= dieseBreite && originalHoehe <= dieseHoehe) {
-      
-      g.drawImage(bild, 
-          (int) (dieseBreite - originalBreite) / 2,
-          (int) (dieseHoehe - originalHoehe) / 2,
-          (int) originalBreite, (int) originalHoehe, this);
-    } else if (Math.abs(dieseBreite / breiteBild) < Math.abs(dieseHoehe / hoeheBild)) {
+
+    if (!mussAngepasstWerden) {
+
+      originalBreite = originalBreite * skalierungProzent / 100;
+      originalHoehe = originalHoehe * skalierungProzent / 100;
+
+      g.drawImage(bild, (int) (dieseBreite - originalBreite) / 2,
+          (int) (dieseHoehe - originalHoehe) / 2, (int) originalBreite,
+          (int) originalHoehe, this);
+    } else if (originalBreite <= dieseBreite && originalHoehe <= dieseHoehe) {
+
+      g.drawImage(bild, (int) (dieseBreite - originalBreite) / 2,
+          (int) (dieseHoehe - originalHoehe) / 2, (int) originalBreite,
+          (int) originalHoehe, this);
+    } else if (Math.abs(dieseBreite / breiteBild) < Math.abs(dieseHoehe
+        / hoeheBild)) {
       // Anpassung der Größe an dieses Objekt
-      
+
       // Breite voll ausgefuellt, Hoehe muss neu berechnet werden
-      g.drawImage(bild,
-          0,
-          (int) (dieseHoehe - hoeheBild * (dieseBreite / breiteBild)) / 2,
-          (int) dieseBreite,
+      g.drawImage(bild, 0, (int) (dieseHoehe - hoeheBild
+          * (dieseBreite / breiteBild)) / 2, (int) dieseBreite,
           (int) (hoeheBild * (dieseBreite / breiteBild)), this);
     } else {
-      
+
       // Hoehe voll ausgefuellt, Breite muss neu berechnet werden
-      g.drawImage(bild, 
-          (int) (dieseBreite - breiteBild * (dieseHoehe / hoeheBild)) / 2,
-          0,
-          (int) (breiteBild * (dieseHoehe / hoeheBild)),
-          (int) dieseHoehe, this);
+      g.drawImage(bild, (int) (dieseBreite - breiteBild
+              * (dieseHoehe / hoeheBild)) / 2, 0,
+              (int) (breiteBild * (dieseHoehe / hoeheBild)), (int) dieseHoehe,
+              this);
     }
-    
   }
 }
