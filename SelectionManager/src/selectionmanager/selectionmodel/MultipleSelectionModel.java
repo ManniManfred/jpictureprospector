@@ -18,7 +18,7 @@ public class MultipleSelectionModel extends AbstractSelectionModel {
   private List<Auswaehlbar> liste;
   
   /** Liste aller selektierten Elemente. */
-  private Set<Auswaehlbar> ausgewaehlten;
+  private HashSet<Auswaehlbar> ausgewaehlten;
 
   
   /** Die Nummer des angeklicktem/markiertem Selektierbaren. */
@@ -68,6 +68,9 @@ public class MultipleSelectionModel extends AbstractSelectionModel {
    *         <code>auswaehlbarIndex</code>
    */
   public Auswaehlbar getAuswaehlbar(int auswaehlbarIndex) {
+    if (auswaehlbarIndex < 0 || auswaehlbarIndex >= liste.size()) {
+      return null;
+    }
     return liste.get(auswaehlbarIndex);
   }
 
@@ -87,6 +90,7 @@ public class MultipleSelectionModel extends AbstractSelectionModel {
    */
   public void removeAuswaehlbar(Auswaehlbar a) {
     liste.remove(a);
+    ausgewaehlten.remove(a);
   }
 
 
@@ -100,7 +104,7 @@ public class MultipleSelectionModel extends AbstractSelectionModel {
    * @return Menge der aktuell ausgewaehlten Elemente
    */
   public Set<Auswaehlbar> gibAlleAusgewaehlten() {
-    return ausgewaehlten;
+    return (Set<Auswaehlbar>) ausgewaehlten.clone();
   }
 
   /**
@@ -195,7 +199,7 @@ public class MultipleSelectionModel extends AbstractSelectionModel {
         && auswaehlbarIndex >= 0 && auswaehlbarIndex < liste.size()) {
       
       /* Den vorher Markierten "demarkieren" und den neuen markieren */
-      if (aktuellMarkiertIndex >= 0) {
+      if (aktuellMarkiertIndex >= 0 && aktuellMarkiertIndex < liste.size()) {
         getAuswaehlbar(aktuellMarkiertIndex).setMarkiert(false);
       }
       

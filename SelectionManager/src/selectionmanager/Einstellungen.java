@@ -9,6 +9,15 @@ import java.awt.Color;
  */
 public class Einstellungen {
 
+  
+  public static Color containerBG = Color.WHITE;
+
+  public static int yAbstand = 10;
+
+  public static int xAbstand = 10;
+
+  
+  
   public static int rahmenDicke = 2;
   
   public static Color rahmenFarbe = Color.black;
@@ -21,6 +30,6 @@ public class Einstellungen {
   /**
    * Standard Hintergrund Farbe.
    */
-  public static Color farbeNormal = Color.LIGHT_GRAY;
+  public static Color farbeNormal = Color.WHITE;
 
 }

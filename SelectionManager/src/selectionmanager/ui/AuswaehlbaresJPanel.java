@@ -16,7 +16,7 @@ import selectionmanager.Einstellungen;
  * 
  * @author Manfred Rosskamp
  */
-public class SelectableJPanel extends JPanel implements Auswaehlbar {
+public class AuswaehlbaresJPanel extends JPanel implements Auswaehlbar {
 
 
 
@@ -42,38 +42,44 @@ public class SelectableJPanel extends JPanel implements Auswaehlbar {
   private boolean istAngeklickt;
 
   /**
-   * Erzeugt ein neues SelectableJPanel.
+   * Gibt an, ob die Gesamtauswahl bei einem fireWurdeAusgewaehlt aufgehoben
+   * werden soll und somit nur dieses Element ausgewaehlt sein soll.
    */
-  public SelectableJPanel() {
+  private boolean hebeAuswahlAuf;
+
+  /**
+   * Erzeugt ein neues AuswaehlbaresJPanel.
+   */
+  public AuswaehlbaresJPanel() {
     init();
   }
 
   /**
-   * Erzeugt ein neues SelectableJPanel.
+   * Erzeugt ein neues AuswaehlbaresJPanel.
    */
-  public SelectableJPanel(boolean isDoubleBuffered) {
+  public AuswaehlbaresJPanel(boolean isDoubleBuffered) {
     super(isDoubleBuffered);
     init();
   }
 
   /**
-   * Erzeugt ein neues SelectableJPanel.
+   * Erzeugt ein neues AuswaehlbaresJPanel.
    */
-  public SelectableJPanel(LayoutManager layout, boolean isDoubleBuffered) {
+  public AuswaehlbaresJPanel(LayoutManager layout, boolean isDoubleBuffered) {
     super(layout, isDoubleBuffered);
     init();
   }
 
   /**
-   * Erzeugt ein neues SelectableJPanel.
+   * Erzeugt ein neues AuswaehlbaresJPanel.
    */
-  public SelectableJPanel(LayoutManager layout) {
+  public AuswaehlbaresJPanel(LayoutManager layout) {
     super(layout);
     init();
   }
 
   /**
-   * Initialiesiert dieses SelectableJPanel.
+   * Initialiesiert dieses AuswaehlbaresJPanel.
    */
   private void init() {
     this.setBackground(Einstellungen.farbeNormal);
@@ -90,11 +96,16 @@ public class SelectableJPanel extends JPanel implements Auswaehlbar {
       public void mouseClicked(MouseEvent e) {
 
         /* Wenn beim Klicken die CRTL-Taste gedrueckt wurde */
-        // if (e.isControlDown()) {
-        /* dann ist dieser JPanel ausgewaehlt */
-        setAusgewaehlt(!istAusgewaehlt);
-        fireWurdeAusgewaehlt();
-        // }
+        if (e.isControlDown()) {
+          /* dann ist dieser JPanel ausgewaehlt */
+          setAusgewaehlt(!istAusgewaehlt);
+          hebeAuswahlAuf = false;
+          fireWurdeAusgewaehlt();
+        } else {
+          setAusgewaehlt(true);
+          hebeAuswahlAuf = true;
+          fireWurdeAusgewaehlt();
+        }
 
         /* Dieses JPanel wurde angeklickt */
         setMarkiert(true);
@@ -137,7 +148,16 @@ public class SelectableJPanel extends JPanel implements Auswaehlbar {
   }
 
 
-
+  /**
+   * Gibt an, ob die Gesamtauswahl bei einem fireWurdeAusgewaehlt aufgehoben
+   * werden soll und somit nur dieses Element ausgewaehlt sein soll.
+   *  
+   * @return <code>true</code>, wenn die Gesamtauswahl vorher aufgehoben werden
+   *    soll
+   */
+  public boolean resetAuswahl() {
+    return hebeAuswahlAuf;
+  }
 
   /**
    * Gibt <code>true</code> zurueck, wenn dieses JPanel angeklickt ist.
