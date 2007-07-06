@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Set;
 
 import javax.swing.JTable;
+
+import selectionmanager.Auswaehlbar;
+import selectionmanager.AuswahlListener;
 
 import jpp.core.BildDokument;
 import jpp.core.JPPCore;
@@ -17,7 +21,7 @@ import jpp.core.JPPCore;
  * 
  * @author Marion Mecking
  */
-public class MerkmaleJTable extends JTable implements Observer {
+public class MerkmaleJTable extends JTable implements AuswahlListener {
   
   /** Bilddokumente, zu denen die Merkmale angezeigt werden. */
   private List<BildDokument> bilddokumente = new ArrayList<BildDokument>();
@@ -93,31 +97,6 @@ public class MerkmaleJTable extends JTable implements Observer {
     }
   }
 
-  /**
-   * Laedt die Tabelle anhand des entsprechenden <code>Observable</code> neu.
-   * 
-   * @param o
-   *          das <code>Observable</code> dass sich geaendert hat
-   * @param arg
-   *          das entsprechende <code>Object</code> was sich im
-   *          <code>Observable</code> geaendert hat
-   */
-  public void update(Observable o, Object arg) {
-
-    if (arg instanceof ThumbnailAnzeigePanel) {
-      
-      BildDokument dok = ((ThumbnailAnzeigePanel) arg).gibBildDokument();     
-      if (bilddokumente.contains(dok)) {
-        bilddokumente.remove(dok);
-      } else {
-        this.bilddokumente.add(dok);
-      }
-
-      this.tabellenmodell.aktualisiereBilddokumente(bilddokumente);
-      this.setzeRenderer();
-      this.setzeSpaltenBreite();
-    }
-  }
   
   /**
    * Aendert die Daten der Bilddokumente.
@@ -125,5 +104,30 @@ public class MerkmaleJTable extends JTable implements Observer {
    */
   public List<BildDokument> aendereDaten() {
     return this.tabellenmodell.aendereDaten();
+  }
+
+  
+  public void auswahlGeaendert(Set<Auswaehlbar> ausgewaehlten) {
+    
+    /* Passe die Tabelle der Auswahl an */
+    if (ausgewaehlten != null) {
+      
+      /* erstelle eine neue Liste mit den ausgewaehlten BildDokumenten */
+      bilddokumente = new ArrayList<BildDokument>();
+      
+      for (Auswaehlbar a : ausgewaehlten) {
+        BildDokument dok = ((ThumbnailAnzeigePanel) a).gibBildDokument();
+        bilddokumente.add(dok);
+      }
+      
+      
+      this.tabellenmodell.aktualisiereBilddokumente(bilddokumente);
+      this.setzeRenderer();
+      this.setzeSpaltenBreite();
+    }
+  }
+
+  public void markierungWurdeBewegt(Auswaehlbar neueMarkierung) {
+    /* Wenn die Markierung geaendert wurde, veraendere hier nichts. */
   }
 }

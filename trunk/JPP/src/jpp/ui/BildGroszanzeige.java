@@ -193,7 +193,7 @@ public class BildGroszanzeige extends JFrame {
         }
       });
       lLetztesBild = new JLabel();
-      lLetztesBild.setIcon(new ImageIcon(getClass().getResource("/ui/uiimgs/pfeillinks.png")));
+      lLetztesBild.setIcon(new ImageIcon(getClass().getResource("uiimgs/pfeillinks.png")));
       lLetztesBild.setText("");
       lLetztesBild.addMouseListener(new java.awt.event.MouseAdapter() {   
       	public void mouseClicked(java.awt.event.MouseEvent e) {   
