@@ -77,7 +77,7 @@ public class SuchPanel extends JPanel {
       tfSuchFeld.addKeyListener(new java.awt.event.KeyAdapter() {
         public void keyPressed(java.awt.event.KeyEvent e) {
           if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-            hauptfenster.erzeugeDatenNachSuche();
+            hauptfenster.sucheNach(gibSuchtext());
             hauptfenster.erzeugeThumbnailansicht();
           }
         }
@@ -97,7 +97,7 @@ public class SuchPanel extends JPanel {
       bSuchen.setText("Suchen");
       bSuchen.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
-          hauptfenster.erzeugeDatenNachSuche();
+          hauptfenster.sucheNach(gibSuchtext());
           hauptfenster.erzeugeThumbnailansicht();
         }
       });

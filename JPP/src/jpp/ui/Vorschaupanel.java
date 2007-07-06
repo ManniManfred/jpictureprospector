@@ -7,28 +7,44 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
+import selectionmanager.Auswaehlbar;
+import selectionmanager.AuswahlListener;
+
 import jpp.core.BildDokument;
 import jpp.merkmale.BildbreiteMerkmal;
 import jpp.merkmale.BildhoeheMerkmal;
+import jpp.merkmale.DateipfadMerkmal;
 import jpp.ui.listener.VorschauBildListener;
 
 
-public class Vorschaupanel extends JPanel implements Observer {
+public class Vorschaupanel extends JPanel implements AuswahlListener {
 
   private static final long serialVersionUID = 1L;
-  
+
   /** Enthaelt das Bild, was anzeigt werden soll. */
   private Image bild = null;
+
+  /** Nur zu debug zwecke */
+  //private int count = 0;
   
-  /** Enthaelt das <code>BildDokument</code> was die Grundlage fuer die
+  /**
+   * Enthaelt das <code>BildDokument</code> was die Grundlage fuer die
    * Zeichnung des Bildes bildet.
    */
   private BildDokument dok = null;
+
+  /** 
+   * BildLader, der in einem anderen Thread das Bild, welches in diesem
+   * Panel angezeigt werden soll, läd.
+   */
+  private Vorschaubildlader bildLader;
+
   
   /**
    * This is the default constructor
@@ -36,16 +52,25 @@ public class Vorschaupanel extends JPanel implements Observer {
   public Vorschaupanel() {
     super();
     initialize();
+    
+    bildLader = new Vorschaubildlader();
+    bildLader.addVorschaubildListener(new VorschauBildListener() {
+      public void bildGeladen() {
+        bild = bildLader.getBild();
+        repaint();
+      }
+    });
   }
-  
+
   /**
    * Liefert das <code>BildDokument</code> dieses Objekts
+   * 
    * @return
    */
   public BildDokument gibBildDokument() {
     return this.dok;
   }
-  
+
   /**
    * Laedt die Ansicht dieses Objekts neu.
    */
@@ -54,33 +79,7 @@ public class Vorschaupanel extends JPanel implements Observer {
     this.dok = null;
     repaint();
   }
-  
-  /**
-   * Laedt das Vorschaubild anhand des entsprechenden <code>Observable</code>
-   * neu.
-   * 
-   * @param o  das <code>Observable</code> dass sich geaendert hat
-   * @param arg  das entsprechende <code>Object</code> was sich im 
-   *        <code>Observable</code> geaendert hat
-   */
-  public void update(Observable o, Object arg) {
-    
-    if (arg instanceof ThumbnailAnzeigePanel) {
-      
-      ThumbnailAnzeigePanel tap = (ThumbnailAnzeigePanel) arg;
-      if (tap.istAusgewaehlt()) {
-        dok = tap.gibBildDokument();
-        final Vorschaubildlader bildlader = new Vorschaubildlader(dok);
-        bildlader.addVorschaubildListener(new VorschauBildListener() {
-          public void bildGeladen() {
-            bild = bildlader.getBild();
-            repaint();
-          }
-        });
-        bildlader.start();
-      }
-    }
-  }
+
 
   /**
    * This method initializes this
@@ -91,12 +90,13 @@ public class Vorschaupanel extends JPanel implements Observer {
     this.setSize(300, 300);
     this.setLayout(new BorderLayout());
     this.setBackground(Color.WHITE);
-    this.setBorder(BorderFactory.createTitledBorder(
-        BorderFactory.createEmptyBorder(0, 0, 0, 0), "Vorschau",
-        TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, 
+    this.setBorder(BorderFactory.createTitledBorder(BorderFactory
+        .createEmptyBorder(0, 0, 0, 0), "Vorschau",
+        TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION,
         new Font("Dialog", Font.BOLD, 12), new Color(51, 51, 51)));
     this.repaint();
   }
+
   
   /**
    * Zeichnet Elemente auf dieses Objekt.
@@ -104,46 +104,89 @@ public class Vorschaupanel extends JPanel implements Observer {
    * @param g
    */
   public void paintComponent(Graphics g) {
+//    System.out.println("paint " + count);
+//    count++;
     
+    /* Hintergrund auf weiss setzten */
+    g.setColor(Color.WHITE);
+    g.fillRect(0, 0, getWidth(), getHeight());
+    
+    
+    if (bild != null) {
+      /* Das vorgeladene Vorschaubild zentriert anzeigen */
+      int xpos = (int) Math.round((getWidth() - bild.getWidth(this)) / 2.0);
+      int ypos = (int) Math.round((getHeight() - bild.getHeight(this)) / 2.0);
+      
+      g.drawImage(bild, xpos, ypos, this);
+    }
+
+    
+    /*
     if (bild != null && dok != null) {
-      double originalBreite = 
-        (Integer) dok.getMerkmal(BildbreiteMerkmal.FELDNAME).getWert();
-      double originalHoehe = 
-        (Integer) dok.getMerkmal(BildhoeheMerkmal.FELDNAME).getWert();
+      double originalBreite = (Integer) dok.getMerkmal(
+          BildbreiteMerkmal.FELDNAME).getWert();
+      double originalHoehe = (Integer) dok
+          .getMerkmal(BildhoeheMerkmal.FELDNAME).getWert();
       double hoeheBild = bild.getHeight(this);
       double breiteBild = bild.getWidth(this);
       double dieseBreite = getWidth();
       double dieseHoehe = getHeight();
       g.setColor(Color.WHITE);
       g.fillRect(0, 0, getWidth(), getHeight());
-    
+
       if (originalBreite <= dieseBreite && originalHoehe <= dieseHoehe) {
-        
-        g.drawImage(bild, 
-            (int) (dieseBreite - originalBreite) / 2,
-            (int) (dieseHoehe - originalHoehe) / 2,
-            (int) originalBreite, (int) originalHoehe, this);
-      } else if (Math.abs(dieseBreite / breiteBild) < Math.abs(dieseHoehe / hoeheBild)) {
+
+        g.drawImage(bild, (int) (dieseBreite - originalBreite) / 2,
+            (int) (dieseHoehe - originalHoehe) / 2, (int) originalBreite,
+            (int) originalHoehe, this);
+      } else if (Math.abs(dieseBreite / breiteBild) < Math.abs(dieseHoehe
+          / hoeheBild)) {
         // Anpassung der Größe an dieses Objekt
-        
+
         // Breite voll ausgefuellt, Hoehe muss neu berechnet werden
-        g.drawImage(bild,
-            0,
-            (int) (dieseHoehe - hoeheBild * (dieseBreite / breiteBild)) / 2,
-            (int) dieseBreite,
+        g.drawImage(bild, 0, (int) (dieseHoehe - hoeheBild
+            * (dieseBreite / breiteBild)) / 2, (int) dieseBreite,
             (int) (hoeheBild * (dieseBreite / breiteBild)), this);
       } else {
-        
+
         // Hoehe voll ausgefuellt, Breite muss neu berechnet werden
-        g.drawImage(bild, 
-            (int) (dieseBreite - breiteBild * (dieseHoehe / hoeheBild)) / 2,
-            0,
-            (int) (breiteBild * (dieseHoehe / hoeheBild)),
-            (int) dieseHoehe, this);
+        g.drawImage(bild, (int) (dieseBreite - breiteBild
+            * (dieseHoehe / hoeheBild)) / 2, 0,
+            (int) (breiteBild * (dieseHoehe / hoeheBild)), (int) dieseHoehe,
+            this);
       }
     } else {
       g.setColor(new Color(255, 255, 255));
       g.fillRect(0, 0, getWidth(), getHeight());
+    }*/
+  }
+
+  
+  
+  public void auswahlGeaendert(Set<Auswaehlbar> ausgewaehlten) {
+    /* Nix aendern */
+  }
+
+
+  /**
+   * Laedt das Vorschaubild neu.
+   * 
+   * @param neueMarkierung das entsprechende TAP
+   */
+  public void markierungWurdeBewegt(Auswaehlbar neueMarkierung) {
+//    System.out.println("Vorschaupanel: Markierung verändert = " 
+//        + neueMarkierung);
+    
+    if (neueMarkierung instanceof ThumbnailAnzeigePanel) {
+
+      ThumbnailAnzeigePanel tap = (ThumbnailAnzeigePanel) neueMarkierung;
+      dok = tap.gibBildDokument();
+      
+      String dateipfad = tap.gibBildDokument().getMerkmal(
+                          DateipfadMerkmal.FELDNAME).getWert().toString();
+      
+      bildLader.startLadeBild(dateipfad, this.getWidth(), this.getHeight());
     }
   }
+
 }

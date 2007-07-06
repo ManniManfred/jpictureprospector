@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -18,6 +19,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
+
+import selectionmanager.Auswaehlbar;
+import selectionmanager.AuswahlListener;
 
 import jpp.core.BildDokument;
 import jpp.core.JPPCore;
@@ -30,7 +34,7 @@ import jpp.core.exceptions.AendereException;
  * 
  * @author Marion Mecking
  */
-public class BilddetailsPanel extends JPanel implements Observer {
+public class BilddetailsPanel extends JPanel implements AuswahlListener {
   
   /** Bilddokumente, zu denen die Merkmale angezeigt werden. */
   private List<BildDokument> bilddokumente = new ArrayList<BildDokument>();
@@ -184,31 +188,6 @@ public class BilddetailsPanel extends JPanel implements Observer {
     return bAendern;
   }
   
-  /**
-   * Aktualisiert die Liste der Bilddokumente anhand des entsprechenden 
-   * <code>Observable</code>.
-   *
-   * @param o  das <code>Observable</code> dass sich geaendert hat
-   * @param arg  das entsprechende <code>Object</code> was sich im
-   *        <code>Observable</code> geaendert hat
-   */
-  public void update(Observable o, Object arg) {
-    
-    if (arg instanceof ThumbnailAnzeigePanel) {
-      
-      BildDokument dok = ((ThumbnailAnzeigePanel) arg).gibBildDokument();
-      
-      /* Bilddokument hinzufuegen oder loeschen. */
-      if (bilddokumente.contains(dok)) {
-        bilddokumente.remove(dok);
-      } else {
-        this.bilddokumente.add(dok);
-      }
-      
-      this.aktualisiereDaten();   
-    }
-  }
-  
   
   /**
    * Aktualisiert die Daten des Panels.
@@ -330,5 +309,42 @@ public class BilddetailsPanel extends JPanel implements Observer {
     }
     
     return istGleich;
+  }
+
+  
+  /**
+   * Aktualisiert die Liste der Bilddokumente anhand des entsprechenden 
+   * <code>Observable</code>.
+   *
+   * @param o  das <code>Observable</code> dass sich geaendert hat
+   * @param arg  das entsprechende <code>Object</code> was sich im
+   *        <code>Observable</code> geaendert hat
+   */
+  public void update(Observable o, Object arg) {
+    
+  }
+  
+  public void auswahlGeaendert(Set<Auswaehlbar> ausgewaehlten) {
+    System.out.println("ausgewaehlten: " + ausgewaehlten.size());
+    
+    /* Passe die Tabelle der Auswahl an */
+    if (ausgewaehlten != null) {
+      
+      /* erstelle eine neue Liste mit den ausgewaehlten BildDokumenten */
+      bilddokumente = new ArrayList<BildDokument>();
+      
+      for (Auswaehlbar a : ausgewaehlten) {
+        BildDokument dok = ((ThumbnailAnzeigePanel) a).gibBildDokument();
+        bilddokumente.add(dok);
+      }
+      
+      this.aktualisiereDaten();
+    }
+       
+  }
+
+  public void markierungWurdeBewegt(Auswaehlbar neueMarkierung) {
+    // TODO Auto-generated method stub
+    
   } 
 }

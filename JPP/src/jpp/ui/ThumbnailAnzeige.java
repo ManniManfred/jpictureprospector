@@ -1,6 +1,7 @@
 package jpp.ui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 
@@ -50,6 +51,10 @@ public class ThumbnailAnzeige extends JPanel {
     this.groesze = groesze;
     this.setSize(groesze, groesze);
     this.repaint();
+  }
+  
+  public Dimension getPreferredSize() {
+    return new Dimension(groesze, groesze);
   }
   
   /**

@@ -1,14 +1,24 @@
 package jpp.ui;
 
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.Thread.State;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.imageio.ImageIO;
 
 import jpp.core.BildDokument;
+import jpp.core.GeoeffnetesBild;
+import jpp.core.exceptions.GeneriereException;
+import jpp.core.thumbnail.SimpleThumbnailGeneriererFactory;
+import jpp.core.thumbnail.ThumbnailGenerierer;
 import jpp.merkmale.DateipfadMerkmal;
 import jpp.ui.listener.VorschauBildListener;
 
@@ -17,25 +27,125 @@ import jpp.ui.listener.VorschauBildListener;
  * Ein Objekt der Klasse stellt einen Thread dar, der ein Bild
  * aus einem Bilddokument laedt.
  */
-public class Vorschaubildlader extends Thread {
+public class Vorschaubildlader implements Runnable {
 
-  /** Enthaelt das Bilddokument aus dem das Bild geladen werden soll. */
-  private BildDokument dok = null;
   
-  private List<VorschauBildListener> listener = null;
+  /** 
+   * Liste mit allen Listenern, die informiert werden moechten,
+   * wenn das Bild geladen ist.
+   */
+  private List<VorschauBildListener> listener;
   
   /** Enthaelt das fertig geladene Bild. */
-  private Image bild = null;
+  private Image bild;
+  
+  /** Thread, der tatsaechlich laed. */
+  private Thread laderThread;
+  
+  /** 
+   * Wenn ein Bild geladen wurde, wird darin abgespeichert, um beim
+   * naechsten mal sofort zur Verfuegung zu stehen.
+   */
+  private Map<String, Image> cache;
+  
+  
+  private boolean istGestartet = false;
+  
+
+  /** Enthaelt den Pfad zu dem zu ladenen Bild. */
+  private String dateipfad;
+  
+  private int maxBreite;
+  
+  private int maxHoehe;
+  
+  private ExecutorService ausfuehrer;
   
   /**
    * Erzeugt ein neues Objekt der Klasse
    * @param dok  das zu ladende <code>BildDokument</code>
    */
-  public Vorschaubildlader(BildDokument dok) {
-    
-    this.dok = dok;
+  public Vorschaubildlader() {
     this.listener = new ArrayList<VorschauBildListener>();
+    this.cache = new HashMap<String, Image>();
+
+    ausfuehrer = Executors.newSingleThreadExecutor();
   }
+  
+
+
+  /**
+   * Liefert das Bild dieses Objekts.
+   * 
+   * @return <code>Image</code> wenn das Bild geladen wurde ansonsten
+   *         <code>null</code>
+   */
+  public Image getBild() {
+    return this.bild;
+  }
+  
+  /**
+   * Es wird das Bild gesetzt, welches geladen werden soll.
+   * Danach sollte start() aufgerufen werden, um das Laden tatsaechlich
+   * zu starten.
+   * 
+   * @param dok
+   */
+  public void startLadeBild(String dateipfad, int maxBreite, int maxHoehe) {
+    
+    /* key stellt den Schluessel dar, unter dem das Vorschaubild im Cache
+     * abgelegt wird oder wurde.
+     */
+    String key = dateipfad + maxBreite + maxHoehe;
+    
+    this.dateipfad = dateipfad;
+    this.maxBreite = maxBreite;
+    this.maxHoehe = maxHoehe;
+    
+    Image bildCache = cache.get(key);
+    
+    if (bildCache != null) {
+      this.bild = bildCache;
+      fireBildGeladen();
+      System.out.println("Cache Treffer.");
+    } else {
+      ausfuehrer.execute(this);
+    }
+  }
+  
+  
+  public void run() {
+    try {
+      String key = dateipfad + maxBreite + maxHoehe;
+      
+      this.bild = erzeugeVorschaubild(dateipfad, maxBreite, maxHoehe);
+      
+      /* TODO sorge dafuer, dass der Cache auch wieder geloescht wird, 
+       * da es ansonsten irgendwann zu einem OutOfMemoryError kommt.
+       */
+      //cache.put(key, this.bild);
+
+      fireBildGeladen();
+    } catch (IOException e) {
+      System.out.println("Das Bild konnte nicht geladen werden.\n" +
+          e.getMessage());
+    } catch (GeneriereException e) {
+      System.out.println("Das Bild konnte nicht geladen werden.\n" +
+          e.getMessage());
+    }
+  }
+  
+  private BufferedImage erzeugeVorschaubild(String pfad, int maxBreite, 
+      int maxHoehe) throws GeneriereException, IOException {
+    
+    GeoeffnetesBild offenesBild = new GeoeffnetesBild(new File(pfad));
+    ThumbnailGenerierer generierer = 
+      SimpleThumbnailGeneriererFactory.erzeugeThumbnailGenerierer(
+          offenesBild);
+    
+    return generierer.generiereThumbnail(offenesBild, maxBreite, maxHoehe);
+  }
+  
   
   /**
    * Wird aufgerufen, wenn das Vorschaubild fertig geladen wurde und
@@ -45,33 +155,6 @@ public class Vorschaubildlader extends Thread {
     for (VorschauBildListener l : listener) {
       l.bildGeladen();
     }
-  }
-  
-  /**
-   * Startet diesen Thread.
-   */
-  @Override
-  public void run() {
-    
-    String dateipfad = (String) dok.getMerkmal(DateipfadMerkmal.FELDNAME).getWert();
-    try {
-      
-      bild = ImageIO.read(new File(dateipfad));
-      fireBildGeladen();
-    } catch (IOException e) {
-      System.out.println("Das Bild konnte nicht geladen werden.\n" +
-          e.getMessage());
-    }
-  }
-  
-  /**
-   * Liefert das Bild dieses Objekts.
-   * 
-   * @return <code>Image</code> wenn das Bild geladen wurde ansonsten
-   *         <code>null</code>
-   */
-  public Image getBild() {
-    return this.bild;
   }
   
   /**

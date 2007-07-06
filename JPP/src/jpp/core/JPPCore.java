@@ -146,7 +146,8 @@ public class JPPCore {
      * eine ImportException werfen.
      */
     if (istDateiImIndex(datei)) {
-      throw new ImportException("Die Datei wurde bereits importiert.");
+      throw new ImportException("Die Datei \"" + datei 
+          + "\" wurde bereits importiert.");
     }
 
     /* Lasse das BildDokument aus der Datei erzeugen */

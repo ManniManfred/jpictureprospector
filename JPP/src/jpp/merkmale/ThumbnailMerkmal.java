@@ -16,6 +16,7 @@ import jpp.core.Einstellungen;
 import jpp.core.GeoeffnetesBild;
 import jpp.core.exceptions.GeneriereException;
 import jpp.core.exceptions.LeseMerkmalAusException;
+import jpp.core.thumbnail.SimpleThumbnailGeneriererFactory;
 import jpp.core.thumbnail.ThumbnailGenerierer;
 
 import org.apache.lucene.document.Document;
@@ -38,11 +39,6 @@ public class ThumbnailMerkmal extends Merkmal {
    */
   public static final String FELDNAME = "Thumbnail";
 
-  /** 
-   * Speichert die in der statischen Methode getZuordnung() einmal erstellte
-   * Zuordnung von Format zu Generierer ab.
-   */
-  private static Map<String, ThumbnailGenerierer> thumbZuordnung;
 
   
   /**
@@ -68,25 +64,9 @@ public class ThumbnailMerkmal extends Merkmal {
    * @throws LeseMerkmalAusException 
    */
   public void leseMerkmalAus(GeoeffnetesBild bild) throws LeseMerkmalAusException {
-
-    /* Hole aus der Zuordnungstabelle fuer das Format den richtigen Generierer 
-     */
-    Map<String, ThumbnailGenerierer> zuordnung;
-    try {
-      zuordnung = getZuordnung();
-    } catch (Exception e) {
-      throw new LeseMerkmalAusException(
-          "Konnte dieses ThumbnailMerkmal nicht auslesen.", e);
-    }
-    ThumbnailGenerierer generierer = zuordnung.get(bild.getFormat());
-
-    /* Falls fuer dieses Format kein Generierer angegeben ist, verwende den
-     * Generierer, der fuer alle restlichen Formate zustaendig ist.
-     */
-    if (generierer == null) {
-      generierer = zuordnung.get("*");
-    }
-
+    ThumbnailGenerierer generierer = 
+      SimpleThumbnailGeneriererFactory.erzeugeThumbnailGenerierer(bild);
+    
     /* Lasse das Thumbnail vom Generierer erzeugen */
     try {
       this.setWert(generierer.generiereThumbnail(bild, 
@@ -164,65 +144,4 @@ public class ThumbnailMerkmal extends Merkmal {
     return (BufferedImage) getWert();
   }
   
-  
-
-  /**
-   * Liest aus der Datei "thumbnailGenerierer" ein, welcher ThumbnailGenerierer
-   * bei welchem Format verwendet werden soll.
-   * @return eine Zuordnung, vom Format zu dem richtigen ThumbnailGenerierer-
-   *    Objekt. Alle Formate, die nicht zugeordnet sind, werden von dem 
-   *    Generierer bearbeitet, der dem "*" zugeordnet ist.
-   */
-  private static Map<String, ThumbnailGenerierer> getZuordnung() throws Exception {
-    if (thumbZuordnung == null) {
-      thumbZuordnung = new HashMap<String, ThumbnailGenerierer>();
-      
-      String klassenname = "";
-      
-      try {
-        BufferedReader leser = new BufferedReader(new FileReader(
-            Einstellungen.THUMB_ZUORDUNGSDATEI));
-
-        String zeile;
-        while ((zeile = leser.readLine()) != null) {
-          int posGleich = zeile.indexOf("=");
-          String formateStr = zeile.substring(0, posGleich);
-
-          /* Formate einlesen, die der Generierer bearbeiten soll */
-          String[] formate = formateStr.split(",");
-          klassenname = zeile.substring(posGleich + 1).trim();
-
-          /* Generierer-Object erzeugen */
-          Class klasse = Class.forName(klassenname);
-          ThumbnailGenerierer generierer = (ThumbnailGenerierer) klasse
-              .newInstance();
-
-          /* Die Zuordnung von den Formaten zu dem Generierer abspeichern */
-          for (int i = 0; i < formate.length; i++) {
-            thumbZuordnung.put(formate[i].trim().toLowerCase(), generierer);
-          }
-
-        }
-      } catch (IOException e) {
-        throw new Exception("Konnte die Datei " 
-            + Einstellungen.THUMB_ZUORDUNGSDATEI
-            + " nicht lesen.", e);
-      } catch (ClassNotFoundException e) {
-        throw new Exception("Konnte die Klasse \"" 
-            + klassenname
-            + "\" nicht finden.", e);
-      } catch (InstantiationException e) {
-        throw new Exception("Konnte kein Objekt der Klasse \"" 
-            + klassenname
-            + "\" erzeugen.", e);
-      } catch (IllegalAccessException e) {
-        throw new Exception("Konnte kein Objekt der Klasse \"" 
-            + klassenname
-            + "\" erzeugen.", e);
-      }
-    }
-    return thumbZuordnung;
-  }
-
-
 }
