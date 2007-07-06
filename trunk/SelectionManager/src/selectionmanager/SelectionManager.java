@@ -1,6 +1,7 @@
 package selectionmanager;
 
 
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.JComponent;
@@ -10,6 +11,7 @@ import selectionmanager.selectionmodel.MultipleSelectionModel;
 import selectionmanager.selectionmodel.SelectionModel;
 import selectionmanager.ui.OverAllLayout;
 import selectionmanager.ui.PaintLayer;
+import selectionmanager.ui.SelectionManagerComponent;
 
 
 /**
@@ -18,20 +20,6 @@ import selectionmanager.ui.PaintLayer;
  * @author Manfred Rosskamp
  */
 public class SelectionManager {
-
-
-
-  /** Enthaelt den Container, in dem die Selectables vorhanden sind. */
-  private JComponent containerLayer;
-
-  /** Enthaelt den Layer, um events abzufangen. */
-  private JComponent eventLayer;
-
-  /** Enthaelt den Layer, in dem z.B das Rechteck gezeichnet wird. */
-  private PaintLayer paintLayer;
-
-  /** Enthaelt die Layered Pane */
-  private JLayeredPane layeredPane;
 
   /**
    * Model in dem gespeichert ist, welche Elemente ausgewählt oder markiert
@@ -52,19 +40,20 @@ public class SelectionManager {
    */
   public SelectionManager() {
     
-    this.model = new MultipleSelectionModel();
+    this.setSelectionModel(new MultipleSelectionModel());
 
-    controller = new AuswaehlbaresChangedListenerImpl(model);
+    controller = new AuswaehlbaresChangedListenerImpl(getSelectionModel());
   }
 
 
+  
   /**
    * Fuegt ein auswaehlbares/selektierbares Element diesem Mangager hinzu.
    * 
    * @param a das auswaehlbare Element
    */
   public void addAuswaehlbar(Auswaehlbar a) {
-    model.addAuswaehlbar(a);
+    getSelectionModel().addAuswaehlbar(a);
     a.setAuswaehlbaresChangedListener(controller);
   }
 
@@ -75,56 +64,26 @@ public class SelectionManager {
    */
   public void removeAuswaehlbar(Auswaehlbar a) {
     a.setAuswaehlbaresChangedListener(null);
-    model.removeAuswaehlbar(a);
+    getSelectionModel().removeAuswaehlbar(a);
+  }
+
+
+  /**
+   * @param model the model to set
+   */
+  public void setSelectionModel(SelectionModel model) {
+    this.model = model;
   }
 
 
 
   /**
-   * Setzt einen Container, in dem die ganzen auswaehlbaren Element vorhanden
-   * sind, um Funktionalitaeten wie ein Rahmen ziehen usw. zu haben.
-   * 
-   * @param p Container, in dem die auswaehlbaren Elemente vorhanden sind
+   * @return the model
    */
-  public void setContainerMitAuswaehlbaren(JComponent comp) {
-
-    /* LayeredPane erzeugen */
-    layeredPane = new JLayeredPane();
-    layeredPane.setLayout(new OverAllLayout());
-
-    /*
-     * Container, in dem die ganzen auswaehlbaren Elemente vorhanden sind, wird
-     * der LayeredPane in der StandardEbene hinzugefuegt
-     */
-    containerLayer = comp;
-    layeredPane.add(containerLayer);
-
-
-    /* PaintLayer erzeugen */
-    paintLayer = new PaintLayer();
-    paintLayer.setOpaque(false);
-    layeredPane.add(paintLayer, new Integer(JLayeredPane.DEFAULT_LAYER + 5));
-
-
-    /* Eventlayer erzeugen */
-    eventLayer = new EventLayer(model, containerLayer, paintLayer);
-    eventLayer.setOpaque(false);
-    eventLayer.setFocusable(true);
-    layeredPane.add(eventLayer, new Integer(JLayeredPane.DEFAULT_LAYER + 10));
-
+  public SelectionModel getSelectionModel() {
+    return model;
   }
-
-
-  /**
-   * Gibt die Komponente, die die Ansicht mit den auswaehlbaren Elementen
-   * enthaelt zurueck.
-   * 
-   * @return Komponente, die die Ansicht mit den auswaehlbaren Elementen
-   *         enthaelt
-   */
-  public JComponent getAnzeigeKomponente() {
-    return layeredPane;
-  }
+  
 
 
 
@@ -132,12 +91,21 @@ public class SelectionManager {
 
   
   /**
+   * Gibt die Liste mit allen Auswaehlbaren Elementen zurueck.
+   * 
+   * @return Liste mit allen Auswaehlbaren Elementen
+   */
+  public List<? extends Auswaehlbar> gibAlleAuswaehlbaren() {
+    return getSelectionModel().gibAlleAuswaehlbaren();
+  }
+  
+  /**
    * Gibt die aktuell ausgewaehlten Elemente zurueck.
    * 
    * @return Menge der aktuell ausgewaehlten Elemente
    */
-  public Set<Auswaehlbar> gibAlleAusgewaehlten() {
-    return model.gibAlleAusgewaehlten();
+  public Set<? extends Auswaehlbar> gibAlleAusgewaehlten() {
+    return getSelectionModel().gibAlleAusgewaehlten();
   }
   
 
@@ -145,14 +113,14 @@ public class SelectionManager {
    * Entfernt oder leert die aktuelle Auswahl.
    */
   public void leereAuswahl() {
-    model.leereAuswahl();
+    getSelectionModel().leereAuswahl();
   }
 
   /**
    * Waehlt alle auswaehlbaren Elemente aus.
    */
   public void waehleAlleAus() {
-    model.waehleAlleAus();
+    getSelectionModel().waehleAlleAus();
   }
 
   
@@ -162,7 +130,7 @@ public class SelectionManager {
    * @return Element, welches markiert ist
    */
   public Auswaehlbar getMarkiert() {
-    return model.getMarkiert();
+    return getSelectionModel().getMarkiert();
   }
 
   /**
@@ -172,7 +140,7 @@ public class SelectionManager {
    * @param l
    */
   public void addAuswahlListener(AuswahlListener l) {
-    model.addAuswahlListener(l);
+    getSelectionModel().addAuswahlListener(l);
   }
 
   /**
@@ -181,7 +149,10 @@ public class SelectionManager {
    * @param l
    */
   public void removeAuswahlListener(AuswahlListener l) {
-    model.removeAuswahlListener(l);
+    getSelectionModel().removeAuswahlListener(l);
   }
+
+
+
 
 }

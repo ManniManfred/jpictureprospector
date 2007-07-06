@@ -40,6 +40,7 @@ public class OverAllLayout implements LayoutManager {
   }
 
   public Dimension preferredLayoutSize(Container target) {
+    //return target.getParent().getSize();
     int nmembers = target.getComponentCount();
     int width = 0;
     int height = 0;

@@ -32,6 +32,17 @@ public class AuswaehlbaresChangedListenerImpl implements
    * @see selectionmanager.AuswaehlbaresChangedListener#wurdeAusgewaehlt(selectionmanager.Auswaehlbar)
    */
   public void wurdeAusgewaehlt(Auswaehlbar a) {
+    /* Vorherige Auswahl aufheben */
+    if (a.resetAuswahl()) {
+      for (Auswaehlbar iter : model.gibAlleAusgewaehlten()) {
+        if (a != iter) {
+          model.removeAusgewaehlt(iter);
+          iter.setAusgewaehlt(false);
+        }
+      }
+    }
+    
+    /* Das Element a an oder abwaehlen */
     if (a.istAusgewaehlt()) {
       model.addAusgewaehlt(a);
     } else {

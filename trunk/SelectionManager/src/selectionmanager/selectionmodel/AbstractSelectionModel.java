@@ -28,7 +28,7 @@ public abstract class AbstractSelectionModel implements SelectionModel {
    */
   public void fireAuswahlGeaendert() {
     for (AuswahlListener l : listener) {
-      l.auswahlGeaendert();
+      l.auswahlGeaendert(this.gibAlleAusgewaehlten());
     }
   }
   
@@ -37,7 +37,7 @@ public abstract class AbstractSelectionModel implements SelectionModel {
    */
   protected void fireMarkierungWurdeBewegt() {
     for (AuswahlListener l : listener) {
-      l.markierungWurdeBewegt();
+      l.markierungWurdeBewegt(this.getMarkiert());
     }
   }
   

@@ -5,6 +5,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -16,7 +17,8 @@ import javax.swing.border.TitledBorder;
 import selectionmanager.selectionmodel.MultipleSelectionModel;
 import selectionmanager.selectionmodel.SelectionModel;
 import selectionmanager.ui.OverAllLayout;
-import selectionmanager.ui.SelectableJPanel;
+import selectionmanager.ui.AuswaehlbaresJPanel;
+import selectionmanager.ui.SelectionManagerComponent;
 
 public class ManagerTest extends JFrame {
 
@@ -28,7 +30,7 @@ public class ManagerTest extends JFrame {
   
   private JPanel jPanelMain = null;
 
-  private SelectionManager manager;
+  private SelectionManagerComponent manager;
 
   private JPanel jPanel = null;
 
@@ -44,21 +46,28 @@ public class ManagerTest extends JFrame {
   public ManagerTest() {
     super();
     
-    manager = new SelectionManager();
+    /* Manager initialisieren */
+    manager = new SelectionManagerComponent();
+    
+    for (int i = 0; i < 8; i++) {
+      AuswaehlbaresJPanel a = new AuswaehlbaresJPanel();
+      a.add(new JLabel(" Text " + i + " ----"));
+      
+      manager.addAuswaehlbar(a);
+    }
+    
     
     manager.addAuswahlListener(new AuswahlListener() {
-      public void auswahlGeaendert() {
-        System.out.println("Ausgewaehlte = " + manager.gibAlleAusgewaehlten().toString());
+      public void auswahlGeaendert(Set<Auswaehlbar> ausgewaehlten) {
+        System.out.println("Ausgewaehlte = " + ausgewaehlten.toString());
       }
 
-      public void markierungWurdeBewegt() {
-        System.out.println("Angeklickt = " + manager.getMarkiert());
+      public void markierungWurdeBewegt(Auswaehlbar neueMarkierung) {
+        System.out.println("Angeklickt = " + neueMarkierung);
       }
       
     });
     
-    
-    manager.setContainerMitAuswaehlbaren(getJPanelMain());
     initialize();
   }
 
@@ -84,32 +93,11 @@ public class ManagerTest extends JFrame {
       
       jContentPane = new JPanel();
       jContentPane.setLayout(new BorderLayout());
-      jContentPane.add(manager.getAnzeigeKomponente(), BorderLayout.CENTER);
+      jContentPane.add(manager, BorderLayout.CENTER);
       jContentPane.add(getJPanel(), BorderLayout.NORTH);
       
     }
     return jContentPane;
-  }
-  
-  
-  private JPanel getJPanelMain() {
-    if (jPanelMain == null) {
-      jPanelMain = new JPanel();
-      jPanelMain.setLayout(new FlowLayout());//new GridLayout(4,2)
-      
-      /* tabs einfuegen */
-      for (int i = 0; i < 8; i++) {
-//        ThumbnailAnzeigePanel tab = new ThumbnailAnzeigePanel();
-//        centerPanel.add(tab);
-//        manager.addSelectable(tab);
-        SelectableJPanel a = new SelectableJPanel();
-        a.add(new JLabel(" Text " + i + " ----"));
-        jPanelMain.add(a);
-        
-        manager.addAuswaehlbar(a);
-      }
-    }
-    return jPanelMain;
   }
   
   /**

@@ -34,6 +34,16 @@ public interface Auswaehlbar {
    */
   void setAuswaehlbaresChangedListener(AuswaehlbaresChangedListener l);
 
+  
+  /**
+   * Gibt an, ob die Gesamtauswahl bei einem fireWurdeAusgewaehlt aufgehoben
+   * werden soll und somit nur dieses Element ausgewaehlt sein soll.
+   *  
+   * @return <code>true</code>, wenn die Gesamtauswahl vorher aufgehoben werden
+   *    soll
+   */
+  public boolean resetAuswahl();
+  
 
   /**
    * Gibt <code>true</code> zurueck, wenn das Auswaehlbare markiert/angeklickt
