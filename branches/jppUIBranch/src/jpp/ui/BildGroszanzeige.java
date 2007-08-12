@@ -2,11 +2,16 @@ package jpp.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,6 +29,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JToggleButton;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.Scrollable;
+import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.table.TableColumn;
 
@@ -50,6 +58,11 @@ public class BildGroszanzeige extends JFrame {
    * Enthaelt das BildDokument zu dem die Informationen angezeigt werden sollen.
    */
   private BildDokument dok = null;
+  
+  /** Enthaelt die Information um die preferedSize des Zeichnungsbereichs
+   * zu setzen.
+   */
+  private Dimension prefSizeImage = null;
 
   /**
    * Enthaehlt das Tabellenmodell fuer die Tabelle in denen Zusatzdetails
@@ -81,13 +94,16 @@ public class BildGroszanzeige extends JFrame {
 
   private JComboBox cbGroesze = null;
 
+  private JScrollPane spGroszanzeige = null;
+
   /**
    * This is the default constructor
    */
   public BildGroszanzeige(List<ThumbnailAnzeigePanel> taps, BildDokument dok) {
     super();
-    listeAnzeigePanel = taps;
+    this.listeAnzeigePanel = taps;
     this.dok = dok;
+    this.prefSizeImage = new Dimension();
     initialize();
   }
 
@@ -104,7 +120,7 @@ public class BildGroszanzeige extends JFrame {
    * Die Groesze der Spaltenbreite wird automatisch angepasst an die Laenge der
    * darin enthaltenen Strings.
    */
-  private void updateAnsicht() {
+  private void updateTable() {
 
     TableColumn keySpalte = tZusatzdetails.getColumnModel()
         .getColumn(KEYSPALTE);
@@ -130,6 +146,26 @@ public class BildGroszanzeige extends JFrame {
     keySpalte.setPreferredWidth(maxBreiteKey + 20);
     wertSpalte.setPreferredWidth(maxBreiteWert + 20);
   }
+  
+  private void updatePicture() {
+    
+    prefSizeImage.width = spGroszanzeige.getSize().width;
+    prefSizeImage.height = spGroszanzeige.getSize().height;
+    if (!tbGroeszeAnpassen.isSelected()) {
+      int skalierung = 100;
+      if (cbGroesze.getSelectedItem().toString().matches("[0-9]+")) {
+        skalierung = Integer.parseInt(cbGroesze.getSelectedItem().toString());
+      } else if (cbGroesze.getSelectedItem().toString().matches("[0-9]+%")) {
+        skalierung = Integer.parseInt(((String) cbGroesze.getSelectedItem()).substring(0, ((String) cbGroesze.getSelectedItem()).lastIndexOf('%')));
+      }
+      prefSizeImage.width = ((Integer) dok.getMerkmal(BildbreiteMerkmal.FELDNAME).getWert()) * skalierung / 100;
+      prefSizeImage.height = ((Integer) dok.getMerkmal(BildhoeheMerkmal.FELDNAME).getWert()) * skalierung / 100;
+    }
+    pGroszanzeige.setPreferredSize(prefSizeImage);
+    pGroszanzeige.repaint();
+    spGroszanzeige.remove(pGroszanzeige);
+    spGroszanzeige.setViewportView(pGroszanzeige);
+  }
 
   /**
    * This method initializes this
@@ -142,7 +178,13 @@ public class BildGroszanzeige extends JFrame {
     this.setContentPane(getCpInhalt());
     this.setFocusable(true);
     this.setTitle("Groszanzeige - JPictureProspector");
-    updateAnsicht();
+    this.addComponentListener(new java.awt.event.ComponentAdapter() {
+      public void componentResized(java.awt.event.ComponentEvent e) {
+        updatePicture();
+      }
+    });
+    updateTable();
+    updatePicture();
   }
 
   /**
@@ -193,6 +235,7 @@ public class BildGroszanzeige extends JFrame {
               neuesBildGewaehlt = true;
             }
           }
+          updatePicture();
         }
 
         public void mouseExited(java.awt.event.MouseEvent e) {
@@ -234,6 +277,7 @@ public class BildGroszanzeige extends JFrame {
               neuesBildGewaehlt = true;
             }
           }
+          updatePicture();
         }
 
         public void mouseExited(java.awt.event.MouseEvent e) {
@@ -288,7 +332,7 @@ public class BildGroszanzeige extends JFrame {
     if (tpGroszanzeige == null) {
       tpGroszanzeige = new JTabbedPane();
       tpGroszanzeige.setBackground(new Color(238, 238, 238));
-      tpGroszanzeige.addTab("Großanzeige", null, getPGroszanzeige(), null);
+      tpGroszanzeige.addTab("Großanzeige", null, getSpGroszanzeige(), null);
       tpGroszanzeige.addTab("Zusatzdetails", null, getSpZusatzdetails(), null);
     }
     return tpGroszanzeige;
@@ -318,7 +362,8 @@ public class BildGroszanzeige extends JFrame {
       pGroszanzeige.setLayout(new FlowLayout());
       pGroszanzeige.addBildGeladenListener(new BildGeladenListener() {
         public void bildWurdeGeladen() {
-          updateAnsicht();
+          updateTable();
+          updatePicture();
         }
       });
     }
@@ -352,7 +397,7 @@ public class BildGroszanzeige extends JFrame {
       tZusatzdetails.setModel(detailsTableModel);
       detailsTableModel.addBildGeladenListener(new BildGeladenListener() {
         public void bildWurdeGeladen() {
-          updateAnsicht();
+          updateTable();
         }
       });
     }
@@ -373,9 +418,14 @@ public class BildGroszanzeige extends JFrame {
         public void actionPerformed(java.awt.event.ActionEvent e) {
           if (tbGroeszeAnpassen.isSelected()) {
             pGroszanzeige.setzeAnpassung(true);
+            spGroszanzeige.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+            spGroszanzeige.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
           } else {
             pGroszanzeige.setzeAnpassung(false);
+            spGroszanzeige.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+            spGroszanzeige.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
           }
+          updatePicture();
         }
       });
     }
@@ -413,10 +463,26 @@ public class BildGroszanzeige extends JFrame {
                   .substring(0, skalierung.length() - 1)));
             }
           }
+          updatePicture();
         }
       });
     }
     return cbGroesze;
+  }
+
+  /**
+   * This method initializes spGroszanzeige	
+   * 	
+   * @return javax.swing.JScrollPane	
+   */
+  private JScrollPane getSpGroszanzeige() {
+    if (spGroszanzeige == null) {
+      spGroszanzeige = new JScrollPane();
+      spGroszanzeige.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+      spGroszanzeige.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+      spGroszanzeige.setViewportView(getPGroszanzeige());
+    }
+    return spGroszanzeige;
   }
 }
 
@@ -424,7 +490,7 @@ public class BildGroszanzeige extends JFrame {
  * Ein Objekt der Klasse zeichnet aus einer Datei ein Bild in den eigenen
  * Anzeigebereich.
  */
-class BildGroszanzeigeZeichner extends JPanel {
+class BildGroszanzeigeZeichner extends JLabel implements MouseMotionListener {
 
   /** Enthaelt das Dokument, dass den Pfad zur Datei enthaelt. */
   private BildDokument dok = null;
@@ -463,6 +529,21 @@ class BildGroszanzeigeZeichner extends JPanel {
     this.skalierungProzent = skalierung;
     this.mussAngepasstWerden = mussAngepasstWerden;
     setzeDok(dok);
+    this.addMouseListener(new MouseAdapter() {
+      
+      @Override
+      public void mouseEntered(MouseEvent e) {
+        // TODO Auto-generated method stub
+        super.mouseEntered(e);
+      }
+      
+      @Override
+      public void mouseExited(MouseEvent e) {
+        // TODO Auto-generated method stub
+        super.mouseExited(e);
+      }
+    });
+    super.setIcon(new ImageIcon(bild));
   }
 
   /**
@@ -558,8 +639,6 @@ class BildGroszanzeigeZeichner extends JPanel {
     double breiteBild = bild.getWidth(this);
     double dieseBreite = getWidth();
     double dieseHoehe = getHeight();
-    g.setColor(Color.WHITE);
-    g.fillRect(0, 0, getWidth(), getHeight());
 
     if (!mussAngepasstWerden) {
 
@@ -591,4 +670,16 @@ class BildGroszanzeigeZeichner extends JPanel {
               this);
     }
   }
+  
+  public void mouseDragged(MouseEvent e) {
+    // TODO Auto-generated method stub
+    
+  }
+  
+  public void mouseMoved(MouseEvent e) {
+    // TODO Auto-generated method stub
+    
+  }
+  
+  
 }
