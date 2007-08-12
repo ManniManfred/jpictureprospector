@@ -8,7 +8,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -30,8 +29,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.Scrollable;
-import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.table.TableColumn;
 
@@ -156,14 +153,14 @@ public class BildGroszanzeige extends JFrame {
       if (cbGroesze.getSelectedItem().toString().matches("[0-9]+")) {
         skalierung = Integer.parseInt(cbGroesze.getSelectedItem().toString());
       } else if (cbGroesze.getSelectedItem().toString().matches("[0-9]+%")) {
-        skalierung = Integer.parseInt(((String) cbGroesze.getSelectedItem()).substring(0, ((String) cbGroesze.getSelectedItem()).lastIndexOf('%')));
+        skalierung = Integer.parseInt(((String) cbGroesze.getSelectedItem()).substring(0, ((String) cbGroesze.getSelectedItem()).lastIndexOf('%')).trim());
       }
       prefSizeImage.width = ((Integer) dok.getMerkmal(BildbreiteMerkmal.FELDNAME).getWert()) * skalierung / 100;
       prefSizeImage.height = ((Integer) dok.getMerkmal(BildhoeheMerkmal.FELDNAME).getWert()) * skalierung / 100;
     }
+    
     pGroszanzeige.setPreferredSize(prefSizeImage);
     pGroszanzeige.repaint();
-    spGroszanzeige.remove(pGroszanzeige);
     spGroszanzeige.setViewportView(pGroszanzeige);
   }
 
@@ -209,6 +206,8 @@ public class BildGroszanzeige extends JFrame {
    */
   private JPanel getPToolbar() {
     if (pToolbar == null) {
+      FlowLayout flowLayout = new FlowLayout(FlowLayout.CENTER, 15, 15);
+      flowLayout.setAlignment(java.awt.FlowLayout.CENTER);
       lNaechstesBild = new JLabel();
       lNaechstesBild.setIcon(new ImageIcon(getClass().getResource(
           "uiimgs/pfeilrechts.png")));
@@ -294,8 +293,7 @@ public class BildGroszanzeige extends JFrame {
       });
 
       pToolbar = new JPanel();
-      pToolbar.setLayout(new FlowLayout(FlowLayout.CENTER, STD_ABSTAND,
-          STD_ABSTAND));
+      pToolbar.setLayout(flowLayout);
       pToolbar.add(lLetztesBild, null);
       pToolbar.add(lNaechstesBild, null);
       pToolbar.add(getCbGroesze(), null);
@@ -441,6 +439,7 @@ public class BildGroszanzeige extends JFrame {
     if (cbGroesze == null) {
       cbGroesze = new JComboBox();
       cbGroesze.setEditable(true);
+      cbGroesze.setPreferredSize(new Dimension(75, 20));
       cbGroesze.addItem("50%");
       cbGroesze.addItem("100%");
       cbGroesze.addItem("200%");
@@ -452,13 +451,13 @@ public class BildGroszanzeige extends JFrame {
             cbGroesze.setSelectedItem("100%");
           } else {
 
-            if (cbGroesze.getSelectedItem().toString().matches("[0-9]+")) {
+            if (cbGroesze.getSelectedItem().toString().trim().matches("[0-9]+")) {
 
               pGroszanzeige.setzeSkalierung(Double.parseDouble(cbGroesze
                   .getSelectedItem().toString()));
             } else {
 
-              String skalierung = cbGroesze.getSelectedItem().toString();
+              String skalierung = cbGroesze.getSelectedItem().toString().trim();
               pGroszanzeige.setzeSkalierung(Double.parseDouble(skalierung
                   .substring(0, skalierung.length() - 1)));
             }
