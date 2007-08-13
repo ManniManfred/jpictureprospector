@@ -8,6 +8,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -29,6 +30,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.Scrollable;
+import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.table.TableColumn;
 
@@ -55,9 +58,10 @@ public class BildGroszanzeige extends JFrame {
    * Enthaelt das BildDokument zu dem die Informationen angezeigt werden sollen.
    */
   private BildDokument dok = null;
-  
-  /** Enthaelt die Information um die preferedSize des Zeichnungsbereichs
-   * zu setzen.
+
+  /**
+   * Enthaelt die Information um die preferedSize des Zeichnungsbereichs zu
+   * setzen.
    */
   private Dimension prefSizeImage = null;
 
@@ -143,9 +147,13 @@ public class BildGroszanzeige extends JFrame {
     keySpalte.setPreferredWidth(maxBreiteKey + 20);
     wertSpalte.setPreferredWidth(maxBreiteWert + 20);
   }
-  
+
+  /**
+   * Laedt die Komponten die zur Anzeige des Bildes vorhanden sind neu, so dass
+   * die Ansicht entsprechend angepasst wird.
+   */
   private void updatePicture() {
-    
+
     prefSizeImage.width = spGroszanzeige.getSize().width;
     prefSizeImage.height = spGroszanzeige.getSize().height;
     if (!tbGroeszeAnpassen.isSelected()) {
@@ -153,12 +161,17 @@ public class BildGroszanzeige extends JFrame {
       if (cbGroesze.getSelectedItem().toString().matches("[0-9]+")) {
         skalierung = Integer.parseInt(cbGroesze.getSelectedItem().toString());
       } else if (cbGroesze.getSelectedItem().toString().matches("[0-9]+%")) {
-        skalierung = Integer.parseInt(((String) cbGroesze.getSelectedItem()).substring(0, ((String) cbGroesze.getSelectedItem()).lastIndexOf('%')).trim());
+        skalierung = Integer
+            .parseInt(((String) cbGroesze.getSelectedItem()).substring(0,
+                ((String) cbGroesze.getSelectedItem()).lastIndexOf('%')).trim());
       }
-      prefSizeImage.width = ((Integer) dok.getMerkmal(BildbreiteMerkmal.FELDNAME).getWert()) * skalierung / 100;
-      prefSizeImage.height = ((Integer) dok.getMerkmal(BildhoeheMerkmal.FELDNAME).getWert()) * skalierung / 100;
+      prefSizeImage.width = ((Integer) dok.getMerkmal(
+          BildbreiteMerkmal.FELDNAME).getWert())
+          * skalierung / 100;
+      prefSizeImage.height = ((Integer) dok.getMerkmal(
+          BildhoeheMerkmal.FELDNAME).getWert())
+          * skalierung / 100;
     }
-    
     pGroszanzeige.setPreferredSize(prefSizeImage);
     pGroszanzeige.repaint();
     spGroszanzeige.setViewportView(pGroszanzeige);
@@ -416,12 +429,16 @@ public class BildGroszanzeige extends JFrame {
         public void actionPerformed(java.awt.event.ActionEvent e) {
           if (tbGroeszeAnpassen.isSelected()) {
             pGroszanzeige.setzeAnpassung(true);
-            spGroszanzeige.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-            spGroszanzeige.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            spGroszanzeige
+                .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+            spGroszanzeige
+                .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
           } else {
             pGroszanzeige.setzeAnpassung(false);
-            spGroszanzeige.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-            spGroszanzeige.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            spGroszanzeige
+                .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+            spGroszanzeige
+                .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
           }
           updatePicture();
         }
@@ -470,15 +487,17 @@ public class BildGroszanzeige extends JFrame {
   }
 
   /**
-   * This method initializes spGroszanzeige	
-   * 	
-   * @return javax.swing.JScrollPane	
+   * This method initializes spGroszanzeige
+   * 
+   * @return javax.swing.JScrollPane
    */
   private JScrollPane getSpGroszanzeige() {
     if (spGroszanzeige == null) {
       spGroszanzeige = new JScrollPane();
-      spGroszanzeige.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-      spGroszanzeige.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+      spGroszanzeige
+          .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+      spGroszanzeige
+          .setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
       spGroszanzeige.setViewportView(getPGroszanzeige());
     }
     return spGroszanzeige;
@@ -489,7 +508,8 @@ public class BildGroszanzeige extends JFrame {
  * Ein Objekt der Klasse zeichnet aus einer Datei ein Bild in den eigenen
  * Anzeigebereich.
  */
-class BildGroszanzeigeZeichner extends JLabel implements MouseMotionListener {
+class BildGroszanzeigeZeichner extends JLabel implements MouseMotionListener,
+    Scrollable {
 
   /** Enthaelt das Dokument, dass den Pfad zur Datei enthaelt. */
   private BildDokument dok = null;
@@ -512,6 +532,8 @@ class BildGroszanzeigeZeichner extends JLabel implements MouseMotionListener {
    */
   private boolean mussAngepasstWerden;
 
+  private int maxUnitIncrement = 10;
+
   /**
    * Erzeugt ein neues Objekt der Klasse mit den entsprechenden Daten.
    * 
@@ -528,20 +550,8 @@ class BildGroszanzeigeZeichner extends JLabel implements MouseMotionListener {
     this.skalierungProzent = skalierung;
     this.mussAngepasstWerden = mussAngepasstWerden;
     setzeDok(dok);
-    this.addMouseListener(new MouseAdapter() {
-      
-      @Override
-      public void mouseEntered(MouseEvent e) {
-        // TODO Auto-generated method stub
-        super.mouseEntered(e);
-      }
-      
-      @Override
-      public void mouseExited(MouseEvent e) {
-        // TODO Auto-generated method stub
-        super.mouseExited(e);
-      }
-    });
+    setAutoscrolls(true);
+    addMouseMotionListener(this);
     super.setIcon(new ImageIcon(bild));
   }
 
@@ -663,22 +673,61 @@ class BildGroszanzeigeZeichner extends JLabel implements MouseMotionListener {
     } else {
 
       // Hoehe voll ausgefuellt, Breite muss neu berechnet werden
-      g.drawImage(bild, (int) (dieseBreite - breiteBild
+      g
+          .drawImage(bild, (int) (dieseBreite - breiteBild
               * (dieseHoehe / hoeheBild)) / 2, 0,
               (int) (breiteBild * (dieseHoehe / hoeheBild)), (int) dieseHoehe,
               this);
     }
   }
-  
+
   public void mouseDragged(MouseEvent e) {
-    // TODO Auto-generated method stub
-    
+    Rectangle r = new Rectangle(e.getX(), e.getY(), 1, 1);
+    scrollRectToVisible(r);
   }
-  
+
   public void mouseMoved(MouseEvent e) {
-    // TODO Auto-generated method stub
-    
   }
-  
-  
+
+  public Dimension getPreferredScrollableViewportSize() {
+    return super.getPreferredSize();
+  }
+
+  public int getScrollableBlockIncrement(Rectangle visibleRect,
+      int orientation, int direction) {
+    if (orientation == SwingConstants.HORIZONTAL)
+      return visibleRect.width - maxUnitIncrement;
+    else
+      return visibleRect.height - maxUnitIncrement;
+  }
+
+  public boolean getScrollableTracksViewportHeight() {
+    return false;
+  }
+
+  public boolean getScrollableTracksViewportWidth() {
+    return false;
+  }
+
+  public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation,
+      int direction) {
+    // Get the current position.
+    int currentPosition = 0;
+    if (orientation == SwingConstants.HORIZONTAL) {
+      currentPosition = visibleRect.x;
+    } else {
+      currentPosition = visibleRect.y;
+    }
+
+    // Return the number of pixels between currentPosition
+    // and the nearest tick mark in the indicated direction.
+    if (direction < 0) {
+      int newPosition = currentPosition - (currentPosition / maxUnitIncrement)
+          * maxUnitIncrement;
+      return (newPosition == 0) ? maxUnitIncrement : newPosition;
+    } else {
+      return ((currentPosition / maxUnitIncrement) + 1) * maxUnitIncrement
+          - currentPosition;
+    }
+  }
 }
