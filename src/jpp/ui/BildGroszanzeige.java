@@ -32,6 +32,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JToggleButton;
+import javax.swing.JViewport;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
@@ -154,8 +155,9 @@ public class BildGroszanzeige extends JFrame {
    */
   private void updatePicture() {
 
-    prefSizeImage.width = spGroszanzeige.getSize().width;
-    prefSizeImage.height = spGroszanzeige.getSize().height;
+    JViewport viewport = spGroszanzeige.getViewport();
+    prefSizeImage.width = viewport.getWidth();
+    prefSizeImage.height = viewport.getHeight();
     if (!tbGroeszeAnpassen.isSelected()) {
       int skalierung = 100;
       if (cbGroesze.getSelectedItem().toString().matches("[0-9]+")) {
@@ -171,6 +173,12 @@ public class BildGroszanzeige extends JFrame {
       prefSizeImage.height = ((Integer) dok.getMerkmal(
           BildhoeheMerkmal.FELDNAME).getWert())
           * skalierung / 100;
+      if (prefSizeImage.width < viewport.getWidth()) {
+        prefSizeImage.width = viewport.getWidth();
+      }
+      if (prefSizeImage.height < viewport.getHeight()) {
+        prefSizeImage.height = viewport.getHeight();
+      }
     }
     pGroszanzeige.setPreferredSize(prefSizeImage);
     spGroszanzeige.setViewportView(pGroszanzeige);
@@ -655,17 +663,17 @@ class BildGroszanzeigeZeichner extends JLabel implements MouseMotionListener,
         .getWert();
     double hoeheBild = bild.getHeight(this);
     double breiteBild = bild.getWidth(this);
-    double dieseBreite = getWidth();
-    double dieseHoehe = getHeight();
+    double dieseBreite = getPreferredSize().width;
+    double dieseHoehe = getPreferredSize().height;
 
     if (!mussAngepasstWerden) {
 
-      originalBreite = originalBreite * skalierungProzent / 100;
-      originalHoehe = originalHoehe * skalierungProzent / 100;
-
-      g.drawImage(bild, (int) (dieseBreite - originalBreite) / 2,
-          (int) (dieseHoehe - originalHoehe) / 2, (int) originalBreite,
-          (int) originalHoehe, this);
+      breiteBild = originalBreite * skalierungProzent / 100;
+      hoeheBild = originalHoehe * skalierungProzent / 100;
+      
+      g.drawImage(bild, (int) (dieseBreite - breiteBild) / 2,
+          (int) (dieseHoehe - hoeheBild) / 2, (int) breiteBild,
+          (int) hoeheBild, this);
     } else if (originalBreite <= dieseBreite && originalHoehe <= dieseHoehe) {
 
       g.drawImage(bild, (int) (dieseBreite - originalBreite) / 2,
