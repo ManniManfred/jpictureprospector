@@ -91,10 +91,7 @@ public class Vorschaupanel extends JPanel implements Observer {
     this.setSize(300, 300);
     this.setLayout(new BorderLayout());
     this.setBackground(Color.WHITE);
-    this.setBorder(BorderFactory.createTitledBorder(
-        BorderFactory.createEmptyBorder(0, 0, 0, 0), "Vorschau",
-        TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, 
-        new Font("Dialog", Font.BOLD, 12), new Color(51, 51, 51)));
+    this.setBorder(BorderFactory.createLineBorder(Color.gray, 1));
     this.repaint();
   }
   
