@@ -9,6 +9,9 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -48,9 +51,6 @@ public class BildGroszanzeige extends JFrame {
 
   /** Enthaelt den Wert fuer die Spalte der Exif-Werte. */
   private static final int WERTSPALTE = 1;
-
-  /** Enthaelt den Standardabstand fuer Komponenten. */
-  private static final int STD_ABSTAND = 15;
 
   private static final long serialVersionUID = 1L;
 
@@ -173,8 +173,8 @@ public class BildGroszanzeige extends JFrame {
           * skalierung / 100;
     }
     pGroszanzeige.setPreferredSize(prefSizeImage);
-    pGroszanzeige.repaint();
     spGroszanzeige.setViewportView(pGroszanzeige);
+    pGroszanzeige.repaint();
   }
 
   /**
@@ -184,6 +184,7 @@ public class BildGroszanzeige extends JFrame {
    */
   private void initialize() {
     this.setSize(800, 600);
+    this.setLocation(100, 75);
     this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     this.setContentPane(getCpInhalt());
     this.setFocusable(true);
@@ -191,6 +192,14 @@ public class BildGroszanzeige extends JFrame {
     this.addComponentListener(new java.awt.event.ComponentAdapter() {
       public void componentResized(java.awt.event.ComponentEvent e) {
         updatePicture();
+      }
+    });
+    this.addKeyListener(new KeyAdapter() {
+      @Override
+      public void keyReleased(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+          dispose();
+        }
       }
     });
     updateTable();
@@ -681,6 +690,10 @@ class BildGroszanzeigeZeichner extends JLabel implements MouseMotionListener,
     }
   }
 
+  /**
+   * Bewegt das Bild entsprechend der Stelle an sich die Maus zur Zeit
+   * befindet.
+   */
   public void mouseDragged(MouseEvent e) {
     Rectangle r = new Rectangle(e.getX(), e.getY(), 1, 1);
     scrollRectToVisible(r);
@@ -693,8 +706,13 @@ class BildGroszanzeigeZeichner extends JLabel implements MouseMotionListener,
     return super.getPreferredSize();
   }
 
+  /**
+   * Liefert das Blockinkrement anhand des sichtbares Bereichs und
+   * Orientierung.
+   */
   public int getScrollableBlockIncrement(Rectangle visibleRect,
       int orientation, int direction) {
+
     if (orientation == SwingConstants.HORIZONTAL)
       return visibleRect.width - maxUnitIncrement;
     else
@@ -709,6 +727,10 @@ class BildGroszanzeigeZeichner extends JLabel implements MouseMotionListener,
     return false;
   }
 
+  /**
+   * Liefert das Unitinkrement anhand des sichtbares Bereichs und
+   * Orientierung.
+   */
   public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation,
       int direction) {
     // Get the current position.
