@@ -64,7 +64,7 @@ public class JPPCore {
    */
   public JPPCore() throws ErzeugeException {
 
-    /* Namen aller möglichen Merkmale herausfinden */
+    /* Namen aller moeglichen Merkmale herausfinden */
     String[] namen = null;
     try {
       namen = getMerkmalsnamen();
@@ -289,7 +289,7 @@ public class JPPCore {
        /* Bei einer ParseException ein leere Trefferliste zurueckgeben */
        treffer = new Trefferliste();
     } catch (IOException e) {
-      throw new SucheException("Konnte den Index nicht öffnen.", e);
+      throw new SucheException("Konnte den Index nicht \u00d6ffnen.", e);
     } catch (ErzeugeException e) {
       throw new SucheException("Die Trefferliste konnte nicht erzeugt werden.",
           e);
@@ -316,10 +316,10 @@ public class JPPCore {
       entferne(bild, false);
       importInLucene(bild);
     } catch (EntferneException e) {
-      throw new AendereException("Ändern hat nicht funktioniert da beim "
+      throw new AendereException("\u00c4ndern hat nicht funktioniert da beim "
           + "Entfernen ein Fehler auftrat.", e);
     } catch (ImportException e) {
-      throw new AendereException("Ändern hat nicht funktioniert.", e);
+      throw new AendereException("\u00c4ndern hat nicht funktioniert.", e);
     }
   }
 
@@ -368,5 +368,36 @@ public class JPPCore {
       }
     }
   }
-
+  
+  /**
+   * Loescht alle Dokumente, die nicht mehr auf den Festplatte vorhanden sind
+   * aus dem Index.
+   */
+  public void clearUpIndex() throws SucheException {
+      
+    try {
+      /* Enthaelt alle Dokumente des Index */
+      Trefferliste treffer = new Trefferliste(gibAlleDokumente());
+      for (int i = 0; i < treffer.getAnzahlTreffer(); i++) {
+        BildDokument dok = treffer.getBildDokument(i);
+            
+        /* Enthaelt den kompletten Dateipfad des BildDokumentes */
+        String pfad = dok.getMerkmal(
+                DateipfadMerkmal.FELDNAME).getWert().toString();
+             
+        /* Wenn die Datei nicht existiert wird Sie aus dem Index entfernt 
+         */
+        if (!new File(pfad).exists()) {
+            entferne(dok, false);
+        }
+      }
+    } catch (IOException e) {
+        throw new SucheException("Konnte den Index nicht \u00d6ffnen.", e);
+    } catch (ErzeugeBildDokumentException e) {
+        throw new SucheException("Die Trefferliste konnte nicht erzeugt werden.",
+                e);
+    } catch (EntferneException e) {
+        throw new SucheException("Konnte das BildDokument nicht entfernen", e);
+    }
+  }
 }

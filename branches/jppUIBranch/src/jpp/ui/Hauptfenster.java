@@ -156,6 +156,8 @@ public class Hauptfenster extends JFrame {
   private JMenuItem miAuswahlAufheben = null;
 
   private JMenuItem miImportDir = null;
+
+private JMenuItem miAufraeumen = null;
   
   /**
    * Erstellt ein neues Objekt der Klasse.
@@ -656,12 +658,14 @@ public class Hauptfenster extends JFrame {
    */
   private JMenu getMEinstellungen() {
     if (mEinstellungen == null) {
+      JSeparator jSeparator = new JSeparator();
       mEinstellungen = new JMenu();
       mEinstellungen.setText("Bearbeiten");
       mEinstellungen.setMnemonic(KeyEvent.VK_B);
       mEinstellungen.add(getMiLoeschen());
       mEinstellungen.add(getMiAuswahlAufheben());
-      mEinstellungen.add(new JSeparator());
+      mEinstellungen.add(getMiAufraeumen());
+      mEinstellungen.add(jSeparator);
       mEinstellungen.add(getMiEinstellungen());
     }
     return mEinstellungen;
@@ -1078,6 +1082,29 @@ public class Hauptfenster extends JFrame {
     }
     return miImportDir;
   }
+  /**
+   * This method initializes miAufraeumen	
+   * 	
+   * @return javax.swing.JMenuItem	
+   */
+  private JMenuItem getMiAufraeumen() {
+    if (miAufraeumen == null) {
+      miAufraeumen = new JMenuItem();
+      miAufraeumen.setText("Aufr\u00e4umen");
+      miAufraeumen.setMnemonic(KeyEvent.VK_R);
+      miAufraeumen.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+          try {
+            kern.clearUpIndex();
+          } catch (SucheException se) {
+            zeigeFehlermeldung("Fehler", se.getMessage());
+          }
+        }
+      });
+    }
+    return miAufraeumen;
+  }
+  
   /**
    * @param args
    */
