@@ -445,7 +445,7 @@ public class Hauptfenster extends JFrame {
     boolean auchVonFestplatte = false;
     if (listeAnzeigePanel !=  null) {
       ergebnis = JOptionPane.showConfirmDialog(this, "Wollen Sie die " +
-          "Bilder auch von der Festplatte loeschen?", "Löschen",
+          "Bilder auch von der Festplatte l\u00f6schen?", "L\u00f6schen",
           JOptionPane.YES_NO_CANCEL_OPTION);
       auchVonFestplatte = (ergebnis == JOptionPane.YES_OPTION) ?
         true : false;
@@ -464,7 +464,7 @@ public class Hauptfenster extends JFrame {
             zuLoeschendeBilder.add(tap);
       	    kern.entferne(tap.gibBildDokument(), auchVonFestplatte);
       	  } catch (EntferneException e) {
-      	    zeigeFehlermeldung("Fehler beim Löschen", "Die Datei konnte " +
+      	    zeigeFehlermeldung("Fehler beim L\u00f6schen", "Die Datei konnte " +
       	        "nicht von der Festplatte geloescht werden.\n" +
       	        e.getMessage());
       	  }
@@ -884,7 +884,7 @@ public class Hauptfenster extends JFrame {
   private JMenuItem getMiLoeschen() {
     if (miLoeschen == null) {
       miLoeschen = new JMenuItem();
-      miLoeschen.setText("Ausgewählte Bilder löschen");
+      miLoeschen.setText("Ausgew\u00e4hlte Bilder l\u00f6schen");
       miLoeschen.setMnemonic(KeyEvent.VK_L);
       miLoeschen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0, false));
       miLoeschen.addActionListener(new java.awt.event.ActionListener() {
