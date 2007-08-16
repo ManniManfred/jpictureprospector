@@ -196,7 +196,7 @@ public class BildGroszanzeige extends JFrame {
     this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     this.setContentPane(getCpInhalt());
     this.setFocusable(true);
-    this.setTitle("Groszanzeige - JPictureProspector");
+    this.setTitle("Gro\u00dfanzeige - JPictureProspector");
     this.addComponentListener(new java.awt.event.ComponentAdapter() {
       public void componentResized(java.awt.event.ComponentEvent e) {
         updatePicture();
@@ -341,7 +341,7 @@ public class BildGroszanzeige extends JFrame {
   private JButton getBSchlieszen() {
     if (bSchlieszen == null) {
       bSchlieszen = new JButton();
-      bSchlieszen.setText("Schließen");
+      bSchlieszen.setText("Schlie\u00dfen");
       bSchlieszen.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
           setVisible(false);
@@ -360,7 +360,7 @@ public class BildGroszanzeige extends JFrame {
     if (tpGroszanzeige == null) {
       tpGroszanzeige = new JTabbedPane();
       tpGroszanzeige.setBackground(new Color(238, 238, 238));
-      tpGroszanzeige.addTab("Großanzeige", null, getSpGroszanzeige(), null);
+      tpGroszanzeige.addTab("Gro\u00dfanzeige", null, getSpGroszanzeige(), null);
       tpGroszanzeige.addTab("Zusatzdetails", null, getSpZusatzdetails(), null);
     }
     return tpGroszanzeige;
