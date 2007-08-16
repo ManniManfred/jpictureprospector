@@ -15,8 +15,10 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Observer;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -40,6 +42,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
+
+import com.l2fprod.common.swing.JDirectoryChooser;
 
 import jpp.core.Einstellungen;
 import jpp.core.JPPCore;
@@ -242,25 +246,25 @@ public class Hauptfenster extends JFrame {
    */
   private void dialogImportDirectorys() {
     
-    // Enthaelt das Accessory fuer den FileChooser
-    JCheckBox cbAccessory = new JCheckBox("inklusive Unterverzeichnisse", false);
-    JFileChooser dateiauswahl = new JFileChooser();
-    File[] files;
-    dateiauswahl.setMultiSelectionEnabled(false);
+    JDirectoryChooser chooser = new JDirectoryChooser();
+    chooser.setMultiSelectionEnabled(true);
+    chooser.setShowingCreateDirectory(false);
+    
+    File[] dirs;
+    Set<File> files = new HashSet<File>();
     
     // Nur Verzeichnisse sollen ausgewaehlt werden
-    dateiauswahl.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-    dateiauswahl.setAccessory(cbAccessory);
-    final int ergebnis = dateiauswahl.showOpenDialog(cpInhalt);
+    final int ergebnis = chooser.showOpenDialog(this);
     
     // Enthaelt einen Loader der alle Dateinamen holt
-    VerzeichnisLader loader = 
-      new VerzeichnisLader(dateiauswahl.getSelectedFile().getAbsolutePath());
-    boolean mitSubDir = ((JCheckBox) dateiauswahl.getAccessory()).isSelected();
-    files = loader.ladeVerzeichnis(mitSubDir);
-    
+    dirs = chooser.getSelectedFiles();
+    for (int i = 0; i < dirs.length; i++) {
+      VerzeichnisLader loader = 
+          new VerzeichnisLader(dirs[i].getAbsolutePath());
+        files.addAll(loader.ladeVerzeichnis(false));
+    }
     if (ergebnis == JFileChooser.OPEN_DIALOG) {
-      importiere(files);
+      importiere(files.toArray(new File[files.size()]));
     }
   }
   

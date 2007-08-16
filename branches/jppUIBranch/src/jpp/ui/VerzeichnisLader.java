@@ -37,9 +37,9 @@ public class VerzeichnisLader {
    * gueltigen Dateien.
    * @param mitSubDir  <code>true</code> wenn Unterverzeichnisse mit
    *        einbezogen werden sollen
-   * @return  eine Liste aller gefundenen Dateien
+   * @return  eine Menge aller gefundenen Dateien
    */
-  public File[] ladeVerzeichnis(boolean mitSubDir) {
+  public Set<File> ladeVerzeichnis(boolean mitSubDir) {
     
     // Alle gefundenen Dateien
     Set<File> foundFiles = new HashSet<File>();
@@ -95,6 +95,6 @@ public class VerzeichnisLader {
         }
       }
     }
-    return foundFiles.toArray(new File[foundFiles.size()]);
+    return foundFiles;
   }
 }
