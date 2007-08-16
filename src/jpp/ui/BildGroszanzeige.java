@@ -153,7 +153,7 @@ public class BildGroszanzeige extends JFrame {
    * Laedt die Komponten die zur Anzeige des Bildes vorhanden sind neu, so dass
    * die Ansicht entsprechend angepasst wird.
    */
-  private void updatePicture() {
+  public void updatePicture() {
 
     JViewport viewport = spGroszanzeige.getViewport();
     prefSizeImage.width = viewport.getWidth();

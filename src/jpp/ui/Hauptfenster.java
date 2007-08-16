@@ -837,6 +837,7 @@ private JMenuItem miAufraeumen = null;
             BildGroszanzeige anzeige = new BildGroszanzeige(listeAnzeigePanel,
                 zuletztGewaehltesPanel.gibBildDokument());
             anzeige.setVisible(true);
+            anzeige.updatePicture();
           }
       	}
       });
