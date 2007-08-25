@@ -78,7 +78,6 @@ public class SuchPanel extends JPanel {
         public void keyPressed(java.awt.event.KeyEvent e) {
           if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             hauptfenster.sucheNach(gibSuchtext());
-            hauptfenster.erzeugeThumbnailansicht();
           }
         }
       });
@@ -98,7 +97,6 @@ public class SuchPanel extends JPanel {
       bSuchen.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
           hauptfenster.sucheNach(gibSuchtext());
-          hauptfenster.erzeugeThumbnailansicht();
         }
       });
     }
