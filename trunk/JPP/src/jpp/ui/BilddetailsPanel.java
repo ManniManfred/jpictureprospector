@@ -52,7 +52,7 @@ public class BilddetailsPanel extends JPanel implements AuswahlListener {
   private static final String BESCHREIBUNG = "Beschreibung";
   private static final String[] merkmale = {SCHLUESSELWOERTER, BESCHREIBUNG};
   
-  /** String f�r verschiedene Werte. */
+  /** String fuer verschiedene Werte. */
   private static final String VERSCH_WERTE = "Verschiedene Werte";
   
   private static final long serialVersionUID = 1L;
@@ -310,22 +310,8 @@ public class BilddetailsPanel extends JPanel implements AuswahlListener {
     
     return istGleich;
   }
-
-  
-  /**
-   * Aktualisiert die Liste der Bilddokumente anhand des entsprechenden 
-   * <code>Observable</code>.
-   *
-   * @param o  das <code>Observable</code> dass sich geaendert hat
-   * @param arg  das entsprechende <code>Object</code> was sich im
-   *        <code>Observable</code> geaendert hat
-   */
-  public void update(Observable o, Object arg) {
-    
-  }
   
   public void auswahlGeaendert(Set<Auswaehlbar> ausgewaehlten) {
-    System.out.println("ausgewaehlten: " + ausgewaehlten.size());
     
     /* Passe die Tabelle der Auswahl an */
     if (ausgewaehlten != null) {

@@ -1,11 +1,9 @@
 package jpp.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Event;
-import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -13,13 +11,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Observer;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,7 +31,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
@@ -55,16 +49,14 @@ import jpp.core.Trefferliste;
 import jpp.core.exceptions.EntferneException;
 import jpp.core.exceptions.ErzeugeException;
 import jpp.core.exceptions.SucheException;
-import jpp.ui.listener.BildAusgewaehltListener;
 import jpp.ui.listener.BildimportListener;
-
-import selectionmanager.Auswaehlbar;
-import selectionmanager.SelectionManager;
 import selectionmanager.ui.AuswaehlbaresJPanel;
 import selectionmanager.ui.SelectionManagerComponent;
 import settingsystem.core.SettingsDialog;
 import settingsystem.reader.IniReader;
 import settingsystem.writer.IniWriter;
+
+import com.l2fprod.common.swing.JDirectoryChooser;
 
 /**
  * Ein Objekt der Klasse stellt das Hauptanzeigefenster der Software zur
@@ -93,9 +85,12 @@ public class Hauptfenster extends JFrame {
 
   /** Enthaelt den Kern der Software mit dem operiert wird. */
   private JPPCore kern;
-
-
   
+  /**
+   * Der SelectionManager, der dafuer verantwortlich ist, dass die Bilder
+   * richtig ausgewaehlt werden.
+   */
+  private SelectionManagerComponent sManager;
 
   /** Enthaelt die Inhaltsflaeche dieses Objekts. */
   private JPanel cpInhalt = null;
@@ -111,7 +106,7 @@ public class Hauptfenster extends JFrame {
 
   private JMenuItem miImport = null;
 
-  private JMenu mBearbeiten = null;
+  private JMenu mEinstellungen = null;
 
   private JMenu mHilfe = null;
 
@@ -129,10 +124,6 @@ public class Hauptfenster extends JFrame {
 
   private JSplitPane spVorschauBildinfo = null;
 
-  private JLabel lLetztesBild = null;
-
-  private JLabel lNaechstesBild = null;
-
   private JLabel lLoeschen = null;
 
   private JMenuItem miLoeschen = null;
@@ -147,23 +138,16 @@ public class Hauptfenster extends JFrame {
 
   private MerkmaleJTable tBilddetails = null;
 
-  private JPanel pThumbnails = null;
-
   private JScrollPane spThumbnails = null;
-
-  private JButton bAuswahlAufheben = null;
 
   private JMenuItem miAuswahlAufheben = null;
 
   private JMenuItem miAuswahlAlle = null;
+  
+  private JMenuItem miImportDir = null;
 
-
-  /**
-   * Der SelectionManager, der dafuer verantwortlich ist, dass die Bilder
-   * richtig ausgewaehlt werden.
-   */
-  private SelectionManagerComponent sManager;
-
+  private JMenuItem miAufraeumen = null;
+  
   /**
    * Erstellt ein neues Objekt der Klasse.
    */
@@ -186,7 +170,7 @@ public class Hauptfenster extends JFrame {
   }
 
   /**
-   * Läd alle Einstellungen aus der Datei settingFilename und speichert diese in
+   * Laed alle Einstellungen aus der Datei settingFilename und speichert diese in
    * der Klasse Settings.
    */
   private void loadSettings() {
@@ -225,55 +209,85 @@ public class Hauptfenster extends JFrame {
       // TODO irgendwelche aenderungen
     }
   }
-
+  
   /**
-   * Importiert in den Kern des Programms eine ausgewaehlte Anzahl an Dateien.
-   * Wenn ein Fehler waehrend des Importiervorgangs entsteht wird dem Benutzer
-   * eine entsprechende Fehlermeldung ausgegeben.
+   * Importiert in den Kern des Programms eine ausgewaehlte Anzahl
+   * an Dateien.
    */
-  private void importiereDateien() {
-
+  private void dialogImportFiles() {
+    
     JFileChooser dateiauswahl = new JFileChooser();
+    
+    // Enthaelt den Filter fuer die zu importierenden Dateien
     FileFilter filter = new Bildfilter();
     File[] files;
     dateiauswahl.setMultiSelectionEnabled(true);
     dateiauswahl.setFileFilter(filter);
     final int ergebnis = dateiauswahl.showOpenDialog(cpInhalt);
     files = dateiauswahl.getSelectedFiles();
+    
+    if (ergebnis == JFileChooser.OPEN_DIALOG) {
+      importiere(files);
+    }
+  }
+  
+  /**
+   * Wird aufgerufen, wenn ein Verzeichnis oder ein Verzeichnis mit
+   * mehreren Unterverzeichnissen und die darin enthaltenen Bilddateien
+   * in den Programmkern importiert werden sollen.
+   */
+  private void dialogImportDirectorys() {
+    
+    JDirectoryChooser chooser = new JDirectoryChooser();
+    chooser.setMultiSelectionEnabled(true);
+    chooser.setShowingCreateDirectory(false);
+    
+    File[] dirs;
+    Set<File> files = new HashSet<File>();
+    
+    // Nur Verzeichnisse sollen ausgewaehlt werden
+    final int ergebnis = chooser.showOpenDialog(this);
+    
+    // Enthaelt einen Loader der alle Dateinamen holt
+    dirs = chooser.getSelectedFiles();
+    for (int i = 0; i < dirs.length; i++) {
+      VerzeichnisLader loader = 
+          new VerzeichnisLader(dirs[i].getAbsolutePath());
+        files.addAll(loader.ladeVerzeichnis(false));
+    }
+    if (ergebnis == JFileChooser.OPEN_DIALOG) {
+      importiere(files.toArray(new File[files.size()]));
+    }
+  }
+  
+  /**
+   * Importiert eine bestimmte Anzahl an Dateien in den Systemkern.
+   * @param files  die zu importierenden Dateien
+   */
+  private void importiere(File[] files) {
+    
     final Bildimportierer importierer = new Bildimportierer(files, kern);
-    int anzahlDateien = files == null
-        ? 0
-        : files.length;
-    final LadebalkenDialog ladebalken = new LadebalkenDialog(this,
-        anzahlDateien);
+    int anzahlDateien = files == null ? 0 : files.length;
+    final LadebalkenDialog ladebalken =
+      new LadebalkenDialog(this, anzahlDateien);
     ladebalken.setzeAnzahl(0);
-
-    clearAnzeige();
-
-    /*
-     * Listener hinzufuegen die entsprechende Aktionen ausführen, wenn neue
-     * Bilder geladen wurden.
-     */
+    
+    /* Listener hinzufuegen die entsprechende Aktionen ausführen, wenn
+     * neue Bilder geladen wurden. */
     importierer.addBildImportiertListener(new BildimportListener() {
       public void bildImportiert(BildDokument dok) {
-        // listeAnzeigePanel = importierer.gibAnzeigePanel();
         erzeugeTAPundAdde(dok);
-        erzeugeThumbnailansicht();
         ladebalken.setzeAnzahl(ladebalken.gibAnzahl() + 1);
       }
-
       public void ladevorgangAbgeschlossen() {
         ladebalken.dispose();
       }
     });
-
-    // Es sollen Bilder importiert werden
-    if (ergebnis != JFileChooser.CANCEL_OPTION) {
-      importierer.start();
-      ladebalken.setLocation((this.getWidth() - ladebalken.getWidth()) / 2,
-          (this.getHeight() - ladebalken.getHeight()) / 2);
-      ladebalken.setVisible(true);
-    }
+    
+    importierer.start();
+    ladebalken.setLocation((this.getWidth() - ladebalken.getWidth()) / 2,
+        (this.getHeight() - ladebalken.getHeight()) / 2);
+    ladebalken.setVisible(true);
   }
 
   /**
@@ -375,83 +389,6 @@ public class Hauptfenster extends JFrame {
   }
 
   /**
-   * Zeigt alle Thumbnails innerhalb des entsprechenden Anzeigebereichs an, mit
-   * den entsprechenden Eigenschaften von oben nach unten scrollen zu koennen
-   * und die Groesze der Thumbnails dynamisch anzupassen.
-   */
-  public void erzeugeThumbnailansicht() {
-
-    //    
-    // if (listeAnzeigePanel != null) {
-    //      
-    // pThumbnails.removeAll();
-    //      
-    // for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
-    //	
-    // tap.setzeGroesze(sGroesze.getValue());
-    // tap.setVisible(true);
-    // pThumbnails.add(tap);
-    // }
-    // // Neuanordnung der Komponenten innerhalb pThumbnails
-    // pThumbnails.revalidate();
-    //      
-    // // Neuzeichnen der Scrollpane da ansonsten Bildfragmente uebrig bleiben
-    // spThumbnails.repaint();
-    // }
-  }
-
-  /**
-   * Waehlt aus der Liste der angezeigten Thumbnails das letzte Bild ausgehend
-   * vom aktuell ausgewaehlten Bild aus. Wenn kein Bild ausgewaehlt ist wird das
-   * letzte Bild der Liste ausgewaehlt.
-   */
-  public void waehleLetztesBildAus() {
-    //    
-    // if (listeAnzeigePanel != null) {
-    // for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
-    // if (tap != zuletztGewaehltesPanel && tap.istAusgewaehlt()) {
-    // tap.setzeFokus(false);
-    // }
-    // }
-    // if (indexZuletztGewaehltesPanel == -1) {
-    // listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
-    // } else if (indexZuletztGewaehltesPanel == 0) {
-    // listeAnzeigePanel.get(0).setzeFokus(false);
-    // listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(true);
-    // } else {
-    // listeAnzeigePanel.get(indexZuletztGewaehltesPanel).setzeFokus(false);
-    // listeAnzeigePanel.get(indexZuletztGewaehltesPanel - 1).setzeFokus(true);
-    // }
-    // }
-  }
-
-
-  /**
-   * Waehlt aus der Liste der angezeigten Thumbnails das naechste Bild ausgehen
-   * vom aktuell ausgewaehlten Bild aus. Wenn kein Bild ausgewaehlt ist wird das
-   * erste Bild der Liste ausgewaehlt.
-   */
-  public void waehleNaechstesBildAus() {
-    //    
-    // if (listeAnzeigePanel != null) {
-    // for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
-    // if (tap != zuletztGewaehltesPanel && tap.istAusgewaehlt()) {
-    // tap.setzeFokus(false);
-    // }
-    // }
-    // if (indexZuletztGewaehltesPanel == -1) {
-    // listeAnzeigePanel.get(0).setzeFokus(true);
-    // } else if (indexZuletztGewaehltesPanel == listeAnzeigePanel.size() - 1) {
-    // listeAnzeigePanel.get(listeAnzeigePanel.size() - 1).setzeFokus(false);
-    // listeAnzeigePanel.get(0).setzeFokus(true);
-    // } else {
-    // listeAnzeigePanel.get(indexZuletztGewaehltesPanel).setzeFokus(false);
-    // listeAnzeigePanel.get(indexZuletztGewaehltesPanel + 1).setzeFokus(true);
-    // }
-    // }
-  }
-
-  /**
    * Wenn der Benutzer mehrere Bilder im Anzeigebereich der Thumbnails
    * ausgewaehlt hat wird er gefragt ob die die Bilder auch von der Festplatte
    * geloescht werden sollen oder nicht.
@@ -503,33 +440,12 @@ public class Hauptfenster extends JFrame {
         /* Neuzeichnen und neu Anordnen */
         sManager.repaint();
         sManager.revalidate();
+        sManager.leereAuswahl();
       }
 
     }
 
   }
-
-  // /**
-  // * Setzt fuer alle <code>ThumbnailAnzeigePanel</code> die entsprechenden
-  // * Listener.
-  // */
-  // private void setzeBildAusgewaehltListener() {
-  //    
-  // if (listeAnzeigePanel != null) {
-  // for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
-  // tap.addBildAusgewaehltListener(new BildAusgewaehltListener() {
-  // public void setzeZuletztAusgewaehltesBild(ThumbnailAnzeigePanel tap,
-  // int index) {
-  // if (tap.istAusgewaehlt()) {
-  // zuletztGewaehltesPanel = tap;
-  // indexZuletztGewaehltesPanel = index;
-  // }
-  // }
-  // });
-  // }
-  // }
-  // }
-
 
   /**
    * Liefert die Tabelle, in der die Grundmerkmale geladen sind.
@@ -549,7 +465,7 @@ public class Hauptfenster extends JFrame {
     if (hauptmenu == null) {
       hauptmenu = new JMenuBar();
       hauptmenu.add(getMDatei());
-      hauptmenu.add(getMBearbeiten());
+      hauptmenu.add(getMEinstellungen());
       hauptmenu.add(getMHilfe());
     }
     return hauptmenu;
@@ -566,6 +482,7 @@ public class Hauptfenster extends JFrame {
       mDatei.setText("Datei");
       mDatei.setMnemonic(KeyEvent.VK_D);
       mDatei.add(getMiImport());
+      mDatei.add(getMiImportDir());
       mDatei.add(getMiBeenden());
     }
     return mDatei;
@@ -575,11 +492,6 @@ public class Hauptfenster extends JFrame {
    * Beendet dieses Anwendung nach einer Nachfrage beim Benutzer.
    */
   private void beende() {
-    // int ergebnis = JOptionPane.showConfirmDialog(cpInhalt,
-    // "Wollen Sie das Programm beenden?", "Beenden",
-    // JOptionPane.OK_CANCEL_OPTION);
-    //    
-    // if (ergebnis == JOptionPane.OK_OPTION) {
     if (Einstellungen.SAVE_FENSTER_GROESSE) {
       Einstellungen.FENSTER_BREITE = this.getWidth();
       Einstellungen.FENSTER_HOEHE = this.getHeight();
@@ -631,18 +543,6 @@ public class Hauptfenster extends JFrame {
       spAnzeige.setDividerSize(TRENNBALKEN_GROESZE);
       spAnzeige.setRightComponent(getPThumbnailSteuerung());
       spAnzeige.setLeftComponent(getSpVorschauBildinfo());
-      spAnzeige.addPropertyChangeListener("lastDividerLocation",
-          new java.beans.PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent e) {
-              // TODO
-              // for (int i = 0; listeAnzeigePanel != null
-              // && i < listeAnzeigePanel.size(); i++) {
-              //
-              // ThumbnailAnzeigePanel tap = listeAnzeigePanel.get(i);
-              // tap.setzeGroesze(sGroesze.getValue());
-              // }
-            }
-          });
     }
     return spAnzeige;
   }
@@ -661,7 +561,7 @@ public class Hauptfenster extends JFrame {
           Event.CTRL_MASK, false));
       miImport.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
-          importiereDateien();
+          dialogImportFiles();
         }
       });
     }
@@ -673,18 +573,19 @@ public class Hauptfenster extends JFrame {
    * 
    * @return javax.swing.JMenu
    */
-  private JMenu getMBearbeiten() {
-    if (mBearbeiten == null) {
-      mBearbeiten = new JMenu();
-      mBearbeiten.setText("Bearbeiten");
-      mBearbeiten.setMnemonic(KeyEvent.VK_B);
-      mBearbeiten.add(getMiLoeschen());
-      mBearbeiten.add(getMiAuswahlAufheben());
-      mBearbeiten.add(getMiAuswahlAlle());
-      mBearbeiten.add(new JSeparator());
-      mBearbeiten.add(getMiEinstellungen());
+  private JMenu getMEinstellungen() {
+    if (mEinstellungen == null) {
+      mEinstellungen = new JMenu();
+      mEinstellungen.setText("Bearbeiten");
+      mEinstellungen.setMnemonic(KeyEvent.VK_B);
+      mEinstellungen.add(getMiLoeschen());
+      mEinstellungen.add(getMiAuswahlAufheben());
+      mEinstellungen.add(getMiAufraeumen());
+      mEinstellungen.add(getMiAuswahlAlle());
+      mEinstellungen.add(new JSeparator());
+      mEinstellungen.add(getMiEinstellungen());
     }
-    return mBearbeiten;
+    return mEinstellungen;
   }
 
   private JMenuItem getMiEinstellungen() {
@@ -802,55 +703,9 @@ public class Hauptfenster extends JFrame {
               "uiimgs/loeschenTrashKlick.png")));
         }
       });
-      lNaechstesBild = new JLabel();
-      lNaechstesBild.setText("");
-      lNaechstesBild.setIcon(new ImageIcon(getClass().getResource(
-          "uiimgs/pfeilrechts.png")));
-      lNaechstesBild.setSize(new Dimension(32, 32));
-      lNaechstesBild.addMouseListener(new java.awt.event.MouseAdapter() {
-        public void mouseClicked(java.awt.event.MouseEvent e) {
-          waehleNaechstesBildAus();
-        }
-
-        public void mouseExited(java.awt.event.MouseEvent e) {
-          lNaechstesBild.removeAll();
-          lNaechstesBild.setIcon(new ImageIcon(getClass().getResource(
-              "uiimgs/pfeilrechts.png")));
-        }
-
-        public void mouseEntered(java.awt.event.MouseEvent e) {
-          lNaechstesBild.removeAll();
-          lNaechstesBild.setIcon(new ImageIcon(getClass().getResource(
-              "uiimgs/pfeilrechtsKlick.png")));
-        }
-      });
-      lLetztesBild = new JLabel();
-      lLetztesBild.setText("");
-      lLetztesBild.setIcon(new ImageIcon(getClass().getResource(
-          "uiimgs/pfeillinks.png")));
-      lLetztesBild.setSize(new Dimension(32, 32));
-      lLetztesBild.addMouseListener(new java.awt.event.MouseAdapter() {
-        public void mouseClicked(java.awt.event.MouseEvent e) {
-          waehleLetztesBildAus();
-        }
-
-        public void mouseExited(java.awt.event.MouseEvent e) {
-          lLetztesBild.removeAll();
-          lLetztesBild.setIcon(new ImageIcon(getClass().getResource(
-              "uiimgs/pfeillinks.png")));
-        }
-
-        public void mouseEntered(java.awt.event.MouseEvent e) {
-          lLetztesBild.removeAll();
-          lLetztesBild.setIcon(new ImageIcon(getClass().getResource(
-              "uiimgs/pfeillinksKlick.png")));
-        }
-      });
+      
       tbWerkzeugleiste = new JToolBar();
-//      tbWerkzeugleiste.add(getBAuswahlAufheben());
       tbWerkzeugleiste.add(getBGroszanzeige());
-      //tbWerkzeugleiste.add(lLetztesBild);
-      //tbWerkzeugleiste.add(lNaechstesBild);
       tbWerkzeugleiste.add(lLoeschen);
       tbWerkzeugleiste.add(getSGroesze());
 
@@ -932,7 +787,7 @@ public class Hauptfenster extends JFrame {
   private JMenuItem getMiLoeschen() {
     if (miLoeschen == null) {
       miLoeschen = new JMenuItem();
-      miLoeschen.setText("Ausgewählte Bilder löschen");
+      miLoeschen.setText("Ausgew\u00e4hlte Bilder l\u00f6schen");
       miLoeschen.setMnemonic(KeyEvent.VK_L);
       miLoeschen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0,
           false));
@@ -1061,25 +916,6 @@ public class Hauptfenster extends JFrame {
   }
 
   /**
-   * This method initializes bAuswahlAufheben
-   * 
-   * @return javax.swing.JButton
-   */
-  private JButton getBAuswahlAufheben() {
-    if (bAuswahlAufheben == null) {
-      bAuswahlAufheben = new JButton();
-      bAuswahlAufheben.setText("Auswahl aufheben");
-      bAuswahlAufheben.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent e) {
-          sManager.leereAuswahl();
-        }
-      });
-    }
-    return bAuswahlAufheben;
-  }
-
-
-  /**
    * This method initializes miAuswahlAufheben
    * 
    * @return javax.swing.JMenuItem
@@ -1099,6 +935,48 @@ public class Hauptfenster extends JFrame {
     }
     return miAuswahlAufheben;
   }
+  
+  /**
+   * This method initializes miImportDir  
+   *  
+   * @return javax.swing.JMenuItem  
+   */
+  private JMenuItem getMiImportDir() {
+    if (miImportDir == null) {
+      miImportDir = new JMenuItem();
+      miImportDir.setText("Verzeichnis importieren");
+      miImportDir.setMnemonic(KeyEvent.VK_V);
+      miImportDir.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+          dialogImportDirectorys();
+        }
+      });
+    }
+    return miImportDir;
+  }
+  
+  /**
+   * This method initializes miAufraeumen 
+   *  
+   * @return javax.swing.JMenuItem  
+   */
+  private JMenuItem getMiAufraeumen() {
+    if (miAufraeumen == null) {
+      miAufraeumen = new JMenuItem();
+      miAufraeumen.setText("Aufr\u00e4umen");
+      miAufraeumen.setMnemonic(KeyEvent.VK_R);
+      miAufraeumen.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+          try {
+            kern.clearUpIndex();
+          } catch (SucheException se) {
+            verarbeiteFehler("Fehler", se.getMessage());
+          }
+        }
+      });
+    }
+    return miAufraeumen;
+  }
 
   /**
    * This method initializes miAuswahlAufheben
@@ -1115,15 +993,6 @@ public class Hauptfenster extends JFrame {
       miAuswahlAlle.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
           sManager.waehleAlleAus();
-          // TODO
-          // if (listeAnzeigePanel != null) {
-          // for (ThumbnailAnzeigePanel tap : listeAnzeigePanel) {
-          // if (tap.istAusgewaehlt()) {
-          // tap.setzeFokus(false);
-          // }
-          // }
-          // pVorschau.resetAnsicht();
-          // }
         }
       });
     }
@@ -1138,7 +1007,7 @@ public class Hauptfenster extends JFrame {
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
         try {
-          UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+          UIManager.setLookAndFeel(new com.lipstikLF.LipstikLookAndFeel());
         } catch (Exception e) {
           e.printStackTrace();
         }
@@ -1152,16 +1021,6 @@ public class Hauptfenster extends JFrame {
    * Initialisiert das dieses Objekt.
    */
   private void initialize() {
-
-
-
-
-    // sManager.addAuswahlListener(pBilddetails);
-
-    // tapObserver = new ArrayList<Observer>();
-    // tapObserver.add(pVorschau);
-    // tapObserver.add((Observer) pBilddetails);
-    // tapObserver.add(tBilddetails);
 
     this.setSize(new Dimension(Einstellungen.FENSTER_BREITE,
         Einstellungen.FENSTER_HOEHE));
@@ -1178,13 +1037,6 @@ public class Hauptfenster extends JFrame {
 
     this.setContentPane(getJContentPane());
     this.setTitle("JPictureProspector");
-    this.addComponentListener(new java.awt.event.ComponentAdapter() {
-      public void componentResized(java.awt.event.ComponentEvent e) {
-        erzeugeThumbnailansicht();
-      }
-    });
-
-
   }
 
   private SelectionManagerComponent getSManager() {
