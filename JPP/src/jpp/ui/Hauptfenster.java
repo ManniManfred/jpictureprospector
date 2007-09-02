@@ -49,6 +49,7 @@ import jpp.core.Trefferliste;
 import jpp.core.exceptions.EntferneException;
 import jpp.core.exceptions.ErzeugeException;
 import jpp.core.exceptions.SucheException;
+import jpp.ui.listener.AbortListener;
 import jpp.ui.listener.BildimportListener;
 import selectionmanager.ui.AuswaehlbaresJPanel;
 import selectionmanager.ui.SelectionManagerComponent;
@@ -215,8 +216,13 @@ public class Hauptfenster extends JFrame {
    * an Dateien.
    */
   private void dialogImportFiles() {
+    JFileChooser dateiauswahl;
     
-    JFileChooser dateiauswahl = new JFileChooser();
+    if (Einstellungen.importStartOrdner != null) {
+      dateiauswahl = new JFileChooser(Einstellungen.importStartOrdner);
+    } else {
+      dateiauswahl = new JFileChooser();
+    }
     
     // Enthaelt den Filter fuer die zu importierenden Dateien
     FileFilter filter = new Bildfilter();
@@ -227,6 +233,10 @@ public class Hauptfenster extends JFrame {
     files = dateiauswahl.getSelectedFiles();
     
     if (ergebnis == JFileChooser.OPEN_DIALOG) {
+      // Merke den Pfad zu Oberverzeichnis 
+      if (files.length > 0) {
+        Einstellungen.importStartOrdner = files[0].getParent();
+      }
       importiere(files);
     }
   }
@@ -238,18 +248,30 @@ public class Hauptfenster extends JFrame {
    */
   private void dialogImportDirectorys() {
     
-    JDirectoryChooser chooser = new JDirectoryChooser();
+    JDirectoryChooser chooser;
+    if (Einstellungen.importStartOrdner != null) {
+      chooser = new JDirectoryChooser(Einstellungen.importStartOrdner);
+    } else {
+      chooser = new JDirectoryChooser();
+    }
+    
     chooser.setMultiSelectionEnabled(true);
     chooser.setShowingCreateDirectory(false);
-    
     File[] dirs;
     Set<File> files = new HashSet<File>();
     
     // Nur Verzeichnisse sollen ausgewaehlt werden
     final int ergebnis = chooser.showOpenDialog(this);
     
+    
     // Enthaelt einen Loader der alle Dateinamen holt
     dirs = chooser.getSelectedFiles();
+    
+    // Merke den Pfad zu Oberverzeichnis 
+    if (dirs.length > 0) {
+      Einstellungen.importStartOrdner = dirs[0].getParent();
+    }
+    
     for (int i = 0; i < dirs.length; i++) {
       VerzeichnisLader loader = 
           new VerzeichnisLader(dirs[i].getAbsolutePath());
@@ -271,6 +293,13 @@ public class Hauptfenster extends JFrame {
     final LadebalkenDialog ladebalken =
       new LadebalkenDialog(this, anzahlDateien);
     ladebalken.setzeAnzahl(0);
+    
+    ladebalken.addAbortListener(new AbortListener() {
+      public void abort() {
+        importierer.brecheVorgangAb();
+        ladebalken.dispose();
+      }
+    });
     
     /* Listener hinzufuegen die entsprechende Aktionen ausführen, wenn
      * neue Bilder geladen wurden. */

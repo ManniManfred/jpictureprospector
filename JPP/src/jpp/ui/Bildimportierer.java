@@ -30,6 +30,10 @@ public class Bildimportierer extends Thread {
   /** Enthaelt den Kern des Programms in den importiert wird. */
   private JPPCore kern;
 
+  /**
+   * Gibt an, ob der Importiervorgang abgebrochen werden soll.
+   */
+  private boolean abort;
 
   /**
    * Erzeugt ein neuen Objekt der Klasse mit den entsprechenden Daten
@@ -42,6 +46,7 @@ public class Bildimportierer extends Thread {
     this.listener = new ArrayList<BildimportListener>();
     this.dateien = dateien;
     this.kern = kern;
+    abort = false;
   }
 
   /**
@@ -64,6 +69,10 @@ public class Bildimportierer extends Thread {
     }
   }
 
+  public void brecheVorgangAb() {
+    this.abort = true;
+  }
+  
   /**
    * Startet diesen Thread und fuehrt alle im Hintergrund auszufuehrenden
    * Operationen aus.
@@ -75,7 +84,7 @@ public class Bildimportierer extends Thread {
 
       List<ImportException> fehler = new ArrayList<ImportException>();
 
-      for (int i = 0; i < dateien.length; i++) {
+      for (int i = 0; i < dateien.length && !abort; i++) {
         try {
           /* Zeit die verwendet wurde zum Import. */
           long zeit = Calendar.getInstance().getTimeInMillis();
@@ -120,56 +129,6 @@ public class Bildimportierer extends Thread {
     }
     JOptionPane.showMessageDialog(null, meldung, "Importfehler",
         JOptionPane.ERROR_MESSAGE);
-
-    // /* Bereits importierte Dateien und defekt Dateien werden
-    // * aufgezeichnet und spaeter ausgegeben
-    // */
-    // if (ie.getMessage().indexOf("bereits importiert") >= 0) {
-    //    
-    // if (bereitsImportierteDateien == null) {
-    // bereitsImportierteDateien = new ArrayList<String>();
-    // }
-    // bereitsImportierteDateien.add(dateien[i].getName());
-    // } else if (ie.getMessage().indexOf("kein BildDokument") >= 0) {
-    //    
-    // if (defekteDateien == null) {
-    // defekteDateien = new ArrayList<String>();
-    // }
-    // defekteDateien.add(dateien[i].getName());
-    // }
-
-    // /* Erzeugung der Fehlermeldung, wenn bereits importierte oder
-    // * defekte Dateien vorhanden sind
-    // */
-    // String fehlermeldung = "Die Datei(-en) konnten nicht " +
-    // "importiert werden.\n\n";
-    //  
-    // if (bereitsImportierteDateien != null) {
-    // String importierteDateien = "Diese Dateien wurden bereits importiert:\n";
-    // for (String dateiname : bereitsImportierteDateien) {
-    // importierteDateien += dateiname + "\n";
-    // }
-    // fehlermeldung += importierteDateien;
-    // }
-    // if (defekteDateien != null) {
-    //    
-    // String defekteDateien = "\nDiese Dateien sind defekt:\n";
-    // for (String defekteDatei : this.defekteDateien) {
-    // defekteDateien += defekteDatei + "\n";
-    // }
-    // fehlermeldung += defekteDateien;
-    // }
-    //  
-    // /* Wenn Fehler beim Import erfolgt sind muss eine Fehlermeldung
-    // * ausgegeben werden
-    // */
-    // if (bereitsImportierteDateien != null || defekteDateien != null) {
-    // JOptionPane.showMessageDialog(null, fehlermeldung,
-    // "Importfehler", JOptionPane.ERROR_MESSAGE);
-    // }
-    // bereitsImportierteDateien = null;
-    // defekteDateien = null;
-
   }
 
   /**
