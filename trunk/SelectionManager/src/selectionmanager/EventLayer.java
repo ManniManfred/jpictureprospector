@@ -191,8 +191,13 @@ public class EventLayer extends JComponent {
 
       }
     }
-    model.setMarkiert((neuesAngeklickt + model.getAnzahlAuswaehlbarer())
-        % model.getAnzahlAuswaehlbarer());
+    
+    int anzahl = model.getAnzahlAuswaehlbarer();
+    
+    if (anzahl != 0) {
+      model.setMarkiert((neuesAngeklickt + model.getAnzahlAuswaehlbarer())
+          % model.getAnzahlAuswaehlbarer());      
+    }
   }
 
 
@@ -216,6 +221,10 @@ public class EventLayer extends JComponent {
 
     Auswaehlbar s = model.getAuswaehlbar(von);
 
+    if (s == null) {
+      return -1;
+    }
+    
     /*
      * hole die gedachte vertikale Linie. Ihr Wert gibt die x-Koordinate an.
      */
