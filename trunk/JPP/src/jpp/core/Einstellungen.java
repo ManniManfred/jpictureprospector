@@ -142,4 +142,13 @@ public class Einstellungen {
         group = "Fenster")
   public static boolean SAVE_FENSTER_POSITION = true;
   
+  
+  
+  /************  Einstellung zum merken der Pfadangabe *******************/
+  
+  @Property(visibility = false)
+  public static String importStartOrdner = null;
+  
+  
+  
 }

@@ -6,12 +6,18 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
+import java.awt.Dimension;
+import javax.swing.JButton;
+
+import jpp.ui.listener.AbortListener;
 
 
 /**
@@ -23,7 +29,7 @@ import javax.swing.SwingConstants;
  * @author Nils Verheyen
  *
  */
-public class LadebalkenDialog extends JDialog implements Runnable {
+public class LadebalkenDialog extends JDialog {
   
   /** Enthaelt die Anzahl welchen Abstand eine Komponente zu einer 
    * Anderen haben soll.
@@ -52,6 +58,10 @@ public class LadebalkenDialog extends JDialog implements Runnable {
 
   private JLabel lUeberschrift = null;
 
+  private JButton jButton = null;
+
+  private List<AbortListener> abortListener = new ArrayList<AbortListener>(1);
+
   /**
    * Erzeugt ein neues Objekt der Klasse.
    * @param owner  der Besitzer dieses Dialogs
@@ -62,7 +72,6 @@ public class LadebalkenDialog extends JDialog implements Runnable {
     initialize();
     this.lGesamtanzahl.setText(gesamtanzahl + "");
     this.gesamtanzahl = gesamtanzahl;
-    new Thread(this).start();
   }
   
   /**
@@ -89,11 +98,6 @@ public class LadebalkenDialog extends JDialog implements Runnable {
     return this.anzahl;
   }
 
-  /**
-   * Startet diesen Thread.
-   */
-  public void run() {
-  }
 
   /**
    * This method initializes this
@@ -101,10 +105,15 @@ public class LadebalkenDialog extends JDialog implements Runnable {
    * @return void
    */
   private void initialize() {
-    this.setSize(300, 200);
+    this.setSize(406, 257);
     this.setResizable(false);
     this.setTitle("Importiere");
     this.setContentPane(getJContentPane());
+    this.addWindowListener(new java.awt.event.WindowAdapter() {
+      public void windowClosing(java.awt.event.WindowEvent e) {
+        fireAbortEvent();
+      }
+    });
   }
 
   /**
@@ -114,6 +123,9 @@ public class LadebalkenDialog extends JDialog implements Runnable {
    */
   private JPanel getJContentPane() {
     if (jContentPane == null) {
+      GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+      gridBagConstraints1.gridx = 0;
+      gridBagConstraints1.gridy = 4;
       GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
       gridBagConstraints5.gridx = 0;
       gridBagConstraints5.insets = new Insets(STD_INSETS, 0, STD_INSETS, 0);
@@ -142,6 +154,7 @@ public class LadebalkenDialog extends JDialog implements Runnable {
       jContentPane.add(getPbLadebalken(), gridBagConstraints);
       jContentPane.add(getPAnzahlen(), gridBagConstraints4);
       jContentPane.add(lUeberschrift, gridBagConstraints5);
+      jContentPane.add(getJButton(), gridBagConstraints1);
     }
     return jContentPane;
   }
@@ -175,5 +188,37 @@ public class LadebalkenDialog extends JDialog implements Runnable {
     return pAnzahlen;
   }
 
+  /**
+   * This method initializes jButton	
+   * 	
+   * @return javax.swing.JButton	
+   */
+  private JButton getJButton() {
+    if (jButton == null) {
+      jButton = new JButton();
+      jButton.setText("Abbrechen");
+      jButton.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+          fireAbortEvent();
+        }
+      });
+    }
+    return jButton;
+  }
+
   
-}
+  private void fireAbortEvent() {
+    for (AbortListener l : abortListener) {
+      l.abort();
+    }
+  }
+  
+  public void addAbortListener(AbortListener l) {
+    this.abortListener.add(l);
+  }
+  
+  public void removeAbortListener(AbortListener l) {
+    this.abortListener .remove(l);
+  }
+  
+}  //  @jve:decl-index=0:visual-constraint="10,10"
