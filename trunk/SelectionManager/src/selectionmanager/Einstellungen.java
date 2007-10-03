@@ -18,14 +18,14 @@ public class Einstellungen {
 
   
   
-  public static int rahmenDicke = 2;
+  public static int rahmenDicke = 1;
   
   public static Color rahmenFarbe = Color.black;
   
   /**
    * Hintergrundfarbe, die angezeigt wird, wenn dieses Panel ausgewaehlt ist.
    */
-  public static Color farbeAusgewaehlt = new Color(0xAAAAFF);
+  public static Color farbeAusgewaehlt = new Color(100, 175, 255);
 
   /**
    * Standard Hintergrund Farbe.
