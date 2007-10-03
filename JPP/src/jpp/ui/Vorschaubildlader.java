@@ -39,17 +39,11 @@ public class Vorschaubildlader implements Runnable {
   /** Enthaelt das fertig geladene Bild. */
   private Image bild;
   
-  /** Thread, der tatsaechlich laed. */
-  private Thread laderThread;
-  
   /** 
    * Wenn ein Bild geladen wurde, wird darin abgespeichert, um beim
    * naechsten mal sofort zur Verfuegung zu stehen.
    */
   private Map<String, Image> cache;
-  
-  
-  private boolean istGestartet = false;
   
 
   /** Enthaelt den Pfad zu dem zu ladenen Bild. */
@@ -116,9 +110,9 @@ public class Vorschaubildlader implements Runnable {
   
   public void run() {
     try {
-      String key = dateipfad + maxBreite + maxHoehe;
       
-      this.bild = erzeugeVorschaubild(dateipfad, maxBreite, maxHoehe);
+//      this.bild = erzeugeVorschaubild(dateipfad, maxBreite, maxHoehe);
+      this.bild = new GeoeffnetesBild(new File(dateipfad)).getBild();
       
       /* TODO sorge dafuer, dass der Cache auch wieder geloescht wird, 
        * da es ansonsten irgendwann zu einem OutOfMemoryError kommt.
@@ -129,10 +123,11 @@ public class Vorschaubildlader implements Runnable {
     } catch (IOException e) {
       System.out.println("Das Bild konnte nicht geladen werden.\n" +
           e.getMessage());
-    } catch (GeneriereException e) {
-      System.out.println("Das Bild konnte nicht geladen werden.\n" +
-          e.getMessage());
     }
+//    catch (GeneriereException e) {
+//      System.out.println("Das Bild konnte nicht geladen werden.\n" +
+//          e.getMessage());
+//    }
   }
   
   private BufferedImage erzeugeVorschaubild(String pfad, int maxBreite, 

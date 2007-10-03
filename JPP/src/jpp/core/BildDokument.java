@@ -26,7 +26,6 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataException;
 import com.drew.metadata.Tag;
 
-
 /**
  * Ein Objekt dieser Klasse stellt ein Dokument mit vielen Merkmalen zu einem
  * Bild dar.
@@ -48,37 +47,36 @@ public final class BildDokument {
     merkmale = new HashMap<String, Merkmal>();
   }
 
-
   /**
    * Erzeugt aus einer Bilddatei ein neues BildDokument mit allen Merkmalen.
    * 
-   * @param datei Datei, aus der ein neues BildDokument erzeugt wird
+   * @param datei
+   *          Datei, aus der ein neues BildDokument erzeugt wird
    * @return das neu erzeugte BildDokument
-   * @throws ErzeugeBildDokumentException wird geworfen, wenn das BildDokument
-   *           nicht aus der Datei erzeugt werden konnte
+   * @throws ErzeugeBildDokumentException
+   *           wird geworfen, wenn das BildDokument nicht aus der Datei erzeugt
+   *           werden konnte
    */
   public static BildDokument erzeugeAusDatei(File datei)
       throws ErzeugeBildDokumentException {
     return erzeugeBildDokumentAus(datei, null);
   }
 
-
   /**
    * Erzeugt aus einem Document von Lucene ein entsprechendes BildDokument mit
    * all den entsprechenden Merkmalen.
    * 
-   * @param doc Document aus Lucene
+   * @param doc
+   *          Document aus Lucene
    * @return das zum Lucene-Document entsprechende BildDokument
-   * @throws ErzeugeBildDokumentException wird geworfen, wenn das BildDokument
-   *           nicht aus dem Lucene-Document erzeugt werden konnte
+   * @throws ErzeugeBildDokumentException
+   *           wird geworfen, wenn das BildDokument nicht aus dem
+   *           Lucene-Document erzeugt werden konnte
    */
   public static BildDokument erzeugeAusLucene(Document doc)
       throws ErzeugeBildDokumentException {
     return erzeugeBildDokumentAus(null, doc);
   }
-
-
-
 
   /**
    * Erzeugt aus diesem BildDokument ein entsprechendes Lucene Document.
@@ -114,7 +112,8 @@ public final class BildDokument {
    * Gibt true zurueck wenn dieses BildDokument gleich dem uebergebenem ist.
    * Zwei BildDokumente sind gleich, wenn all ihre Merkmale uebereinstimmen.
    * 
-   * @param obj das Object mit dem verglichen wird
+   * @param obj
+   *          das Object mit dem verglichen wird
    * @return <code>true</code>, wenn dieses BildDokument gleich dem
    *         uebergebenem ist
    */
@@ -137,14 +136,13 @@ public final class BildDokument {
    * Gibt das Merkmal mit dem <code>merkmalName</code> dieses BildDokuments
    * zurueck.
    * 
-   * @param merkmalName Name des Merkmals, welches zurueckgegeben werden soll
+   * @param merkmalName
+   *          Name des Merkmals, welches zurueckgegeben werden soll
    * @return Merkmal dieses BildDokuments mit dem <code>merkmalName</code>
    */
   public Merkmal getMerkmal(String merkmalName) {
     return merkmale.get(merkmalName);
   }
-
-
 
   /**
    * Erzeugt ein neues BildDokument, entweder aus einer Bilddatei oder aus einem
@@ -152,18 +150,20 @@ public final class BildDokument {
    * Lucene-Document erzeugt, welches dann nicht null sein darf. Falls die datei
    * nicht null ist, wird aus der datei das BildDokument erzeugt.
    * 
-   * @param datei Bilddatei, aus der das BildDokument erzeugt wird
-   * @param doc Lucene-Document, aus der das BildDokument erzeugt wird
+   * @param datei
+   *          Bilddatei, aus der das BildDokument erzeugt wird
+   * @param doc
+   *          Lucene-Document, aus der das BildDokument erzeugt wird
    * @return das entweder aus der Bilddatei oder dem Lucene-Document erzeugtem
    *         BildDokument
-   * @throws ErzeugeBildDokumentException wird geworfen, wenn das Erzeugen des
-   *           BildDokuments nicht funktioniert hat
+   * @throws ErzeugeBildDokumentException
+   *           wird geworfen, wenn das Erzeugen des BildDokuments nicht
+   *           funktioniert hat
    */
   private static BildDokument erzeugeBildDokumentAus(File datei, Document doc)
       throws ErzeugeBildDokumentException {
 
     BildDokument neu = new BildDokument();
-
 
     /*
      * Klassenname der jeweiligen Merkmale, die aus der Merkmalsdatei gelesen
@@ -229,7 +229,8 @@ public final class BildDokument {
   /**
    * Fuegt das uebergebene Merkmal diesem BildDokument hinzu.
    * 
-   * @param merkmal Merkmal, welches diesem BildDokument hinzugefuegt wird
+   * @param merkmal
+   *          Merkmal, welches diesem BildDokument hinzugefuegt wird
    */
   private void addMerkmal(Merkmal merkmal) {
     merkmale.put(merkmal.getName(), merkmal);
@@ -258,9 +259,9 @@ public final class BildDokument {
     /* Grundmerkmal der Liste alleMerkmale hinzufuegen */
     alleMerkmale.addAll(gibGrundMerkmale());
 
-
     /* Falls das Bild ein JPG ist, die Exif-Daten hinzufuegen. */
-    if (this.getMerkmal(BildtypMerkmal.FELDNAME).equals("jpg")) {
+    if (this.getMerkmal(BildtypMerkmal.FELDNAME).getWert().toString()
+        .toLowerCase().equals("jpg")) {
 
       /* Den Pfad holen */
       String pfad = this.getMerkmal(DateipfadMerkmal.FELDNAME).getWert()
@@ -314,6 +315,5 @@ public final class BildDokument {
 
     return alleMerkmale;
   }
-
 
 }

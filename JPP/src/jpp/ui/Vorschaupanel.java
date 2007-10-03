@@ -2,25 +2,20 @@ package jpp.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
-
-import selectionmanager.Auswaehlbar;
-import selectionmanager.AuswahlListener;
 
 import jpp.core.BildDokument;
 import jpp.merkmale.BildbreiteMerkmal;
 import jpp.merkmale.BildhoeheMerkmal;
 import jpp.merkmale.DateipfadMerkmal;
 import jpp.ui.listener.VorschauBildListener;
+import selectionmanager.Auswaehlbar;
+import selectionmanager.AuswahlListener;
 
 
 public class Vorschaupanel extends JPanel implements AuswahlListener {
@@ -30,9 +25,6 @@ public class Vorschaupanel extends JPanel implements AuswahlListener {
   /** Enthaelt das Bild, was anzeigt werden soll. */
   private Image bild = null;
 
-  /** Nur zu debug zwecke */
-  //private int count = 0;
-  
   /**
    * Enthaelt das <code>BildDokument</code> was die Grundlage fuer die
    * Zeichnung des Bildes bildet.
@@ -101,24 +93,11 @@ public class Vorschaupanel extends JPanel implements AuswahlListener {
    * @param g
    */
   public void paintComponent(Graphics g) {
-//    System.out.println("paint " + count);
-//    count++;
     
     /* Hintergrund auf weiss setzten */
     g.setColor(Color.WHITE);
     g.fillRect(0, 0, getWidth(), getHeight());
     
-    
-    if (bild != null) {
-      /* Das vorgeladene Vorschaubild zentriert anzeigen */
-      int xpos = (int) Math.round((getWidth() - bild.getWidth(this)) / 2.0);
-      int ypos = (int) Math.round((getHeight() - bild.getHeight(this)) / 2.0);
-      
-      g.drawImage(bild, xpos, ypos, this);
-    }
-
-    
-    /*
     if (bild != null && dok != null) {
       double originalBreite = (Integer) dok.getMerkmal(
           BildbreiteMerkmal.FELDNAME).getWert();
@@ -155,7 +134,7 @@ public class Vorschaupanel extends JPanel implements AuswahlListener {
     } else {
       g.setColor(new Color(255, 255, 255));
       g.fillRect(0, 0, getWidth(), getHeight());
-    }*/
+    }
   }
 
   
@@ -171,8 +150,6 @@ public class Vorschaupanel extends JPanel implements AuswahlListener {
    * @param neueMarkierung das entsprechende TAP
    */
   public void markierungWurdeBewegt(Auswaehlbar neueMarkierung) {
-//    System.out.println("Vorschaupanel: Markierung verändert = " 
-//        + neueMarkierung);
     
     if (neueMarkierung instanceof ThumbnailAnzeigePanel) {
 
