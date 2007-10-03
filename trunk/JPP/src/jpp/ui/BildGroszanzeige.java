@@ -2,19 +2,18 @@ package jpp.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
+import java.awt.Point;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,9 +33,8 @@ import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.JViewport;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.Scrollable;
-import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
+import javax.swing.event.MouseInputAdapter;
 import javax.swing.table.TableColumn;
 
 import jpp.core.BildDokument;
@@ -360,7 +358,8 @@ public class BildGroszanzeige extends JFrame {
     if (tpGroszanzeige == null) {
       tpGroszanzeige = new JTabbedPane();
       tpGroszanzeige.setBackground(new Color(238, 238, 238));
-      tpGroszanzeige.addTab("Gro\u00dfanzeige", null, getSpGroszanzeige(), null);
+      tpGroszanzeige
+          .addTab("Gro\u00dfanzeige", null, getSpGroszanzeige(), null);
       tpGroszanzeige.addTab("Zusatzdetails", null, getSpZusatzdetails(), null);
     }
     return tpGroszanzeige;
@@ -525,8 +524,7 @@ public class BildGroszanzeige extends JFrame {
  * Ein Objekt der Klasse zeichnet aus einer Datei ein Bild in den eigenen
  * Anzeigebereich.
  */
-class BildGroszanzeigeZeichner extends JLabel implements MouseMotionListener,
-    Scrollable {
+class BildGroszanzeigeZeichner extends JLabel {
 
   /** Enthaelt das Dokument, dass den Pfad zur Datei enthaelt. */
   private BildDokument dok = null;
@@ -549,8 +547,6 @@ class BildGroszanzeigeZeichner extends JLabel implements MouseMotionListener,
    */
   private boolean mussAngepasstWerden;
 
-  private int maxUnitIncrement = 10;
-
   /**
    * Erzeugt ein neues Objekt der Klasse mit den entsprechenden Daten.
    * 
@@ -568,8 +564,68 @@ class BildGroszanzeigeZeichner extends JLabel implements MouseMotionListener,
     this.mussAngepasstWerden = mussAngepasstWerden;
     setzeDok(dok);
     setAutoscrolls(true);
-    addMouseMotionListener(this);
     super.setIcon(new ImageIcon(bild));
+    initializeMouseInputAdapter();
+  }
+
+  /**
+   * Initialisiert den <code>MouseInputAdapter</code> der fuer das scrollen
+   * innerhalb der ScrollPane verantwortlich ist, wenn die Maus
+   * entsprechend bewegt wurde.
+   */
+  private void initializeMouseInputAdapter() {
+    
+    // Enthaelt den MouseInputAdapter fuer das Scrollen
+    MouseInputAdapter mia = new MouseInputAdapter() {
+      
+      /** Enthaelt die letzte X-Position wenn die Maus gedrueckt wurde. */
+      private int lastX;
+
+      /** Enthaelt die letzte Y-Position wenn die Maus gedrueckt wurde. */
+      private int lastY;
+
+      /** Enthaelt das parent dieses Objektes. */
+      private Container parent;
+
+      public void mouseDragged(MouseEvent e) {
+        
+        parent = BildGroszanzeigeZeichner.this.getParent();
+        if (parent instanceof JViewport) {
+          JViewport jv = (JViewport) parent;
+          Point p = jv.getViewPosition();
+          int newX = p.x - (e.getX() - lastX);
+          int newY = p.y - (e.getY() - lastY);
+          int maxX = BildGroszanzeigeZeichner.this.getWidth() - jv.getWidth();
+          int maxY = BildGroszanzeigeZeichner.this.getHeight() - jv.getHeight();
+          if (newX < 0) {
+            newX = 0;
+          }
+          if (newX > maxX) {
+            newX = maxX;
+          }
+          if (newY < 0) {
+            newY = 0;
+          }
+          if (newY > maxY) {
+            newY = maxY;
+          }
+          jv.setViewPosition(new Point(newX, newY));
+        }
+      }
+
+      public void mousePressed(MouseEvent e) {
+        setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+        lastX = e.getX();
+        lastY = e.getY();
+      }
+
+      public void mouseReleased(MouseEvent e) {
+        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+      }
+    };
+
+    addMouseMotionListener(mia);
+    addMouseListener(mia);
   }
 
   /**
@@ -670,7 +726,7 @@ class BildGroszanzeigeZeichner extends JLabel implements MouseMotionListener,
 
       breiteBild = originalBreite * skalierungProzent / 100;
       hoeheBild = originalHoehe * skalierungProzent / 100;
-      
+
       g.drawImage(bild, (int) (dieseBreite - breiteBild) / 2,
           (int) (dieseHoehe - hoeheBild) / 2, (int) breiteBild,
           (int) hoeheBild, this);
@@ -695,69 +751,6 @@ class BildGroszanzeigeZeichner extends JLabel implements MouseMotionListener,
               * (dieseHoehe / hoeheBild)) / 2, 0,
               (int) (breiteBild * (dieseHoehe / hoeheBild)), (int) dieseHoehe,
               this);
-    }
-  }
-
-  /**
-   * Bewegt das Bild entsprechend der Stelle an sich die Maus zur Zeit
-   * befindet.
-   */
-  public void mouseDragged(MouseEvent e) {
-    Rectangle r = new Rectangle(e.getX(), e.getY(), 1, 1);
-    scrollRectToVisible(r);
-  }
-
-  public void mouseMoved(MouseEvent e) {
-  }
-
-  public Dimension getPreferredScrollableViewportSize() {
-    return super.getPreferredSize();
-  }
-
-  /**
-   * Liefert das Blockinkrement anhand des sichtbares Bereichs und
-   * Orientierung.
-   */
-  public int getScrollableBlockIncrement(Rectangle visibleRect,
-      int orientation, int direction) {
-
-    if (orientation == SwingConstants.HORIZONTAL)
-      return visibleRect.width - maxUnitIncrement;
-    else
-      return visibleRect.height - maxUnitIncrement;
-  }
-
-  public boolean getScrollableTracksViewportHeight() {
-    return false;
-  }
-
-  public boolean getScrollableTracksViewportWidth() {
-    return false;
-  }
-
-  /**
-   * Liefert das Unitinkrement anhand des sichtbares Bereichs und
-   * Orientierung.
-   */
-  public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation,
-      int direction) {
-    // Get the current position.
-    int currentPosition = 0;
-    if (orientation == SwingConstants.HORIZONTAL) {
-      currentPosition = visibleRect.x;
-    } else {
-      currentPosition = visibleRect.y;
-    }
-
-    // Return the number of pixels between currentPosition
-    // and the nearest tick mark in the indicated direction.
-    if (direction < 0) {
-      int newPosition = currentPosition - (currentPosition / maxUnitIncrement)
-          * maxUnitIncrement;
-      return (newPosition == 0) ? maxUnitIncrement : newPosition;
-    } else {
-      return ((currentPosition / maxUnitIncrement) + 1) * maxUnitIncrement
-          - currentPosition;
     }
   }
 }
