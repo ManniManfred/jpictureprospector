@@ -1,6 +1,7 @@
 package jpp.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Event;
@@ -437,7 +438,7 @@ public class Hauptfenster extends JFrame {
 
 
       ergebnis = JOptionPane.showConfirmDialog(this, "Wollen Sie die "
-          + "Bilder auch von der Festplatte loeschen?", "Löschen",
+          + "Bilder auch von der Festplatte loeschen?", "L\u00f6schen",
           JOptionPane.YES_NO_CANCEL_OPTION);
       auchVonFestplatte = (ergebnis == JOptionPane.YES_OPTION)
           ? true
@@ -538,7 +539,6 @@ public class Hauptfenster extends JFrame {
     saveSettings();
 
     System.exit(0);
-    // }
   }
 
   /**
@@ -939,7 +939,7 @@ public class Hauptfenster extends JFrame {
     if (spThumbnails == null) {
       spThumbnails = new JScrollPane();
       spThumbnails.setViewportView(getSManager());
-      // spThumbnails.getViewport().setBackground(Color.white);
+      spThumbnails.getViewport().setBackground(Color.white);
     }
     return spThumbnails;
   }
@@ -1051,8 +1051,13 @@ public class Hauptfenster extends JFrame {
    */
   private void initialize() {
 
-    this.setSize(new Dimension(Einstellungen.FENSTER_BREITE,
+    Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+    if (Einstellungen.FENSTER_BREITE == d.width && Einstellungen.FENSTER_HOEHE == d.height) {
+      this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+    } else { 
+      this.setSize(new Dimension(Einstellungen.FENSTER_BREITE,
         Einstellungen.FENSTER_HOEHE));
+    }
     this.setLocation(Einstellungen.FENSTER_POSX, Einstellungen.FENSTER_POSY);
     this.setJMenuBar(getHauptmenu());
     setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
