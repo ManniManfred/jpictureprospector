@@ -37,7 +37,7 @@ import org.apache.lucene.search.TermQuery;
  * 
  * @author Manfred Rosskamp
  */
-public class JPPCore {
+public class JPPCore implements CoreInterface {
 
   /** Enthaelt eine Liste mit den Klassen aller zu verwendenen Merkmale. */
   private static List<Class> merkmalsklassen;
@@ -322,6 +322,17 @@ public class JPPCore {
     } catch (ImportException e) {
       throw new AendereException("\u00c4ndern hat nicht funktioniert.", e);
     }
+  }
+  
+  /**
+   * Entfernt ein <code>BildDokument</code> aus dem Index.
+   * @param bild  das <code>BildDokument</code> das entfernt werden soll
+   * @throws EntferneException  wird geworfen, wenn das Bild nicht
+   *           geloescht werden konnte
+   */
+  public void entferne(BildDokument bild) throws EntferneException {
+    
+    entferne(bild, false);
   }
 
   /**

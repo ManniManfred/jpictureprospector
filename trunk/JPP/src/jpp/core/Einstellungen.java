@@ -147,7 +147,7 @@ public class Einstellungen {
   /************  Einstellung zum merken der Pfadangabe *******************/
   
   @Property(visibility = false)
-  public static String importStartOrdner = null;
+  public static String importStartOrdner = System.getProperty("user.home");
   
   
   
