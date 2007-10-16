@@ -11,13 +11,16 @@ import org.apache.lucene.search.Hits;
 
 
 /**
- * Ein Objekt dieser Klasse stellt die Trefferliste sortiert nach der
- * Treffergenauigkeit einer Suche dar.
+ * Ein Objekt dieser Klasse stellt einen Ausschnitt einer Trefferliste sortiert 
+ * nach der Treffergenauigkeit einer Suche dar.
  * 
  * @author Manfred Rosskamp
  * @author Nils Verheyen
  */
 public class Trefferliste {
+
+  /** Gibt die Anzahl aller gefundenen Treffer zurueck. */
+  private int anzahlTreffer;
 
   /** Enthaelt eine Liste mit allen Treffern dieser Trefferliste. */
   private List<BildDokument> bildDokumente;
@@ -31,6 +34,7 @@ public class Trefferliste {
   public Trefferliste() {
     bildDokumente = new ArrayList<BildDokument>();
     score = new ArrayList<Float>();
+    anzahlTreffer = 0;
   }
 
   /**
@@ -43,7 +47,9 @@ public class Trefferliste {
   public Trefferliste(List<BildDokument> dokumente) {
     this.bildDokumente = dokumente;
     score = new ArrayList<Float>();
-    
+
+    anzahlTreffer = bildDokumente.size();
+
     /* Score fuer alle Dokumente auf 1 setzten. */
     for (int i = 0; i < bildDokumente.size(); i++) {
       score.add(1f);
@@ -54,18 +60,25 @@ public class Trefferliste {
    * Erzeugt eine neue Trefferliste aus der Lucene-Trefferliste.
    * 
    * @param treffer Trefferliste aus Lucene, aus der diese erzeugt wird
+   * @param offset Nummer des Bilddokumentes aller Treffer, ab der die Treffer
+   *          in dieser Trefferliste aufgenommen werden sollen
+   * @param maxanzahl Anzahl der Bilddokumente, die maximal in dieser 
+   *          Trefferliste aufgenommen werden sollen
    * @throws ErzeugeException wird geworgen, wenn das Erzeugen dieser
    *           Trefferliste misslingt. Z.B wenn aus dem Lucene-Document nicht
    *           das BildDokument erzeugt werden kann.
    */
-  public Trefferliste(Hits treffer) throws ErzeugeException {
+  public Trefferliste(Hits treffer, int offset, int maxanzahl)
+      throws ErzeugeException {
     bildDokumente = new ArrayList<BildDokument>();
     score = new ArrayList<Float>();
 
     /* erzeuge aus der Lucene Trefferliste eine Liste mit BildDokumenten */
     try {
-      for (int i = 0; i < treffer.length(); i++) {
-        bildDokumente.add(i, BildDokument.erzeugeAusLucene(treffer.doc(i)));
+      anzahlTreffer = treffer.length();
+
+      for (int i = offset; i < treffer.length() && i < offset + maxanzahl; i++) {
+        bildDokumente.add(BildDokument.erzeugeAusLucene(treffer.doc(i)));
         score.add(treffer.score(i));
       }
     } catch (ErzeugeBildDokumentException e) {
@@ -78,14 +91,24 @@ public class Trefferliste {
   }
 
   /**
-   * Gibt die Anzahl der Treffer zurueck.
+   * Gibt die Anzahl aller Treffer zurueck.
    * 
    * @return Anzahl der Treffer
+   */
+  public int getGesamtAnzahlTreffer() {
+    return anzahlTreffer;
+  }
+
+  /**
+   * Gibt die Anzahl der Treffer dieser Liste zurueck. Dies m�ssen nicht alle
+   * Treffer zu einer Suche sein. 
+   * 
+   * @return Anzahl der Treffer dieser Liste
    */
   public int getAnzahlTreffer() {
     return bildDokumente.size();
   }
-
+  
   /**
    * Gibt den Treffer mit der Nummer <code>treffernummer</code> zurueck.
    * 

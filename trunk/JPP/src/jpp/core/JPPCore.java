@@ -261,13 +261,33 @@ public class JPPCore implements CoreInterface {
   /**
    * Suche in allen importierten Bilder nach dem Suchtext und gibt eine
    * entsprechende Trefferliste mit den Suchergebnissen zurueck.
+   * Fuehrt suche(String suchtext, 0, 20) aus.
    * 
    * @param suchtext Suchtext, nach dem gesucht wird
    * @return Trefferliste mit den Suchergebnissen
    * @throws SucheException wird geworfen, wenn die Suche nicht erfolgreich mit
    *           einer erzeugten Trefferliste beendet werden kann
    */
-  public Trefferliste suche(String suchtext) throws SucheException {
+  public Trefferliste suche(String suchtext) 
+      throws SucheException {
+    return suche(suchtext, 0, 20);
+  }
+  
+  /**
+   * Suche in allen importierten Bilder nach dem Suchtext und gibt eine
+   * entsprechende Trefferliste mit den Suchergebnissen zurueck.
+   * 
+   * @param suchtext Suchtext, nach dem gesucht wird
+   * @param offset Nummer des Bilddokumentes aller Treffer, ab der die Treffer
+   *          in der Trefferliste aufgenommen werden sollen
+   * @param maxanzahl Anzahl der Bilddokumente, die maximal in der Trefferliste
+   *          aufgenommen werden sollen
+   * @return Trefferliste mit den Suchergebnissen
+   * @throws SucheException wird geworfen, wenn die Suche nicht erfolgreich mit
+   *           einer erzeugten Trefferliste beendet werden kann
+   */
+  public Trefferliste suche(String suchtext, int offset, int maxanzahl) 
+      throws SucheException {
 
     Trefferliste treffer;
     try {
@@ -283,7 +303,7 @@ public class JPPCore implements CoreInterface {
 
         /* Suche durchfuehren */
         Searcher sucher = new IndexSearcher(INDEX_DIR);
-        treffer = new Trefferliste(sucher.search(anfrage));
+        treffer = new Trefferliste(sucher.search(anfrage), offset, maxanzahl);
         sucher.close();
       }
     } catch (ParseException e) {

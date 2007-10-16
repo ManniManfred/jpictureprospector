@@ -302,10 +302,12 @@ public class Hauptfenster extends JFrame {
       }
     });
     
-    /* Listener hinzufuegen die entsprechende Aktionen ausführen, wenn
+    /* Listener hinzufuegen die entsprechende Aktionen ausfuehren, wenn
      * neue Bilder geladen wurden. */
     importierer.addBildImportiertListener(new BildimportListener() {
       public void bildImportiert(BildDokument dok) {
+        // Um zu verhindern, dass es beim einem Import von sehr vielen Bildern
+        // Heap Overflow kommt, werden keine Bilder angezeigt.
         erzeugeTAPundAdde(dok);
         ladebalken.setzeAnzahl(ladebalken.gibAnzahl() + 1);
       }
@@ -327,7 +329,8 @@ public class Hauptfenster extends JFrame {
    */
   public void sucheNach(String suchtext) {
     try {
-      Trefferliste trefferliste = kern.suche(suchtext);
+      /* TODO offset ueber UI steuern */
+      Trefferliste trefferliste = kern.suche(suchtext, 0, Einstellungen.ANZAHL_ERGEBNISSE);
 
       /* Entferne alle vorher angezeigten TAPs */
       clearAnzeige();
@@ -939,7 +942,8 @@ public class Hauptfenster extends JFrame {
     if (spThumbnails == null) {
       spThumbnails = new JScrollPane();
       spThumbnails.setViewportView(getSManager());
-      spThumbnails.getViewport().setBackground(Color.white);
+      
+      spThumbnails.getViewport().setBackground(new Color(240,240,240));
     }
     return spThumbnails;
   }
