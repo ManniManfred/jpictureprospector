@@ -29,12 +29,17 @@ public interface CoreInterface {
    * des Bildes beziehen, als auch auf numerische Werte wie z.B.
    * Bildhoehe.
    * @param suchString  der Text nach dem gesucht werden soll
+   * @param offset Nummer des Bilddokumentes aller Treffer, ab der die Treffer
+   *          in der Trefferliste aufgenommen werden sollen
+   * @param maxanzahl Anzahl der Bilddokumente, die maximal in der Trefferliste
+   *          aufgenommen werden sollen
    * @return  eine Trefferliste, die eine bestimmte Anzahl an Bilddokumenten
    *          enthaelt
    * @throws SucheException  wird geworfen wenn die Suche nicht erfolgreich
    *           durchgefuehrt werden konnte
    */
-  Trefferliste suche(String suchString) throws SucheException;
+  Trefferliste suche(String suchString, int offset, int maxanzahl)  
+      throws SucheException;
   
   /**
    * Entfernt ein <code>BildDokument</code> aus dem Lucene-Index, so

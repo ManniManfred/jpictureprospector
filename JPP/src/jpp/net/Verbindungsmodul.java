@@ -123,7 +123,8 @@ public class Verbindungsmodul implements CoreInterface {
     return null;
   }
 
-  public Trefferliste suche(String suchString) throws SucheException {
+  public Trefferliste suche(String suchString, int offset, int maxanzahl)
+      throws SucheException {
     // TODO Auto-generated method stub
     return null;
   }

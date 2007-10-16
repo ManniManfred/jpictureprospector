@@ -46,6 +46,14 @@ public class Einstellungen {
   public static String ALLEBILDER_SCHLUESSEL = "ALLEBILDER";
 
   
+  /******************* Einstellungen fuer die Suche ****************/
+
+  /** Maximale Anzahl angezeigter Such-Ergebnisse */
+  @Property(name = "Anzahl Ergebnisse",
+      desc = "Gibt die Anzahl der Suchergebnisse an",
+      constraint = "[1;100]",
+      group = "Suche")
+  public static int ANZAHL_ERGEBNISSE = 20;
   
   
   /******************* Einstellungen fuer Thumbnails ****************/
