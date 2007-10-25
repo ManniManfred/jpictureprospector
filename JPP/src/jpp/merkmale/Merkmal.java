@@ -55,4 +55,11 @@ public abstract class Merkmal extends AlleMerkmale {
    * @return <code>true</code>, wenn dieses Merkmal editierbar sein soll
    */
   public abstract boolean istEditierbar();
+
+  
+  public String toXml() {
+    return "<Merkmal name=\"" + getName() + "\">"
+      + getWert().toString()
+      + "</Merkmal>";
+  }
 }

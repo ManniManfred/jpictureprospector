@@ -316,4 +316,15 @@ public final class BildDokument {
     return alleMerkmale;
   }
 
+  public String toXml() {
+    String ergebnis = "<BildDokument>";
+    
+    for (Merkmal m : merkmale.values()) {
+      ergebnis += m.toXml();
+    }
+    
+    ergebnis += "</BildDokument>";
+    return ergebnis;
+  }
+
 }
