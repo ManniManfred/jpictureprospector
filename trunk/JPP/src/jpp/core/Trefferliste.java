@@ -137,4 +137,16 @@ public class Trefferliste {
         ? score.get(treffernummer)
         : -1;
   }
+  
+  public String toXml() {
+    String ergebnis = "<Trefferliste Anzahl=\"" + getGesamtAnzahlTreffer() 
+      + "\">";
+    
+    for (int i = 0; i < this.getAnzahlTreffer(); i++) {
+      ergebnis += this.getBildDokument(i).toXml();
+    }
+    
+    ergebnis += "</Trefferliste>";
+    return ergebnis;
+  }
 }
