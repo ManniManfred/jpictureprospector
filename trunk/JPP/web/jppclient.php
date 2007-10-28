@@ -7,59 +7,33 @@
 <pre>
 <?php
 
-$address = "127.0.0.1";
-$port = 5656;
+include_once("SocketVerbindung.cls.php");
 
+$address = "192.168.2.145";
+$port = 4567;
+
+$username = "kalle";
 $passwort = "bla";
 $suchtext = "jpg";
 
 
-// Socket erzeugen
-echo "Socket erzeugen ... ";
-$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-if ($socket < 0) {
-    echo "FAILED\nsocket_create() fehlgeschlagen: Grund: " . socket_strerror ($socket) . "\n";
-} else {
-    echo "OK.\n";
-}
-
 // Zum Server verbinden
 echo "Zum Server " . $address . " auf Port " . $port . " verbinden ... ";
-$result = socket_connect ($socket, $address, $service_port);
-if ($result < 0) {
-    echo "FAILED\nsocket_connect() fehlgeschlagen.\nGrund: ($result) " . socket_strerror($result) . "\n";
-} else {
-    echo "OK.\n";
-}
-
-// Passwort senden
-echo "Passwort zum Server senden ...";
-socket_write ($socket, $passwort, strlen ($passwort));
+flush();
+$conn = new SocketVerbindung();
 echo "OK.\n";
+flush();
 
+// Vom Server lesen
+echo "Gelesen: " . $conn->read();
+flush();
 
-// Suche starten
-echo "Suche nach \"" . $suchtext . "\" ... ";
-$befehl = "suche $suchtext";
-socket_write ($socket, $befehl, strlen ($befehl));
-echo "OK.\n";
+// Anfrage stellen
+$conn->write("suche " . $suchtext . "\n");
 
-// Suchergebnis ausgeben
-echo "Die Antwort lesen:\n\n";
-$xml_trefferliste = "";
-while ($read = socket_read ($socket, 2048)) {
-    $xml_trefferliste .= $read;
-}
-
-echo "XML-Trefferliste: " . $xml_trefferliste;
-
-// Verbindung schliessen
-echo "Verbindung schlissen ... ";
-$befehl = "exit";
-socket_write ($socket, $befehl, strlen ($befehl));
-socket_close($socket);
-echo "OK.\n\n";
-
+// Vom Server lesen
+echo "Gelesen: " . $conn->read();
+flush();
 
 // XML verarbeiten
 echo "\nXML verarbeiten ... ";

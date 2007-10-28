@@ -33,7 +33,7 @@ import org.apache.lucene.search.TermQuery;
 
 /**
  * Ein Objekt dieser Klasse stellt die Hauptaufgaben dieser JPictureProspector
- * Anwendung bereit.
+ * Anwendung bereit. Diese Klasse ist ein Singelton.
  * 
  * @author Manfred Rosskamp
  */
@@ -51,9 +51,22 @@ public class JPPCore implements CoreInterface {
   /** Enthaelt den Parser, der alle Such-Anfragen in eine Query parst. */
   private MultiFieldQueryParser parser;
 
+  /** Klassenvariable fuer das Singleton Object. */
+  private static JPPCore core = null;
 
+  /**
+   * Gibt das Singleton Objekt zurueck.
+   * @return das Singleton Objekt
+   * @throws ErzeugeException
+   */
+  public synchronized static JPPCore getInstance() throws ErzeugeException {
+    if (core == null) {
+      core = new JPPCore();
+    }
+    return core;
+  }
 
-
+  
   /**
    * Erstellt ein neues JPPCore-Objekt.
    * 
@@ -62,7 +75,7 @@ public class JPPCore implements CoreInterface {
    *           oder die Klassen zu den Merkmals-Klassennamen nicht gefunden
    *           wurden.
    */
-  public JPPCore() throws ErzeugeException {
+  private JPPCore() throws ErzeugeException {
 
     /* Namen aller moeglichen Merkmale herausfinden */
     String[] namen = null;
