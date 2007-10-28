@@ -7,6 +7,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +23,10 @@ import jpp.core.thumbnail.ThumbnailGenerierer;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+
+import com.sun.xml.internal.messaging.saaj.packaging.mime.util.BASE64EncoderStream;
+
+import sun.misc.BASE64Decoder;
 
 
 /**
@@ -76,7 +82,17 @@ public class ThumbnailMerkmal extends Merkmal {
           "Konnte kein Thumbnail erzeugen.", e);
     }
   }
-
+  
+  /**
+   * Gibt den Wert dieses Merkmals zurueck, der serialisierbar ist. In diesem
+   * Fall ist das das Bytearray.
+   * 
+   * @return den serialisierbaren Wert dieses Merkmals
+   */
+  public String getXmlWert() {
+    return new String(getImageByteArray(true));
+  }
+  
   /**
    * Liest den Merkmalswert aus einem Lucene-Document und speichert diesen in
    * diesem Merkmal-Objekt.
@@ -100,17 +116,35 @@ public class ThumbnailMerkmal extends Merkmal {
    * @return ein entsprechendes Lucene-Field
    */
   public Field erzeugeLuceneField() {
+    byte[] bildInBytes = getImageByteArray(false);
+    
+    return new Field(FELDNAME, bildInBytes, Field.Store.YES);
+  }
+
+  /**
+   * Wandelt das Thumbnailbild um in ein ByteArray.
+   * 
+   * @return bytearray, welches das Thumbnailbild entspricht
+   */
+  private byte[] getImageByteArray(boolean base64) {
     byte[] bildInBytes = null; 
-      
+    
     /* Thumbnail in ein Byte-Array schreiben */
     try {
       /* oeffnen */
       ByteArrayOutputStream baos = new ByteArrayOutputStream(1000);
+      OutputStream out;
+      
+      if (base64) {
+        out = new BASE64EncoderStream(baos);
+      } else {
+        out = baos;
+      }
       
       /* schreiben */
       ImageIO.write((BufferedImage) this.getWert(), 
           Einstellungen.THUMB_FORMAT.getAusgewaehlt().toString(), 
-          baos);
+          out);
       
       baos.flush();
       bildInBytes = baos.toByteArray();
@@ -124,9 +158,9 @@ public class ThumbnailMerkmal extends Merkmal {
       throw new RuntimeException("Konnte das BufferedImage nicht in ein "
           + "ByteArrayOutputStream schreiben.", e);
     }
-    return new Field(FELDNAME, bildInBytes, Field.Store.YES);
+    return bildInBytes;
   }
-
+  
   /**
    * Gibt zurueck, ob dieses Merkmal vom Endbenutzer editierbar sein kann oder
    * ob ein sich nicht aenderndes festes Merkmal ist.

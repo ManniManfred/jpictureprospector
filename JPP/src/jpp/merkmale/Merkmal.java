@@ -1,6 +1,10 @@
 
 package jpp.merkmale;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+
 import jpp.core.GeoeffnetesBild;
 import jpp.core.exceptions.LeseMerkmalAusException;
 
@@ -59,7 +63,7 @@ public abstract class Merkmal extends AlleMerkmale {
   
   public String toXml() {
     return "<Merkmal name=\"" + getName() + "\">"
-      + getWert().toString()
+      + getXmlWert()
       + "</Merkmal>";
   }
 }

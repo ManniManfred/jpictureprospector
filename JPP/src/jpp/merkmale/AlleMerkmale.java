@@ -1,6 +1,8 @@
 
 package jpp.merkmale;
 
+import java.io.Serializable;
+
 /**
  * Ein Objekt dieser Klasse repraesentiert ein Exif - Merkmal mit einem 
  * Mermalsnamen und einem zu dem Merkmal gehoerenden Wert. 
@@ -42,6 +44,17 @@ public abstract class AlleMerkmale {
     return wert;
   }
 
+  /**
+   * Gibt den Wert dieses Merkmals zurueck, der serialisierbar ist. Falls
+   * der normale Wert nicht serialisierbar ist, muss diese Methode 
+   * ueberschrieben werden.
+   * 
+   * @return den serialisierbaren Wert dieses Merkmals
+   */
+  public String getXmlWert() {
+    return getWert().toString();
+  }
+  
   /**
    * Setzt den Wert dieses Merkmals.
    * @param wert  Wert, auf den dieses Merkmal gesetzt werden soll.
