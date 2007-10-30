@@ -317,13 +317,13 @@ public final class BildDokument {
   }
 
   public String toXml() {
-    String ergebnis = "<BildDokument>";
+    String ergebnis = "<BildDokument>\n";
     
     for (Merkmal m : merkmale.values()) {
       ergebnis += m.toXml();
     }
     
-    ergebnis += "</BildDokument>";
+    ergebnis += "</BildDokument>\n";
     return ergebnis;
   }
 

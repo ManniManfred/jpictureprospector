@@ -1,25 +1,33 @@
 <?php
 
-include_once("logger.php");
-
+include_once("logger.inc.php");
+include_once("exceptions/CouldNotConnectException.cls.php");
 class SocketVerbindung {
+
+  private $stopzeichen = "$";
 
   private $port = 4567;
   private $address;
   private $socket;
+  
+  
 
-
+  /**
+   * Erzeugt ein neues Verbindungsobjekt und baut direkt eine Verbindung auf.
+   * 
+   * @throws CouldNotConnectException wenn keine Verbindung aufgebaut werden
+   *  konnte.
+   */
   function SocketVerbindung($hostname = "localhost", $port = 4567) {
     $this->port = $port;
     $this->address = gethostbyname($hostname);
     $this->socket = socket_create(AF_INET, SOCK_STREAM,SOL_TCP);
+    
     if ($this->socket < 0) {
-      logge("Socket konnte nicht erzeugt werden", ERROR);
+      throw new CouldNotConnectException("Konnte keinen Socket erzeugen.");
     } else {
       if (socket_connect($this->socket, $this->address, $this->port) === false) {
-        logge("Konnte nicht über Port $port mit $address verbinden.", ERROR);
-      } else {
-
+        throw new CouldNotConnectException("Konnte nicht über Port $port mit $hostname({$this->address}) verbinden.");
       }
     }
   }
@@ -35,7 +43,7 @@ class SocketVerbindung {
     $timeOut = 2000; // in millisekunden
     $timestep = 100;
     $time = 0;
-    while($zeichen != ">" && $time < $timeOut) {
+    while($zeichen != $this->stopzeichen && $time < $timeOut) {
       $zeichen = socket_read($this->socket, 1);
       if (strlen($zeichen) == 0) {
         sleep($timestep);

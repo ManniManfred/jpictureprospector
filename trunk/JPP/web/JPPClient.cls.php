@@ -2,7 +2,8 @@
 include_once("SocketVerbindung.cls.php");
 include_once("config.inc.php");
 include_once("logger.inc.php");
-include_once("NotConnectedException.cls.php");
+include_once("exceptions/NotConnectedException.cls.php");
+include_once("XmlTrefferlisteParser.cls.php");
 
 /**
  * Ein Objekt dieser Klasse stellt ein JPPClient dar, der sich mit dem JPPServer
@@ -13,23 +14,34 @@ class JPPClient {
   /** Enthaelt die SocketVerbindung zum JPPServer. */
   private $conn;
   
+  /** Parser, der die empfangene Trefferliste in ein Trefferlisten-Objekt
+   * umwandelt. 
+   */
+  private $parser;
+  
   /** Gibt an, ob der Client mit dem JPPServer verbunden ist. */
   private $isConnected = false;
   
   /**
    * Erzeugt einen neuen JPPClient und verbindet sich direkt mit dem JPPServer.
+   * 
+   * @throws Exception, wenn keine Verbindung aufgebaut werden konnte
    */
-  JPPClient() {
+  public function JPPClient() {
     // Zum Server verbinden
     $this->conn = new SocketVerbindung($_ENV["host"], $_ENV["port"]);
+    
+    // Parser erzeugen
+    $this->parser = new XmlTrefferlisteParser();
+    
     logge("Verbindung zum JPPServer aufgebaut.", INFO);
     
     // einloggen
-    $this->conn.writeln($_ENV["username"]);
-    $this->conn.writeln($_ENV["passwort"]);
+    $this->conn->writeln($_ENV["username"]);
+    $this->conn->writeln($_ENV["passwort"]);
     
     // Vom Server lesen
-    $response = $conn->read();
+    $response = $this->conn->read();
     logge("Nachricht vom Server: " . $response , INFO);
     
     if (substr($response, 0, 2) == "OK") {
@@ -60,21 +72,19 @@ class JPPClient {
       
       logge("Suche nach: " . $suchtext , INFO);
       
-      $conn->writeln("suche \"$suchtext\" $offset $maxanzahl");
+      $this->conn->writeln("suche $offset $maxanzahl $suchtext");
 
       // Vom Server die Trefferliste holen
-      $result = $conn->read();
-      logge("Ergebnis der Suche: " . $result , INFO);
-
-
+      $result = $this->conn->read();
+      //logge("Ergebnis der Suche: " . htmlentities(utf8_decode($result)) , INFO);
+      
       // XML verarbeiten
-      echo "\nXML verarbeiten ... ";
-
+      return $this->parser->parse($result);
     } else {
       throw new NotConnectedException("Es besteht keine Verbindung zum Server");
     }
   }
-	
+
 
 }
 

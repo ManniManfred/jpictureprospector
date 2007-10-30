@@ -140,7 +140,7 @@ public class Trefferliste {
   
   public String toXml() {
     String ergebnis = "<Trefferliste Anzahl=\"" + getGesamtAnzahlTreffer() 
-      + "\">";
+      + "\">\n";
     
     for (int i = 0; i < this.getAnzahlTreffer(); i++) {
       ergebnis += this.getBildDokument(i).toXml();

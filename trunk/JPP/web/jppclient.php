@@ -2,43 +2,38 @@
 <html>
 <head>
   <title>JPPServer - Test</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head>
 <body>
+<form method="POST">
+Suche <input name="suchtext" type="text">
+<input type="submit">
+</form>
 <pre>
 <?php
 
-include_once("SocketVerbindung.cls.php");
-
-$address = "192.168.2.145";
-$port = 4567;
-
-$username = "kalle";
-$passwort = "bla";
-$suchtext = "jpg";
-
-
-// Zum Server verbinden
-echo "Zum Server " . $address . " auf Port " . $port . " verbinden ... ";
-flush();
-$conn = new SocketVerbindung();
-echo "OK.\n";
-flush();
-
-// Vom Server lesen
-echo "Gelesen: " . $conn->read();
-flush();
-
-// Anfrage stellen
-$conn->write("suche " . $suchtext . "\n");
-
-// Vom Server lesen
-echo "Gelesen: " . $conn->read();
-flush();
-
-// XML verarbeiten
-echo "\nXML verarbeiten ... ";
-
-
+if (isset($_POST["suchtext"])) {
+  
+  include_once("JPPClient.cls.php");
+  include_once("Trefferliste.cls.php");
+  
+  try {
+    $client = new JPPClient();
+    
+    $liste = $client->suche($_POST["suchtext"], 0, 10);
+    
+    echo "\n\nAnzahl Treffer: " . $liste->getGesamtAnzahlTreffer();
+    
+    for ($i = 0, $l = $liste->getAnzahlTreffer(); $i < $l; $i++) {
+      $dok = $liste->getBildDokument($i);
+      echo "\nPfad = " . $dok->getMerkmal("Dateipfad")->getWert();
+      echo "\n<img src='data:image/jpg;base64," 
+        . $dok->getMerkmal("Thumbnail")->getWert() . "'>";
+    }
+  } catch(CouldNotConnectException $e) {
+    echo "Konnte leider nicht verbinden";
+  }
+}
 ?>
 
 </pre>
