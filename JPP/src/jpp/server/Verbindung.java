@@ -22,6 +22,8 @@ import jpp.core.exceptions.SucheException;
  * @author Manfred Rosskamp
  */
 public class Verbindung extends Thread {
+
+  private static final char STOPZEICHEN = '$';
   
   private static final String USERNAME = "manni";
   private static final String PASSWORT = "blablub";
@@ -81,20 +83,22 @@ public class Verbindung extends Thread {
   private void verarbeiteAnfragen() throws IOException{
     String befehl = "";
     List<String> args;
-    
+    String line;
     
     while(true) {
-      print(">");
+      print("" + STOPZEICHEN);
       try {
-        String line = readln();
+        line = readln();
+        if (line == null) {
+          continue;
+        }
         args = getArgs(line);
       } catch(IOException e) {
         logger.log(Level.WARNING, "Verbindung wurde nicht korrekt beendet.");
         break;
       }
       befehl = args.get(0);
-      System.out.println("Args: " + args);
-      logger.log(Level.INFO, "Fuehrt \"" + befehl + "\" aus");
+      logger.log(Level.INFO, "Fuehrt \"" + line + "\" aus");
   
       String ergebnis;
       if (befehl.equals("suche")) {
@@ -113,7 +117,7 @@ public class Verbindung extends Thread {
         ergebnis = "\"" + befehl + "\" ist ein unbekannter Befehl.";
       }
       
-      logger.log(Level.INFO, "Ergebnis: " + ergebnis);
+      //logger.log(Level.INFO, "Ergebnis: " + ergebnis);
       println(ergebnis);
       
     }
@@ -158,7 +162,8 @@ public class Verbindung extends Thread {
   }
 
   private boolean istPasswortKorrekt(String username, String passwort) {
-    return username.equals(Verbindung.USERNAME ) 
+    return username != null && passwort != null
+      && username.equals(Verbindung.USERNAME) 
       && passwort.equals(Verbindung.PASSWORT);
   }
   
@@ -169,7 +174,7 @@ public class Verbindung extends Thread {
    */
   public void beende() {
     try {
-      println("Tschüss");
+      println("Tschuess");
     
       out.close();
       in.close();
@@ -188,13 +193,13 @@ public class Verbindung extends Thread {
     String ergebnis;
     if (args.size() != 4) {
       ergebnis = "Suchbefehl muss folgenden Aufbau haben:\n";
-      ergebnis += "\tsuche \"<suchstring>\" <Offset> <Maxanzahl>";
+      ergebnis += "\tsuche <Offset> <Maxanzahl> <suchstring>";
     } else {
-      String suchtext = args.get(1);
+      String suchtext = args.get(3);
       
       try {
-        int offset = Integer.parseInt(args.get(2));
-        int max = Integer.parseInt(args.get(3));
+        int offset = Integer.parseInt(args.get(1));
+        int max = Integer.parseInt(args.get(2));
 
         try {
           JPPCore kern = JPPCore.getInstance();
