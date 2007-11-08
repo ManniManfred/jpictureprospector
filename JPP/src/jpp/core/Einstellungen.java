@@ -15,26 +15,50 @@ public class Einstellungen {
 
   /**** Nicht veraenderbare Einstellungen ****/
   /**
-   * Enthält den Dateinamen zu der Datei, in der die Einstellungen
+   * Enthaelt den Dateinamen zu der Datei, in der die Einstellungen
    * gespeichert werden. 
    */
   public static final String SETTING_FILENAME = "settings.ini";
   
-  /**
-   * Enthaelt den Pfad zur Merkmalsdatei, in der eine Liste mit allen zu
-   * verwendenen Merkmalen steht.
-   */
-  public static final String MERKMAL_DATEI = "merkmale";
 
-  /**
-   * Die Datei, in der die fuer die Formate entsprechenden Thumbnailgenerierer
-   * stehen.
-   */
-  public static final String THUMB_ZUORDUNGSDATEI = "thumbnailGenerierer";
-  
   
   /**** Veraenderbare Einstellungen ****/
   
+  @Property(visibility = false,
+      desc = "Enthaelt alle Klassennamen der zu verwendenen Merkmale."  +
+      		" Diese Einstellung sollte nur dann veraendert werden, wenn es " +
+      		"noch keinen Lucene Index gibt bzw. wenn noch keine Bilder importiert" +
+      		"wurden. Ansonsten kann es auf Grund der Unstimmigkeiten zwischen " +
+      		"dem Programm und dem Lucene-Index zu schwerwiegenden Fehlern kommen." +
+      		" Zudem sind fuer das Programm die Merkmale" +
+      		" Dateiname, Dateipfad, Thumbnail, Bildbreite, Bildhoehe," +
+      		" SchuesselWoerter und Beschreibung" +
+      		" unbedingt notwendig.")
+  public static String[] MERKMALE = new String[] {
+    "jpp.merkmale.BeschreibungMerkmal",
+    "jpp.merkmale.BildbreiteMerkmal",
+    "jpp.merkmale.BildhoeheMerkmal",
+    "jpp.merkmale.BildtypMerkmal",
+    "jpp.merkmale.DateigroesseMerkmal",
+    "jpp.merkmale.DateipfadMerkmal",
+    "jpp.merkmale.DateinameMerkmal",
+    "jpp.merkmale.LetzterZugriffMerkmal",
+    "jpp.merkmale.SchluesselWoerterMerkmal",
+    "jpp.merkmale.ThumbnailMerkmal",
+    "jpp.merkmale.OrtMerkmal"
+  };
+  
+  
+  /**
+   * Gibt an, welche Thumbnailgenerierer bei welchen Formaten verwendeter werden
+   * sollen.
+   */
+  @Property(visibility = false, 
+      desc = "Gibt an, welche Thumbnailgenerierer bei welchen Formaten " +
+      		"verwendeter werden sollen.")
+  public static String[] THUMB_ZUORDUNGEN = new String[]{
+    "jpg, gif, png = jpp.core.thumbnail.SchnellerGenerierer",
+     "* = jpp.core.thumbnail.AlleFormateGenerierer"};
   
   /**
    * Enthaelt das Schuesselwort, welches bei der Suche eingegeben werden kann,
@@ -154,8 +178,9 @@ public class Einstellungen {
   
   /************  Einstellung zum merken der Pfadangabe *******************/
   
-  @Property(visibility = false)
-  public static String importStartOrdner = System.getProperty("user.home");
+  @Property(visibility = false, desc = "Ordner der zuerst bei der Auswahl" +
+      "von zu importierenden Bildern angezeigt werden soll.")
+  public static String importStartOrdner = ""; //System.getProperty("user.home");
   
   
   

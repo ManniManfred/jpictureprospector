@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd" [
+    <!--ENTITY % classpath-ent SYSTEM "classpath.ent"> %classpath-ent;-->
+]>
+
+<web-app>
+
+	<servlet>
+    <servlet-name>rpc</servlet-name>
+    <servlet-class>net.sf.qooxdoo.rpc.RpcServlet</servlet-class>
+    
+		<init-param>
+		  <param-name>referrerCheck</param-name>
+		  <param-value>domain</param-value>
+		</init-param>
+		
+	</servlet>
+	
+	<servlet-mapping>
+    <servlet-name>rpc</servlet-name>
+    <url-pattern>*.qxrpc</url-pattern>
+	</servlet-mapping>
+
+
+  <servlet>
+    <servlet-name>JPPCore</servlet-name>
+    <servlet-class>jpp.server.JPPCoreServlet</servlet-class>
+        
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>JPPCore</servlet-name>
+    <url-pattern>/JPPCore</url-pattern>
+  </servlet-mapping>
+  
+	
+	<context-param>
+	  <param-name>indexDir</param-name>
+	  <param-value>/windows/daten/Entwicklung/JPP/imageIndex</param-value>
+	</context-param>
+	  
+	<listener>
+	  <listener-class>
+	    jpp.server.ServletContext
+	  </listener-class>
+	</listener>
+
+</web-app>

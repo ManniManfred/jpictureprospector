@@ -1,0 +1,43 @@
+<?xml version='1.0'?>
+<project name="JPP-webapp" default="make" basedir=".">
+
+    <property file="build.properties"/>
+    <property name="frontendDir" value ="../../frontend"/>
+
+    <target name="compile">
+        <mkdir dir="bin"/>
+        <javac srcdir="src" destdir="bin" debug="true">
+            <classpath>
+                <fileset dir="lib">
+                    <include name="**.jar"/>
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+	
+
+    <target name="war">
+        <war destfile="jpp.war" webxml="webapp/WEB-INF/web.xml">
+            <fileset dir="webapp">
+                <exclude name="WEB-INF/**"/>
+            </fileset>
+            <lib dir="lib">
+                <exclude name="servlet-api.jar"/>
+            </lib>
+            <classes dir="bin"/>
+        </war>
+    </target>
+
+    <target name="make" depends="compile, war"/>
+    
+    <target name="clean">
+        <delete dir="bin"/>
+        <delete dir="build"/>
+        <delete file="jpp.war"/>
+    </target>
+    
+    <target name="deploy">
+        <copy file="jpp.war" todir="${deployDir}"/>
+    </target>
+    
+</project>

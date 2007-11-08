@@ -1,5 +1,7 @@
 <?php
 
+$_ENV["LOGFILE"] = "tmp/backend.log";
+
 /**
  * Einstellungen zur Verbindung zum JPPServer
  */

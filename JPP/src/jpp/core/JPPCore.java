@@ -46,7 +46,7 @@ public class JPPCore implements CoreInterface {
   private static List<String> merkmalsNamen;
 
   /** Enthaelt den Pfad zu dem Index-Verzeichnis von Lucene. */
-  private static final String INDEX_DIR = "imageIndex";
+  private String indexDir;
 
   /** Enthaelt den Parser, der alle Such-Anfragen in eine Query parst. */
   private MultiFieldQueryParser parser;
@@ -54,29 +54,21 @@ public class JPPCore implements CoreInterface {
   /** Klassenvariable fuer das Singleton Object. */
   private static JPPCore core = null;
 
-  /**
-   * Gibt das Singleton Objekt zurueck.
-   * @return das Singleton Objekt
-   * @throws ErzeugeException
-   */
-  public synchronized static JPPCore getInstance() throws ErzeugeException {
-    if (core == null) {
-      core = new JPPCore();
-    }
-    return core;
-  }
-
+  
   
   /**
    * Erstellt ein neues JPPCore-Objekt.
+   * @param indexDir Enthaelt den Pfad zu dem Index-Verzeichnis von Lucene
    * 
    * @throws ErzeugeException wird geworfen, falls beim Erzeugen dieses Objektes
    *           ein Fehler auftritt. Z.B wenn die Merkmalsdatei nicht existiert,
    *           oder die Klassen zu den Merkmals-Klassennamen nicht gefunden
    *           wurden.
    */
-  private JPPCore() throws ErzeugeException {
+  public JPPCore(String indexDir) throws ErzeugeException {
 
+    this.indexDir = indexDir;
+    
     /* Namen aller moeglichen Merkmale herausfinden */
     String[] namen = null;
     try {
@@ -101,23 +93,19 @@ public class JPPCore implements CoreInterface {
    *           angegeben ist nicht gefunden wurde.
    * @throws IOException wenn die Merkamlsdatei nicht gelesen werden konnte
    */
-  public static List<Class> getMerkmalsKlassen() throws IOException,
-      ClassNotFoundException {
+  public static List<Class> getMerkmalsKlassen() throws ClassNotFoundException {
     if (merkmalsklassen == null) {
       merkmalsklassen = new ArrayList<Class>();
 
-      /* Datei mit der Merkmalsliste oeffnen. */
-      BufferedReader reader = new BufferedReader(new FileReader(
-          Einstellungen.MERKMAL_DATEI));
-
+      
+      
       String merkmalsKlassenname;
 
       /* Alle Merkmale aus der Merkmalsliste durchgehen */
-      while ((merkmalsKlassenname = reader.readLine()) != null) {
+      for (int i = 0; i < Einstellungen.MERKMALE.length; i++) {
+        merkmalsKlassenname = Einstellungen.MERKMALE[i];
         merkmalsklassen.add(Class.forName(merkmalsKlassenname));
       }
-
-      reader.close();
     }
     return merkmalsklassen;
   }
@@ -195,7 +183,7 @@ public class JPPCore implements CoreInterface {
 
     try {
       /* Erzeuge einen IndexWriter, der den bestehenden Index verwendet. */
-      IndexWriter writer = new IndexWriter(INDEX_DIR, analyzer);
+      IndexWriter writer = new IndexWriter(indexDir, analyzer);
 
       /* BildDokument dem Lucene-Index hinzufuegen */
       Document doc = dokument.erzeugeLuceneDocument();
@@ -223,7 +211,7 @@ public class JPPCore implements CoreInterface {
   private List<BildDokument> gibAlleDokumente()
       throws ErzeugeBildDokumentException, IOException {
     List<BildDokument> ergebnis;
-    IndexReader reader = IndexReader.open(INDEX_DIR);
+    IndexReader reader = IndexReader.open(indexDir);
 
     int anzahl = reader.maxDoc();
     ergebnis = new ArrayList<BildDokument>(anzahl);
@@ -249,7 +237,7 @@ public class JPPCore implements CoreInterface {
   public boolean istDateiImIndex(File datei) {
 
     try {
-      Searcher sucher = new IndexSearcher(INDEX_DIR);
+      Searcher sucher = new IndexSearcher(indexDir);
 
       /* Nach dem Dateipfad suchen */
       Hits treffer = sucher.search(new TermQuery(new Term(
@@ -315,7 +303,7 @@ public class JPPCore implements CoreInterface {
         Query anfrage = parser.parse(suchtext);
 
         /* Suche durchfuehren */
-        Searcher sucher = new IndexSearcher(INDEX_DIR);
+        Searcher sucher = new IndexSearcher(indexDir);
         treffer = new Trefferliste(sucher.search(anfrage), offset, maxanzahl);
         sucher.close();
       }
@@ -386,7 +374,7 @@ public class JPPCore implements CoreInterface {
     IndexReader reader;
     String pfad;
     try {
-      reader = IndexReader.open(INDEX_DIR);
+      reader = IndexReader.open(indexDir);
 
       /*
        * Da die Pfadangabe eindeutig ist, entferne das Document mit dem Pfad,

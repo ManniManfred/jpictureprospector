@@ -26,6 +26,10 @@ public class LetzterZugriffMerkmal extends Merkmal {
     super(FELDNAME);
   }   
   
+  public String getXmlName() {
+    return "Letzter_Zugriff";
+  }
+  
   /**
    * Liest das Datum der letzten Modifzierung aus dem uebergebenen geoeffneten
    * Bild und speichert diesen in diesem Merkmal-Objekt.

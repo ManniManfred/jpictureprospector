@@ -161,7 +161,7 @@ public class Hauptfenster extends JFrame {
 
     /* JPPCore erzeugen */
     try {
-      kern = JPPCore.getInstance();
+      kern = new JPPCore("imageIndex");
     } catch (ErzeugeException e) {
       e.printStackTrace();
     }

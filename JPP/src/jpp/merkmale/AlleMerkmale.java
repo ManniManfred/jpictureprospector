@@ -43,7 +43,15 @@ public abstract class AlleMerkmale {
   public Object getWert() {
     return wert;
   }
-
+  
+  /** 
+   * Gibt den name dieses Merkmals XML-Komform zurück, d.h. z.B. ohne 
+   * Leerzeichen.
+   */
+  public String getXmlName() {
+    return name;
+  }
+  
   /**
    * Gibt den Wert dieses Merkmals zurueck, der serialisierbar ist. Falls
    * der normale Wert nicht serialisierbar ist, muss diese Methode 

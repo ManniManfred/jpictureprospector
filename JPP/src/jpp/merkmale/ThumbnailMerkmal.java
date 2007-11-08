@@ -2,15 +2,10 @@ package jpp.merkmale;
 
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.imageio.ImageIO;
 
@@ -20,13 +15,12 @@ import jpp.core.exceptions.GeneriereException;
 import jpp.core.exceptions.LeseMerkmalAusException;
 import jpp.core.thumbnail.SimpleThumbnailGeneriererFactory;
 import jpp.core.thumbnail.ThumbnailGenerierer;
+import jpp.net.BASE64EncoderStream;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
-import com.sun.xml.internal.messaging.saaj.packaging.mime.util.BASE64EncoderStream;
 
-import sun.misc.BASE64Decoder;
 
 
 /**
