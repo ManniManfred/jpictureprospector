@@ -70,11 +70,8 @@ public class SimpleThumbnailGeneriererFactory {
       String klassenname = "";
 
       try {
-        BufferedReader leser = new BufferedReader(new FileReader(
-            Einstellungen.THUMB_ZUORDUNGSDATEI));
-
-        String zeile;
-        while ((zeile = leser.readLine()) != null) {
+        for (int i = 0; i < Einstellungen.THUMB_ZUORDUNGEN.length; i++) {
+          String zeile = Einstellungen.THUMB_ZUORDUNGEN[i];
           int posGleich = zeile.indexOf("=");
           String formateStr = zeile.substring(0, posGleich);
 
@@ -88,14 +85,11 @@ public class SimpleThumbnailGeneriererFactory {
               .newInstance();
 
           /* Die Zuordnung von den Formaten zu dem Generierer abspeichern */
-          for (int i = 0; i < formate.length; i++) {
-            thumbZuordnung.put(formate[i].trim().toLowerCase(), generierer);
+          for (int j = 0; j < formate.length; j++) {
+            thumbZuordnung.put(formate[j].trim().toLowerCase(), generierer);
           }
 
         }
-      } catch (IOException e) {
-        throw new Exception("Konnte die Datei "
-            + Einstellungen.THUMB_ZUORDUNGSDATEI + " nicht lesen.", e);
       } catch (ClassNotFoundException e) {
         throw new Exception("Konnte die Klasse \"" + klassenname
             + "\" nicht finden.", e);

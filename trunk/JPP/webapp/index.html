@@ -1,0 +1,83 @@
+<html>
+<head>
+<title>Hallo</title>
+<script language="Javascript">
+
+function start() {
+
+	if (window.XMLHttpRequest) { // Mozilla, Safari,...
+    http_request = new XMLHttpRequest();
+	    if (http_request.overrideMimeType) {
+	        http_request.overrideMimeType('text/xml');
+	        // zu dieser Zeile siehe weiter unten
+	    }
+	} else if (window.ActiveXObject) { // IE
+	    try {
+	        http_request = new ActiveXObject("Msxml2.XMLHTTP");
+	    } catch (e) {
+	        try {
+	            http_request = new ActiveXObject("Microsoft.XMLHTTP");
+	        } catch (e) {}
+	    }
+	}
+	
+	if (!http_request) {
+	    alert('Ende :( Kann keine XMLHTTP-Instanz erzeugen');
+	    return false;
+	}
+	
+	http_request.onreadystatechange = onReady;
+	
+	http_request.open("POST", "JPPCore", true);
+	http_request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	http_request.send("suchtext=strand&offset=0&maxanzahl=2");
+	
+}
+
+function onReady() {
+  if (http_request.readyState == 4) {
+    if (http_request.status == 200) {
+	    zeigeTreffer(http_request.responseXML);
+	  } else {
+	    alert('Bei dem Request ist ein Problem aufgetreten.');
+	  }
+	}
+}
+
+function zeigeTreffer(trefferXML) {
+  document.write(xslt(trefferXML, trefferXML.firstChild));
+
+	console.log("version 1" + trefferXML);
+}
+
+function xslt(xmlDoc,xslDoc) {
+	var transform;
+	
+	if (typeof ActiveXObject != 'undefined') {
+		transform = xmlDoc.transformNode(xslDoc);
+	}
+	else {
+		var xsl = new XSLTProcessor();
+		
+		xsl.importStylesheet(xslDoc);
+		var fragment=xsl.transformToFragment(xmlDoc, document);
+		if( fragment.childNodes.length>0 )
+		  transform = fragment.childNodes[0].innerHTML;
+		else
+			alert("error");
+	}
+	return transform;
+}
+
+</script>
+</head>
+<body onload="start()">
+<h1> hallo JPP</h1>
+
+<div id="elemente">
+
+</div>
+
+</body>
+
+</html>

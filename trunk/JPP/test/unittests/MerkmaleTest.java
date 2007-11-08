@@ -62,7 +62,7 @@ public class MerkmaleTest {
   @Before
   public void setUp() throws Exception {
     System.out.println("setUp gestartet");
-    core = JPPCore.getInstance();
+    core = new JPPCore("imageIndex");
 
     try {
       bildJPGmitDaten = core.importiere(new File(PFAD

@@ -4,9 +4,9 @@ include_once("JPPClient.cls.php");
 /**
  * Ein Objekt dieser Klasse stellt JSON-Wrapper für den JPPClient dar.
  */
-class class_JPPClient {
+class class_JPPClientJSON {
   
-  private $client;
+  private $client = null;
   
   /**
    * Erzeugt einen neuen JPPClient und verbindet sich direkt mit dem JPPServer.
@@ -14,7 +14,6 @@ class class_JPPClient {
    * @throws Exception, wenn keine Verbindung aufgebaut werden konnte
    */
   public function class_JPPClient() {
-    $client = new JPPClient();
   }
   
   
@@ -31,8 +30,20 @@ class class_JPPClient {
    * @throws SucheException wird geworfen, wenn die Suche nicht erfolgreich mit
    *           einer erzeugten Trefferliste beendet werden kann
    */
-  public function method_suche($suchtext, $offset, $maxanzahl) {
-    return $client->suche($suchtext, $offset, $maxanzahl);
+  public function method_suche($params = null, $error = null) {
+    if (count($params) != 3){
+      $error->SetError(JsonRpcError_ParameterMismatch,
+               "Expected only 3 parameter; got " . count($params));
+      return $error;
+    }
+    
+    if ($this->client == null) {
+      $this->client = new JPPClient();
+    }
+
+    $treffer = $this->client->suche($params[0], $params[1], $params[2]);
+    
+    return $treffer.
   }
 
 

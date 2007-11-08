@@ -202,7 +202,7 @@ public class Verbindung extends Thread {
         int max = Integer.parseInt(args.get(2));
 
         try {
-          JPPCore kern = JPPCore.getInstance();
+          JPPCore kern = new JPPCore("imageIndex");
           Trefferliste liste = kern.suche(suchtext, offset, max);
           
           ergebnis = liste.toXml();

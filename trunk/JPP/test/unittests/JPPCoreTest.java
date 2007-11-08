@@ -63,7 +63,7 @@ public class JPPCoreTest {
    */
   @Before
   public void setUp() throws Exception {
-    core = JPPCore.getInstance();
+    core = new JPPCore("imageIndex");
   }
 
   /**
