@@ -1,7 +1,6 @@
 
 package jpp.merkmale;
 
-import java.io.Serializable;
 
 /**
  * Ein Objekt dieser Klasse repraesentiert ein Exif - Merkmal mit einem 
@@ -44,13 +43,6 @@ public abstract class AlleMerkmale {
     return wert;
   }
   
-  /** 
-   * Gibt den name dieses Merkmals XML-Komform zurück, d.h. z.B. ohne 
-   * Leerzeichen.
-   */
-  public String getXmlName() {
-    return name;
-  }
   
   /**
    * Gibt den Wert dieses Merkmals zurueck, der serialisierbar ist. Falls

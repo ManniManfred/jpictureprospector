@@ -39,7 +39,7 @@
 	
 	<context-param>
 	  <param-name>indexDir</param-name>
-	  <param-value>/windows/daten/Entwicklung/JPP/imageIndex</param-value>
+	  <param-value>D:/Entwicklung/JPP/imageIndex</param-value>
 	</context-param>
 	  
 	<listener>

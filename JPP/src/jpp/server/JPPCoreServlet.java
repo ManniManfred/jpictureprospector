@@ -52,7 +52,7 @@ public class JPPCoreServlet extends HttpServlet {
 
         resp.setContentType("text/xml");
         out.println("<?xml version=\"1.0\" ?>");
-        out.println("<?xml-stylesheet type=\"text/xsl\" href=\"trefferliste.xsl\" ?>");
+        out.println("<?xml-stylesheet type=\"text/xsl\" href=\"trefferDok.xsl\" ?>");
         out.println(liste.toXml());
       } catch (SucheException e) {
         out.println("Fehler beim suchen: " + e.getCause());

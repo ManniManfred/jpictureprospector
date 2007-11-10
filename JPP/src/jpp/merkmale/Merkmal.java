@@ -62,8 +62,8 @@ public abstract class Merkmal extends AlleMerkmale {
 
   
   public String toXml() {
-    return "<" + getXmlName() + ">"
+    return "<" + this.getClass().getSimpleName() + ">"
       + getXmlWert()
-      + "</" + getXmlName() + ">\n";
+      + "</" + this.getClass().getSimpleName() + ">\n";
   }
 }
