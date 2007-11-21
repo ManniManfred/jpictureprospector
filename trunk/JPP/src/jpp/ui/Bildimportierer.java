@@ -1,15 +1,16 @@
 package jpp.ui;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Observer;
 
 import javax.swing.JOptionPane;
 
+import jpp.core.AbstractJPPCore;
 import jpp.core.BildDokument;
-import jpp.core.JPPCore;
 import jpp.core.exceptions.ImportException;
 import jpp.ui.listener.BildimportListener;
 
@@ -28,7 +29,7 @@ public class Bildimportierer extends Thread {
   private File[] dateien;
 
   /** Enthaelt den Kern des Programms in den importiert wird. */
-  private JPPCore kern;
+  private AbstractJPPCore kern;
 
   /**
    * Gibt an, ob der Importiervorgang abgebrochen werden soll.
@@ -41,7 +42,7 @@ public class Bildimportierer extends Thread {
    * @param dateien die zu importierenden Dateien
    * @param kern der zu verwendende Programmkern
    */
-  public Bildimportierer(File[] dateien, JPPCore kern) {
+  public Bildimportierer(File[] dateien, AbstractJPPCore kern) {
 
     this.listener = new ArrayList<BildimportListener>();
     this.dateien = dateien;
@@ -53,9 +54,9 @@ public class Bildimportierer extends Thread {
    * Ruft den Event fuer alle Listener auf, wenn ein Bild erfolgreich importiert
    * wurde.
    */
-  private void fireBildImportiert(BildDokument dok) {
+  private void fireBildImportiert() {
     for (BildimportListener l : listener) {
-      l.bildImportiert(dok);
+      l.bildImportiert();
     }
   }
 
@@ -82,20 +83,22 @@ public class Bildimportierer extends Thread {
     /* Import der Dateien */
     if (dateien != null) {
 
-      List<ImportException> fehler = new ArrayList<ImportException>();
+      List<Exception> fehler = new ArrayList<Exception>();
 
       for (int i = 0; i < dateien.length && !abort; i++) {
         try {
           /* Zeit die verwendet wurde zum Import. */
           long zeit = Calendar.getInstance().getTimeInMillis();
-          BildDokument dok = kern.importiere(dateien[i]);
+          kern.importiere(new URL("file://" + dateien[i].getAbsolutePath()));
           System.out.println("Datei importiert: "
               + dateien[i].getAbsolutePath());
           System.out.println("Benoetigte Zeit:  "
               + (Calendar.getInstance().getTimeInMillis() - zeit) + "ms");
 
-          fireBildImportiert(dok);
+          fireBildImportiert();
         } catch (ImportException ie) {
+          fehler.add(ie);
+        } catch (MalformedURLException ie) {
           fehler.add(ie);
         }
       }
@@ -110,7 +113,7 @@ public class Bildimportierer extends Thread {
    * 
    * @param e
    */
-  private void werteFehlerAus(List<ImportException> fehler) {
+  private void werteFehlerAus(List<Exception> fehler) {
 
     /* Wenn kein Fehler auftrat, ist man mit der Fehlerbehandlung fertig. */
     if (fehler == null || fehler.size() == 0) {
@@ -124,7 +127,7 @@ public class Bildimportierer extends Thread {
     } else {
       meldung = "Es traten beim Importiern folgende Fehler auf: \n";
     }
-    for (ImportException e : fehler) {
+    for (Exception e : fehler) {
       meldung += e.getMessage() + "\n";
     }
     JOptionPane.showMessageDialog(null, meldung, "Importfehler",

@@ -1,9 +1,6 @@
 
 package jpp.merkmale;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 
 import jpp.core.GeoeffnetesBild;
 import jpp.core.exceptions.LeseMerkmalAusException;
@@ -48,6 +45,15 @@ public abstract class Merkmal extends AlleMerkmale {
       throws LeseMerkmalAusException;
   
   /**
+   * Liest aus dem String den Wert und setzt diesen in diesem Merkmal.
+   * 
+   * @param wert String, aus dem der Wert geholt wird
+   */
+  public void leseMerkmalAusString(String wert) throws LeseMerkmalAusException {
+    this.setWert(wert);
+  }
+  
+  /**
    * Erzeuge aus diesem Merkmal ein entsprechendes Lucene-Field.
    * @return ein entsprechendes Lucene-Field
    */
@@ -60,10 +66,4 @@ public abstract class Merkmal extends AlleMerkmale {
    */
   public abstract boolean istEditierbar();
 
-  
-  public String toXml() {
-    return "<" + this.getClass().getSimpleName() + ">"
-      + getXmlWert()
-      + "</" + this.getClass().getSimpleName() + ">\n";
-  }
 }

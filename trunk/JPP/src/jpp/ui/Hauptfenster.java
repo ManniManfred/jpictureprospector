@@ -43,7 +43,10 @@ import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
+import jpp.client.JPPClient;
+import jpp.core.AbstractJPPCore;
 import jpp.core.BildDokument;
+import jpp.core.CoreInterface;
 import jpp.core.Einstellungen;
 import jpp.core.JPPCore;
 import jpp.core.Trefferliste;
@@ -86,7 +89,7 @@ public class Hauptfenster extends JFrame {
   private static final long serialVersionUID = 1L;
 
   /** Enthaelt den Kern der Software mit dem operiert wird. */
-  private JPPCore kern;
+  private AbstractJPPCore kern;
   
   /**
    * Der SelectionManager, der dafuer verantwortlich ist, dass die Bilder
@@ -153,18 +156,14 @@ public class Hauptfenster extends JFrame {
   /**
    * Erstellt ein neues Objekt der Klasse.
    */
-  public Hauptfenster() {
+  public Hauptfenster(AbstractJPPCore kern) {
     super();
 
     /* Settings laden */
     loadSettings();
 
-    /* JPPCore erzeugen */
-    try {
-      kern = new JPPCore("imageIndex");
-    } catch (ErzeugeException e) {
-      e.printStackTrace();
-    }
+    /* JPPCore zuweisen */
+    this.kern = kern;
 
     /* Graphic initialisieren */
     initialize();
@@ -305,10 +304,9 @@ public class Hauptfenster extends JFrame {
     /* Listener hinzufuegen die entsprechende Aktionen ausfuehren, wenn
      * neue Bilder geladen wurden. */
     importierer.addBildImportiertListener(new BildimportListener() {
-      public void bildImportiert(BildDokument dok) {
+      public void bildImportiert() {
         // Um zu verhindern, dass es beim einem Import von sehr vielen Bildern
         // Heap Overflow kommt, werden keine Bilder angezeigt.
-        erzeugeTAPundAdde(dok);
         ladebalken.setzeAnzahl(ladebalken.gibAnzahl() + 1);
       }
       public void ladevorgangAbgeschlossen() {
@@ -1032,23 +1030,7 @@ public class Hauptfenster extends JFrame {
     return miAuswahlAlle;
   }
 
-  /**
-   * @param args
-   */
-  public static void main(String[] args) {
-
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        try {
-          UIManager.setLookAndFeel(new com.lipstikLF.LipstikLookAndFeel());
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-        Hauptfenster hauptfenster = new Hauptfenster();
-        hauptfenster.setVisible(true);
-      }
-    });
-  }
+  
 
   /**
    * Initialisiert das dieses Objekt.

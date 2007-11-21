@@ -13,7 +13,7 @@ import org.apache.lucene.document.Field;
  */
 public class BildtypMerkmal extends Merkmal { 
     
-  /** Name des Lucene-Feldes f�r dieses Merkmal. */
+  /** Name des Lucene-Feldes fuer dieses Merkmal. */
   public static final String FELDNAME = "Bildtyp";
 
   /** 
@@ -29,8 +29,7 @@ public class BildtypMerkmal extends Merkmal {
    * @param bild  Bild, aus dem der Merkmalswert gelesen wird
    */
   public void leseMerkmalAus(GeoeffnetesBild bild) {
-    String[] bestandteile = bild.getDatei().toString().split("\\.");
-    this.wert = bestandteile[bestandteile.length - 1];
+    this.wert = bild.getFormat();
   }
 
   /**

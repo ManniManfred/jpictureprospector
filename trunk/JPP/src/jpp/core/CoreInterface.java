@@ -1,6 +1,7 @@
 package jpp.core;
 
 import java.io.File;
+import java.net.URL;
 
 import jpp.core.exceptions.AendereException;
 import jpp.core.exceptions.EntferneException;
@@ -21,7 +22,7 @@ public interface CoreInterface {
    * @throws ImportException  wird geworfen, wenn das Bild nicht
    *           importiert werden konnte.
    */
-  BildDokument importiere(File f) throws ImportException;
+  BildDokument importiere(URL f) throws ImportException;
   
   /**
    * Durchsucht den Lucene-Index nach einem bestimmten Suchtext. Dieser
@@ -40,15 +41,21 @@ public interface CoreInterface {
    */
   Trefferliste suche(String suchString, int offset, int maxanzahl)  
       throws SucheException;
-  
+
   /**
-   * Entfernt ein <code>BildDokument</code> aus dem Lucene-Index, so
-   * dass entsprechende Aktionen nicht mehr durchgefuehrt werden koennen.
-   * @param dokument  das zu entfernende <code>BildDokument</code>
-   * @throws EntferneException  wird geworfen, wenn das Bild nicht
-   *           aus dem Index entfernt werden konnte
+   * Entfernt das uebergebene Bild aus dieser Anwendung und, wenn <code>
+   * auchVonFestplatte</code>
+   * gesetzt ist, dann auch von der Festplatte.
+   * 
+   * @param datei Url des Bildes, welches entfernt werden soll
+   * @param auchVonFestplatte gibt an, ob das Bild auch von der Festplatte
+   *          entfernt werden soll
+   * @throws EntferneException wird geworfen, wenn das Entfernen des
+   *           BildDokuments fehlgeschlagen ist
    */
-  void entferne(BildDokument dokument) throws EntferneException;
+  public void entferne(URL datei, boolean auchVonFestplatte)
+    throws EntferneException;
+  
   
   /**
    * Aendert ein <code>BildDokument</code> innerhalb des Lucene-Index
@@ -59,4 +66,11 @@ public interface CoreInterface {
    *           nicht geandert werden konnte.
    */
   void aendere(BildDokument dokument) throws AendereException;
+  
+  /**
+   * Loescht alle Dokumente, die nicht mehr auf den Festplatte vorhanden sind
+   * aus dem Index.
+   * @return Meldungen, welche Dokumente aus dem Index entfernt wurden
+   */
+  public String clearUpIndex() throws SucheException;
 }

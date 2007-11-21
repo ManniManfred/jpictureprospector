@@ -36,12 +36,13 @@ public class LetzterZugriffMerkmal extends Merkmal {
     
     /* LastModified() gibt long-Wert zurueck, umwandlung in Datum. */
     GregorianCalendar datum = new GregorianCalendar();
-    datum.setTimeInMillis((bild.getDatei().lastModified()));
+    datum.setTimeInMillis(bild.getURLConnection().getLastModified());
 
     /* Datum als String zuweisen. */
     this.wert = datum.get(GregorianCalendar.DAY_OF_MONTH) 
         + "." + (datum.get(GregorianCalendar.MONTH) + 1) 
         + "." + datum.get(GregorianCalendar.YEAR);
+
   }
 
   /**

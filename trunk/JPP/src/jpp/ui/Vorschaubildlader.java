@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.lang.Thread.State;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +48,7 @@ public class Vorschaubildlader implements Runnable {
   
 
   /** Enthaelt den Pfad zu dem zu ladenen Bild. */
-  private String dateipfad;
+  private URL url;
   
   private int maxBreite;
   
@@ -85,14 +86,14 @@ public class Vorschaubildlader implements Runnable {
    * 
    * @param dok
    */
-  public void startLadeBild(String dateipfad, int maxBreite, int maxHoehe) {
+  public void startLadeBild(URL url, int maxBreite, int maxHoehe) {
     
     /* key stellt den Schluessel dar, unter dem das Vorschaubild im Cache
      * abgelegt wird oder wurde.
      */
-    String key = dateipfad + maxBreite + maxHoehe;
+    String key = url.toString() + maxBreite + maxHoehe;
     
-    this.dateipfad = dateipfad;
+    this.url = url;
     this.maxBreite = maxBreite;
     this.maxHoehe = maxHoehe;
     
@@ -112,7 +113,7 @@ public class Vorschaubildlader implements Runnable {
     try {
       
 //      this.bild = erzeugeVorschaubild(dateipfad, maxBreite, maxHoehe);
-      this.bild = new GeoeffnetesBild(new File(dateipfad)).getBild();
+      this.bild = new GeoeffnetesBild(url).getBild();
       
       /* TODO sorge dafuer, dass der Cache auch wieder geloescht wird, 
        * da es ansonsten irgendwann zu einem OutOfMemoryError kommt.
@@ -121,7 +122,7 @@ public class Vorschaubildlader implements Runnable {
 
       fireBildGeladen();
     } catch (IOException e) {
-      System.out.println("Das Bild konnte nicht geladen werden.\n" +
+      System.out.println("Das URL-Bild konnte nicht geladen werden.\n" +
           e.getMessage());
     }
 //    catch (GeneriereException e) {
@@ -133,7 +134,7 @@ public class Vorschaubildlader implements Runnable {
   private BufferedImage erzeugeVorschaubild(String pfad, int maxBreite, 
       int maxHoehe) throws GeneriereException, IOException {
     
-    GeoeffnetesBild offenesBild = new GeoeffnetesBild(new File(pfad));
+    GeoeffnetesBild offenesBild = new GeoeffnetesBild(new File(pfad).toURL());
     ThumbnailGenerierer generierer = 
       SimpleThumbnailGeneriererFactory.erzeugeThumbnailGenerierer(
           offenesBild);

@@ -41,9 +41,12 @@ public class BildbreiteMerkmal extends Merkmal {
    *    gehoerigen Field der Wert ausgelesen wird
    */
   public void leseMerkmalAusLuceneDocument(Document doc) {   
-    this.wert = new Integer(doc.get(FELDNAME));
+    leseMerkmalAusString(doc.get(FELDNAME));
   }
   
+  public void leseMerkmalAusString(String wert) {
+    this.wert = new Integer(wert);
+  }
   
   /**
    * Erzeugt aus diesem Merkmal ein entsprechendes Lucene-Field.

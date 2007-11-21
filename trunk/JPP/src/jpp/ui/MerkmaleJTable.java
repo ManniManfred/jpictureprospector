@@ -11,7 +11,9 @@ import javax.swing.JTable;
 import selectionmanager.Auswaehlbar;
 import selectionmanager.AuswahlListener;
 
+import jpp.core.AbstractJPPCore;
 import jpp.core.BildDokument;
+import jpp.core.CoreInterface;
 import jpp.core.JPPCore;
 
 
@@ -39,14 +41,14 @@ public class MerkmaleJTable extends JTable implements AuswahlListener {
   private static final int SPALTENBREITE_BOX = 45;
   
   /** Kern der Anwendung. */
-  private JPPCore kern;
+  private AbstractJPPCore kern;
 
   /**
    * Erzeugt eine neue Instanz der Tabelle.
    *
    * @param  Kern der Anwendung.
    */
-  public MerkmaleJTable(JPPCore kern) {
+  public MerkmaleJTable(AbstractJPPCore kern) {
     super();
     this.kern = kern;
 
@@ -54,7 +56,7 @@ public class MerkmaleJTable extends JTable implements AuswahlListener {
     bilddokumente = new ArrayList<BildDokument>();
 
     /* Tabellenmodell zuweisen. */
-    this.tabellenmodell = new MerkmaleTableModel(this.bilddokumente, this.kern);
+    this.tabellenmodell = new MerkmaleTableModel(this.bilddokumente);
     this.setModel(tabellenmodell);
     this.setName("Bilddetails");
 

@@ -16,6 +16,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -671,8 +672,8 @@ class BildGroszanzeigeZeichner extends JLabel {
   public void setzeDok(BildDokument dok) {
     this.dok = dok;
     try {
-      this.bild = ImageIO.read(new File((String) dok.getMerkmal(
-          DateipfadMerkmal.FELDNAME).getWert()));
+      this.bild = ImageIO.read((URL) dok.getMerkmal(
+          DateipfadMerkmal.FELDNAME).getWert());
       fireBildGeladen();
     } catch (IOException e) {
       System.out.println("Das Bild konnte nicht geladen werden.\n"

@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.swing.table.DefaultTableModel;
 
+import jpp.core.AbstractJPPCore;
 import jpp.core.BildDokument;
 import jpp.core.JPPCore;
 import jpp.core.exceptions.ErzeugeException;
@@ -12,6 +13,11 @@ import jpp.merkmale.Merkmal;
 
 
 public class MerkmaleTableModel extends DefaultTableModel {
+
+  /**
+   * Generated serialVersionUID.
+   */
+  private static final long serialVersionUID = -4447059015506099390L;
 
   /** Enthaelt die Zeilenanzahl des Modells. */
   private int zeilenAnzahl;
@@ -55,23 +61,20 @@ public class MerkmaleTableModel extends DefaultTableModel {
   /** Wird angezeigt, wenn Merkmale verschiedene Werte aufweisen. */
   private static final String VERSCH_WERTE = "Verschiedene Werte";
 
-  /** Kern der Anwendung. */
-  private JPPCore kern;
 
   /**
    * Ein Objekt der Klasse stellt das Tabellenmodell der Merkmalstabelle dar.
    * 
    * @author Marion Mecking
    */
-  public MerkmaleTableModel(List<BildDokument> bilddokumente, JPPCore kern) {
+  public MerkmaleTableModel(List<BildDokument> bilddokumente) {
 
-    this.kern = kern;
     this.bilddokumente = bilddokumente;
 
     try {
 
       // Merkmalsnamen lesen, einzelne Merkmale ausschliessen.
-      String[] alleMerkmalsnamen = this.kern.getMerkmalsnamen();
+      String[] alleMerkmalsnamen = AbstractJPPCore.getMerkmalsnamen();
 
       for (int i = 0; i < alleMerkmalsnamen.length; i++) {
         this.merkmalsnamen.add(alleMerkmalsnamen[i]);
@@ -128,7 +131,7 @@ public class MerkmaleTableModel extends DefaultTableModel {
 
       /* Zeile und Spaltenanzahl bestimmen */
       try {
-        this.zeilenAnzahl = JPPCore.getMerkmalsKlassen().size()
+        this.zeilenAnzahl = AbstractJPPCore.getMerkmalsKlassen().size()
             - MERKMAL_FELDER.length;
         this.spaltenAnzahl = (bilddokumente.size() == 1)
             ? 2

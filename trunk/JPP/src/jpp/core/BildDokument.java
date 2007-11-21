@@ -1,7 +1,7 @@
 package jpp.core;
 
-import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,7 +32,7 @@ import com.drew.metadata.Tag;
  * 
  * @author Manfred Rosskamp
  */
-public final class BildDokument {
+public class BildDokument {
 
   /**
    * Zuordnung des Merkmalsnamen zu einem Merkmal dieses BildDokumentes, wie z.B
@@ -43,10 +43,9 @@ public final class BildDokument {
   /**
    * Erzeugt ein neues BildDokument.
    */
-  private BildDokument() {
+  protected BildDokument() {
     merkmale = new HashMap<String, Merkmal>();
   }
-
   /**
    * Erzeugt aus einer Bilddatei ein neues BildDokument mit allen Merkmalen.
    * 
@@ -57,11 +56,11 @@ public final class BildDokument {
    *           wird geworfen, wenn das BildDokument nicht aus der Datei erzeugt
    *           werden konnte
    */
-  public static BildDokument erzeugeAusDatei(File datei)
+  public static BildDokument erzeugeAusDatei(URL datei)
       throws ErzeugeBildDokumentException {
     return erzeugeBildDokumentAus(datei, null);
   }
-
+  
   /**
    * Erzeugt aus einem Document von Lucene ein entsprechendes BildDokument mit
    * all den entsprechenden Merkmalen.
@@ -75,7 +74,7 @@ public final class BildDokument {
    */
   public static BildDokument erzeugeAusLucene(Document doc)
       throws ErzeugeBildDokumentException {
-    return erzeugeBildDokumentAus(null, doc);
+    return erzeugeBildDokumentAus((URL) null, doc);
   }
 
   /**
@@ -143,7 +142,6 @@ public final class BildDokument {
   public Merkmal getMerkmal(String merkmalName) {
     return merkmale.get(merkmalName);
   }
-
   /**
    * Erzeugt ein neues BildDokument, entweder aus einer Bilddatei oder aus einem
    * Lucene-Document. Falls datei null ist, wird das BildDokument aus dem
@@ -160,7 +158,7 @@ public final class BildDokument {
    *           wird geworfen, wenn das Erzeugen des BildDokuments nicht
    *           funktioniert hat
    */
-  private static BildDokument erzeugeBildDokumentAus(File datei, Document doc)
+  private static BildDokument erzeugeBildDokumentAus(URL datei, Document doc)
       throws ErzeugeBildDokumentException {
 
     BildDokument neu = new BildDokument();
@@ -212,7 +210,7 @@ public final class BildDokument {
           + "\" konnte den Wert seines Merkmals nicht auslesen.", e);
     } catch (IOException e) {
       throw new ErzeugeBildDokumentException("Bilddatei "
-          + datei.getAbsolutePath() + " konnte nicht gelesen werden.", e);
+          + datei + " konnte nicht gelesen werden.", e);
     } catch (InstantiationException e) {
       throw new ErzeugeBildDokumentException("Konnte keine Instance der "
           + "Merkmalsklasse \"" + merkmalsKlassenname + "\" erzeugen.", e);
@@ -225,14 +223,14 @@ public final class BildDokument {
     }
     return neu;
   }
-
+  
   /**
    * Fuegt das uebergebene Merkmal diesem BildDokument hinzu.
    * 
    * @param merkmal
    *          Merkmal, welches diesem BildDokument hinzugefuegt wird
    */
-  private void addMerkmal(Merkmal merkmal) {
+  protected void addMerkmal(Merkmal merkmal) {
     merkmale.put(merkmal.getName(), merkmal);
   }
 
@@ -264,13 +262,11 @@ public final class BildDokument {
         .toLowerCase().equals("jpg")) {
 
       /* Den Pfad holen */
-      String pfad = this.getMerkmal(DateipfadMerkmal.FELDNAME).getWert()
-          .toString();
-      File jpegFile = new File(pfad);
+      URL url = (URL) this.getMerkmal(DateipfadMerkmal.FELDNAME).getWert();
 
       /* Mit dem JpegMetadataReader die Metadaten aus dem jpegFile lesen */
       try {
-        Metadata metadata = JpegMetadataReader.readMetadata(jpegFile);
+        Metadata metadata = JpegMetadataReader.readMetadata(url.openStream());
 
         /* Iteration durch die Directories */
         Iterator directories = metadata.getDirectoryIterator();
@@ -308,23 +304,20 @@ public final class BildDokument {
          * machen.
          */
         System.out.println("Es konnten keine Metainformation zu dem Bild \""
-            + pfad + "\" ausgelesen werden.");
+            + url + "\" ausgelesen werden.");
+      } catch (IOException e) {
+        /*
+         * Nichts weiter, da es fuer die Anwendung nicht weiter tragisch ist.
+         * Fuer eine Version 2, koennt man hier auch wenigstens eine Log-Ausgabe
+         * machen.
+         */
+        System.out.println("Das Bild \"" + url 
+            + "\" konnte nicht gelesen werden.");
       }
 
     }
 
     return alleMerkmale;
-  }
-
-  public String toXml() {
-    String ergebnis = "<BildDokument>\n";
-    
-    for (Merkmal m : merkmale.values()) {
-      ergebnis += m.toXml();
-    }
-    
-    ergebnis += "</BildDokument>\n";
-    return ergebnis;
   }
 
 }

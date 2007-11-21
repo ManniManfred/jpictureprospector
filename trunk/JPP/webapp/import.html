@@ -1,0 +1,51 @@
+<html>
+<head>
+<script language="Javascript">
+
+var count = 3;
+
+function addUploads(anzahl) {
+  var div = document.getElementById("upElemente");
+
+  for (var i = 0; i < anzahl; i++) {
+   
+    var upElement = document.createElement("input");
+    upElement.setAttribute("type", "file");
+    upElement.setAttribute("name", "datei" + count);
+    div.appendChild(upElement);
+    
+    div.appendChild(document.createElement("br"));
+    count++;
+  }
+}
+
+function start() {
+  //addUploads(4);
+}
+</script>
+</head>
+<body onload="start()">
+<h1>Importiere</h1>
+
+<p>
+<form name="uploadform" method="post" enctype="multipart/form-data" action="importiere">
+<div id="upElemente">
+<input name="datei1" type="file"><br>
+<input name="datei2" type="file"><br>
+</div>
+</p>
+<p>
+<input type="button" value="Weitere Felder Hinzufuegen" name="hinzufuegen" 
+onclick="addUploads(4)">
+</p>
+
+
+<p>
+<input type="Submit" value="Upload">  
+
+</form>
+</p>
+
+
+</body>
+</html>
