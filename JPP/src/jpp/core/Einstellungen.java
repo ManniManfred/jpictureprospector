@@ -1,5 +1,7 @@
 package jpp.core;
 
+import java.io.File;
+
 import javax.imageio.ImageIO;
 
 import settingsystem.annotations.Property;
@@ -59,6 +61,22 @@ public class Einstellungen {
   public static String[] THUMB_ZUORDUNGEN = new String[]{
     "jpg, gif, png = jpp.core.thumbnail.SchnellerGenerierer",
      "* = jpp.core.thumbnail.AlleFormateGenerierer"};
+  
+  /**
+   * Hier kann eine Vorschrift angegeben werden, um die URL des
+   * Bildes (DateipfadMerkmal) in eine Andere umzuwandeln. Z.B. kann man so
+   * aus der file-Angabe eine Http-Angabe machen.
+   */
+  public static String dateipfadSuchMapping = "file:/tmp/webtmp/";
+
+  public static String dateipfadErsatzMapping = "http://10.22.20.29/tmp/";
+  
+  /**
+   * Hier kann angegeben werden, wo Thumbnailbilder abgelegt sind.
+   */
+  public static String thumbnailOrdner = "/tmp/webtmp/thumbs/"; //"/windows/sonstig/walls/.thumbs/"; 
+  
+  public static String uploadOrdner = "/tmp/webtmp/bilder/";
   
   /**
    * Enthaelt das Schuesselwort, welches bei der Suche eingegeben werden kann,

@@ -7,45 +7,83 @@
 ]>
 
 <web-app>
-
-	<servlet>
-    <servlet-name>rpc</servlet-name>
-    <servlet-class>net.sf.qooxdoo.rpc.RpcServlet</servlet-class>
-    
-		<init-param>
-		  <param-name>referrerCheck</param-name>
-		  <param-value>domain</param-value>
-		</init-param>
-		
-	</servlet>
-	
-	<servlet-mapping>
-    <servlet-name>rpc</servlet-name>
-    <url-pattern>*.qxrpc</url-pattern>
-	</servlet-mapping>
-
-
   <servlet>
-    <servlet-name>JPPCore</servlet-name>
-    <servlet-class>jpp.server.JPPCoreServlet</servlet-class>
+    <servlet-name>test</servlet-name>
+    <servlet-class>jpp.server.servlets.TestServlet</servlet-class>
         
   </servlet>
   
   <servlet-mapping>
-    <servlet-name>JPPCore</servlet-name>
-    <url-pattern>/JPPCore</url-pattern>
+    <servlet-name>test</servlet-name>
+    <url-pattern>/test</url-pattern>
   </servlet-mapping>
   
-	
-	<context-param>
-	  <param-name>indexDir</param-name>
-	  <param-value>D:/Entwicklung/JPP/imageIndex</param-value>
-	</context-param>
-	  
-	<listener>
-	  <listener-class>
-	    jpp.server.ServletContext
-	  </listener-class>
-	</listener>
+  <servlet>
+    <servlet-name>aendere</servlet-name>
+    <servlet-class>jpp.server.servlets.AendereServlet</servlet-class>
+        
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>aendere</servlet-name>
+    <url-pattern>/aendere</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>entferne</servlet-name>
+    <servlet-class>jpp.server.servlets.EntferneServlet</servlet-class>
+        
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>entferne</servlet-name>
+    <url-pattern>/entferne</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>clearUpIndex</servlet-name>
+    <servlet-class>jpp.server.servlets.ClearUpIndexServlet</servlet-class>
+        
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>clearUpIndex</servlet-name>
+    <url-pattern>/clearUpIndex</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>importiere</servlet-name>
+    <servlet-class>jpp.server.servlets.ImportiereServlet</servlet-class>
+        
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>importiere</servlet-name>
+    <url-pattern>/importiere</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>suche</servlet-name>
+    <servlet-class>jpp.server.servlets.SucheServlet</servlet-class>
+        
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>suche</servlet-name>
+    <url-pattern>/suche</url-pattern>
+  </servlet-mapping>
+  
+  
+  
+  <context-param>
+    <param-name>indexDir</param-name>
+    <param-value>/home/manfred/daten/Entwicklung/JPP/imageIndex</param-value>
+  </context-param>
+    
+  <listener>
+    <listener-class>
+      jpp.server.ServletContext
+    </listener-class>
+  </listener>
 
 </web-app>

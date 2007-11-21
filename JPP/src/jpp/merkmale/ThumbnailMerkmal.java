@@ -6,6 +6,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import javax.imageio.ImageIO;
 
@@ -77,15 +79,7 @@ public class ThumbnailMerkmal extends Merkmal {
     }
   }
   
-  /**
-   * Gibt den Wert dieses Merkmals zurueck, der serialisierbar ist. In diesem
-   * Fall ist das das Bytearray.
-   * 
-   * @return den serialisierbaren Wert dieses Merkmals
-   */
-  public String getXmlWert() {
-    return new String(getImageByteArray(true));
-  }
+  
   
   /**
    * Liest den Merkmalswert aus einem Lucene-Document und speichert diesen in
@@ -104,7 +98,20 @@ public class ThumbnailMerkmal extends Merkmal {
           "Konnte das Merkmal nicht aus dem Lucene-Dokument erzeugen", e);
     }
   }
-
+  
+  public void leseMerkmalAusString(String wert) throws LeseMerkmalAusException {
+    try {
+      setWert(ImageIO.read(new URL(wert)));
+    } catch (MalformedURLException e) {
+      throw new LeseMerkmalAusException(
+          "Konnte kein Thumbnail erzeugen.", e);
+    } catch (IOException e) {
+      throw new LeseMerkmalAusException(
+          "Konnte kein Thumbnail erzeugen.", e);
+    }
+  }
+  
+  
   /**
    * Erzeuge aus diesem Merkmal ein entsprechendes Lucene-Field.
    * @return ein entsprechendes Lucene-Field

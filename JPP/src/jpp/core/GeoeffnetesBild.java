@@ -4,6 +4,8 @@ package jpp.core;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 
 import javax.imageio.ImageIO;
 
@@ -14,9 +16,9 @@ import javax.imageio.ImageIO;
  */
 public class GeoeffnetesBild {
 
-  /** Enthaelt die Datei zu diesem geoeffnentem Bild. */
-  private File datei;
-
+  /** Enthaelt die URL zu diesem geoeffnentem Bild. */
+  private URL url;
+  
   /** Enthaelt das tatsaechlich geoffnete Bild in Form eines BufferedImage. */
   private BufferedImage bild;
 
@@ -26,6 +28,10 @@ public class GeoeffnetesBild {
    */
   private String format;
 
+  /**
+   * Enthaelt eine Verbindung zur Bilddatei.
+   */
+  private URLConnection connection;
 
   /**
    * Erzeugt ein neues geoeffnetes Bild.
@@ -33,33 +39,39 @@ public class GeoeffnetesBild {
    * @param bilddatei Bilddatei, welche geoeffnet wird
    * @throws IOException wenn die Datei nicht gelesen werden konnte
    */
-  public GeoeffnetesBild(File bilddatei) throws IOException {
-    this.datei = bilddatei;
-
+  public GeoeffnetesBild(URL bilddatei) throws IOException {
+    this.url = bilddatei;
+    this.connection = url.openConnection();
+    
     /* Bild oeffnen */
-    bild = ImageIO.read(datei);
+    bild = ImageIO.read(this.url);
 
     if (bild == null) {
-      throw new IOException("Konnte das Bild \"" + datei.getAbsolutePath()
-          + " nicht einlesen.");
+      throw new IOException("Konnte das Bild \"" + bilddatei.toString()
+          + "\" nicht einlesen.");
     }
 
     /* Format aus dem Dateinamen bestimmen */
-    String dateiname = datei.getName();
+    String dateiname = bilddatei.getFile();
     format = dateiname.substring(dateiname.lastIndexOf(".") + 1).toLowerCase();
 
   }
+  
 
-
+  
   /**
    * Gibt die Datei dieses geoeffenten Bildes zurueck.
    * 
    * @return Datei dieses geoeffenten Bildes
    */
-  public File getDatei() {
-    return datei;
+  public URL getURL() {
+    return this.url;
   }
-
+  
+  public URLConnection getURLConnection() {
+    return connection;
+  }
+  
   /**
    * Gibt das BufferedImage dieses geoeffnenten Bildes zurueck.
    * 

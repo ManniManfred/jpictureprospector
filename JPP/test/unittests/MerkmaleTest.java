@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.io.File;
 
+import jpp.core.AbstractJPPCore;
 import jpp.core.BildDokument;
 import jpp.core.JPPCore;
 import jpp.core.exceptions.ImportException;
@@ -45,7 +46,7 @@ public class MerkmaleTest {
   
 
   /** Core-Object, welches das Bild importiert. */
-  private JPPCore core;
+  private AbstractJPPCore core;
 
   /** BildDokumente an denen die Merkmalswerte ueberprueft werden */
   private BildDokument bildJPGmitDaten;
@@ -55,31 +56,31 @@ public class MerkmaleTest {
   private BildDokument bildPNG;
   
   
-  /**
-   * Test Objekte werden erzeugt (Aufbau der Testdaten).
-   * 
-   */
-  @Before
-  public void setUp() throws Exception {
-    System.out.println("setUp gestartet");
-    core = new JPPCore("imageIndex");
-
-    try {
-      bildJPGmitDaten = core.importiere(new File(PFAD
-          + nameJPGmitDaten));
-  
-      bildJPGgross = core.importiere(new File(PFAD + nameJPGgross));
-  
-      bildGIF = core.importiere(new File(PFAD + DATEI_WAND));
-  
-      bildBMP = core.importiere(new File(PFAD + DATEI_KUCHEN));
-  
-      bildPNG = core.importiere(new File(PFAD + DATEI_LANDSCHAFT));
-    } catch(ImportException e) {
-      e.printStackTrace();
-    }
-    System.out.println("setUp beendet");
-  }
+//  /**
+//   * Test Objekte werden erzeugt (Aufbau der Testdaten).
+//   * 
+//   */
+//  @Before
+//  public void setUp() throws Exception {
+//    System.out.println("setUp gestartet");
+//    core = new JPPCore("imageIndex");
+//
+//    try {
+//      bildJPGmitDaten = core.importiere(new File(PFAD
+//          + nameJPGmitDaten).toURL());
+//  
+//      bildJPGgross = core.importiere(new File(PFAD + nameJPGgross).toURL());
+//  
+//      bildGIF = core.importiere(new File(PFAD + DATEI_WAND).toURL());
+//  
+//      bildBMP = core.importiere(new File(PFAD + DATEI_KUCHEN).toURL());
+//  
+//      bildPNG = core.importiere(new File(PFAD + DATEI_LANDSCHAFT).toURL());
+//    } catch(ImportException e) {
+//      e.printStackTrace();
+//    }
+//    System.out.println("setUp beendet");
+//  }
   
   
   /**

@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.net.URL;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
@@ -156,8 +157,8 @@ public class Vorschaupanel extends JPanel implements AuswahlListener {
       ThumbnailAnzeigePanel tap = (ThumbnailAnzeigePanel) neueMarkierung;
       dok = tap.gibBildDokument();
       
-      String dateipfad = tap.gibBildDokument().getMerkmal(
-                          DateipfadMerkmal.FELDNAME).getWert().toString();
+      URL dateipfad = (URL) tap.gibBildDokument().getMerkmal(
+                          DateipfadMerkmal.FELDNAME).getWert();
       
       bildLader.startLadeBild(dateipfad, this.getWidth(), this.getHeight());
     }

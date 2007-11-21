@@ -1,22 +1,118 @@
 <?xml version='1.0'?>
-<project name="JPP-webapp" default="make" basedir=".">
+<project name="JPP-webapp" default="run" basedir=".">
 
     <property file="build.properties"/>
-    <property name="frontendDir" value ="../../frontend"/>
 
-    <target name="compile">
-        <mkdir dir="bin"/>
-        <javac srcdir="src" destdir="bin" debug="true">
+	<!-- Spezielle Ordner diese Projekts -->
+	<property name="binDir" location="bin" />
+    <property name="srcDir" location="src" />
+	<property name="libDir" location="lib" />
+	<property name="testDir" location="src" />
+	<property name="webappDir" location="src" />
+	
+	
+	<!-- Starter-Klasse -->
+    <property name="mainClass" value="jpp.Starter" />
+	
+	
+	
+	
+	<!--
+	     Alles Aufraeumen
+	-->
+	
+	<target name="clean" description="Aufraeumen">
+        <delete dir="${binDir}" />
+		<delete file="jpp.war" />
+		<delete file="jpp.jar" />
+    </target>
+	
+	
+	<!--
+	         compilieren
+    -->
+	
+    <target name="compile" depends="compile-images">
+        <javac srcdir="${srcDir}" destdir="${binDir}" debug="true">
             <classpath>
-                <fileset dir="lib">
+                <fileset dir="${libDir}">
                     <include name="**.jar"/>
                 </fileset>
             </classpath>
         </javac>
     </target>
 	
+	<target name="compile-images">
+        <mkdir dir="${binDir}"/>
+        <copy todir="${binDir}">
+        	<fileset dir="${srcDir}">
+                <include name="**/*.jpg"/>
+        		<include name="**/*.png"/>
+        		<include name="**/*.gif"/>
+            </fileset>
+        </copy>
+    </target>
+	    
+	
+	
+	<!--
+	         Anwendung ausfuehren
+    -->
+	
+	
+	<target name="run" depends="compile">
+	   <java classname="${mainClass}" classpath="${binDir}">
+            <classpath>
+                <fileset dir="${libDir}">
+                    <include name="**.jar"/>
+                </fileset>
+            </classpath>
+        	<arg line="${application.args}"/>
+   	   </java>
+	</target>
+	
 
-    <target name="war">
+	<!--
+	      jar
+	-->
+	
+
+    
+    <!--       http://sourceforge.net/projects/fjep       -->
+    <!-- uncomment the following lines if using ANT outside Eclipse -->
+    <!--
+        <property name="fjepPath" value="plugins/net.sf.fjep.fatjar_0.0.25/fatjar.jar"/>
+        <taskdef name="fatjar.build" classname="net.sf.fjep.anttask.FJBuildTask" classpath="${fjepPath}"/>
+        <typedef name="fatjar.manifest" classname="net.sf.fjep.anttask.FJManifestType" classpath="${fjepPath}"/>
+        <typedef name="fatjar.exclude" classname="net.sf.fjep.anttask.FJExcludeType" classpath="${fjepPath}"/>
+        <typedef name="fatjar.jarsource" classname="net.sf.fjep.anttask.FJJarSourceType" classpath="${fjepPath}"/>
+        <typedef name="fatjar.filesource" classname="net.sf.fjep.anttask.FJFileSourceType" classpath="${fjepPath}"/>
+    -->
+    
+    <target name="jar" depends="compile">
+        <fatjar.build output="jpp.jar">
+            <fatjar.manifest mainclass="${mainClass}"/>
+            <fatjar.filesource path="${binDir}" relpath=""/>
+        	<fatjar.jarsource file="${libDir}/SettingSystem.jar" relpath=""/>
+        	<fatjar.jarsource file="${libDir}/SelectionManager.jar" relpath=""/>
+            <fatjar.jarsource file="${libDir}/metadata-extractor-2.3.1.jar" relpath=""/>
+            <fatjar.jarsource file="${libDir}/l2fprod-common-directorychooser.jar" relpath=""/>
+            <fatjar.jarsource file="${libDir}/lipstikLF-RC2.jar" relpath=""/>
+            <fatjar.jarsource file="${libDir}/lucene-analyzers-2.2.0.jar" relpath=""/>
+            <fatjar.jarsource file="${libDir}/lucene-core-2.2.0.jar" relpath=""/>
+        </fatjar.build>
+    </target>
+	
+	
+	
+	
+	
+	
+	<!--
+	       Webserver Angaben
+	-->
+	
+    <target name="war" depends="compile">
         <war destfile="jpp.war" webxml="webapp/WEB-INF/web.xml">
             <fileset dir="webapp">
                 <exclude name="WEB-INF/**"/>
@@ -27,17 +123,13 @@
             <classes dir="bin"/>
         </war>
     </target>
-
-    <target name="make" depends="compile, war"/>
-    
-    <target name="clean">
-        <delete dir="bin"/>
-        <delete dir="build"/>
-        <delete file="jpp.war"/>
-    </target>
-    
-    <target name="deploy">
+	
+	
+    <target name="deploy" depends="war">
         <copy file="jpp.war" todir="${deployDir}"/>
     </target>
-    
+	
+    <target name="undeploy">
+        <delete file="jpp.war" todir="${deployDir}"/>
+    </target>
 </project>

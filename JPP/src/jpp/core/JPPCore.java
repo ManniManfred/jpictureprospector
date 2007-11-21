@@ -1,9 +1,8 @@
 package jpp.core;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +13,6 @@ import jpp.core.exceptions.ErzeugeException;
 import jpp.core.exceptions.ImportException;
 import jpp.core.exceptions.SucheException;
 import jpp.merkmale.DateipfadMerkmal;
-import jpp.merkmale.Merkmal;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.de.GermanAnalyzer;
@@ -37,13 +35,7 @@ import org.apache.lucene.search.TermQuery;
  * 
  * @author Manfred Rosskamp
  */
-public class JPPCore implements CoreInterface {
-
-  /** Enthaelt eine Liste mit den Klassen aller zu verwendenen Merkmale. */
-  private static List<Class> merkmalsklassen;
-
-  /** Enthaelt eine Liste mit den Namen aller zu verwendenen Merkmale. */
-  private static List<String> merkmalsNamen;
+public class JPPCore extends AbstractJPPCore {
 
   /** Enthaelt den Pfad zu dem Index-Verzeichnis von Lucene. */
   private String indexDir;
@@ -51,24 +43,22 @@ public class JPPCore implements CoreInterface {
   /** Enthaelt den Parser, der alle Such-Anfragen in eine Query parst. */
   private MultiFieldQueryParser parser;
 
-  /** Klassenvariable fuer das Singleton Object. */
-  private static JPPCore core = null;
 
-  
-  
+
   /**
    * Erstellt ein neues JPPCore-Objekt.
-   * @param indexDir Enthaelt den Pfad zu dem Index-Verzeichnis von Lucene
    * 
+   * @param indexDir Enthaelt den Pfad zu dem Index-Verzeichnis von Lucene
    * @throws ErzeugeException wird geworfen, falls beim Erzeugen dieses Objektes
    *           ein Fehler auftritt. Z.B wenn die Merkmalsdatei nicht existiert,
    *           oder die Klassen zu den Merkmals-Klassennamen nicht gefunden
    *           wurden.
    */
   public JPPCore(String indexDir) throws ErzeugeException {
-
-    this.indexDir = indexDir;
+    super();
     
+    this.indexDir = indexDir;
+
     /* Namen aller moeglichen Merkmale herausfinden */
     String[] namen = null;
     try {
@@ -84,52 +74,6 @@ public class JPPCore implements CoreInterface {
     parser = new MultiFieldQueryParser(namen, new GermanAnalyzer());
   }
 
-  /**
-   * Gibt eine Liste mit allen Merkmalsklassen zurueck, die in der Merkmalsdatei
-   * angegeben sind.
-   * 
-   * @return Liste mit allen Merkmalsklassen
-   * @throws ClassNotFoundException wenn ein Klasse, die in der Merkmalsdatei
-   *           angegeben ist nicht gefunden wurde.
-   * @throws IOException wenn die Merkamlsdatei nicht gelesen werden konnte
-   */
-  public static List<Class> getMerkmalsKlassen() throws ClassNotFoundException {
-    if (merkmalsklassen == null) {
-      merkmalsklassen = new ArrayList<Class>();
-
-      
-      
-      String merkmalsKlassenname;
-
-      /* Alle Merkmale aus der Merkmalsliste durchgehen */
-      for (int i = 0; i < Einstellungen.MERKMALE.length; i++) {
-        merkmalsKlassenname = Einstellungen.MERKMALE[i];
-        merkmalsklassen.add(Class.forName(merkmalsKlassenname));
-      }
-    }
-    return merkmalsklassen;
-  }
-
-  /**
-   * Gibt ein Array mit allen Namen der möglichen Merkmale zurueck.
-   * 
-   * @return Array mit allen Namen der möglichen Merkmale
-   * @throws Exception wenn die Klassennamen nicht erzeugt werden konnten
-   */
-  public static String[] getMerkmalsnamen() throws Exception {
-    if (merkmalsNamen == null) {
-      merkmalsNamen = new ArrayList<String>();
-
-      for (Class klasse : getMerkmalsKlassen()) {
-        Merkmal m = (Merkmal) klasse.newInstance();
-
-        /* Den Namen aus dem Object holen und in der Liste einfuegen */
-        merkmalsNamen.add(m.getName());
-      }
-    }
-
-    return merkmalsNamen.toArray(new String[0]);
-  }
 
   /**
    * Importiert eine Bilddatei in diese Anwendung.
@@ -139,14 +83,14 @@ public class JPPCore implements CoreInterface {
    * @throws ImportException wird geworfen, wenn das Importieren der Bilddatei
    *           nicht funktioniert, z.B. wenn das Bild schon importiert wurde.
    */
-  public BildDokument importiere(File datei) throws ImportException {
+  public void importiere(URL datei) throws ImportException {
 
     /*
      * ueberpruefen, ob das Bild bereits im Index vorhanden ist. Wenn ja, dann
      * eine ImportException werfen.
      */
     if (istDateiImIndex(datei)) {
-      throw new ImportException("Die Datei \"" + datei 
+      throw new ImportException("Die Datei \"" + datei
           + "\" wurde bereits importiert.");
     }
 
@@ -156,12 +100,11 @@ public class JPPCore implements CoreInterface {
       dokument = BildDokument.erzeugeAusDatei(datei);
     } catch (ErzeugeBildDokumentException e1) {
       throw new ImportException("Konnte kein BildDokument aus der Datei \""
-          + datei.getAbsolutePath() + "\" erzeugen.", e1);
+          + datei + "\" erzeugen.", e1);
     }
 
     importInLucene(dokument);
 
-    return dokument;
   }
 
   /**
@@ -229,19 +172,56 @@ public class JPPCore implements CoreInterface {
 
 
   /**
+   * Gibt das BildDokument zu der entsprechenden URL der Bilddatei zurueck.
+   * 
+   * @param datei URL zu der das BildDokument zurueckgegeben werden soll
+   * @return BildDokument zu der entsprechenden URL der Bilddatei oder null,
+   *         falls dieses BildDokument keinmal oder mehr als einmal im Index
+   *         befindet.
+   * @throws ErzeugeBildDokumentException
+   */
+  public BildDokument getBildDokument(URL datei)
+      throws ErzeugeBildDokumentException {
+    try {
+      Searcher sucher = new IndexSearcher(indexDir);
+
+      /* Nach dem Dateipfad suchen */
+      Hits treffer = sucher.search(new TermQuery(new Term(
+          DateipfadMerkmal.FELDNAME, datei.toString())));
+
+      /*
+       * Falls mindestens ein Treffer erzielt wurde, befindet sich die Datei
+       * bereits im Index.
+       */
+      if (treffer.length() == 1) {
+        return BildDokument.erzeugeAusLucene(treffer.doc(0));
+      }
+      
+      sucher.close();
+
+    } catch (IOException e) {
+      /*
+       * Wenn z.B. der Index noch nicht vorhanden ist, befindet sich die Datei
+       * auch noch nicht im Index. Deshalb wird hier false zurueckgegeben.
+       */
+    }
+    return null;
+  }
+
+  /**
    * Gibt zurueck, ob sich die uebergebene Datei bereits im Index befindet.
    * 
    * @param datei Datei, die ueberprueft wird
    * @return true, falls die Datei im Index vorhanden ist
    */
-  public boolean istDateiImIndex(File datei) {
+  private boolean istDateiImIndex(URL datei) {
 
     try {
       Searcher sucher = new IndexSearcher(indexDir);
 
       /* Nach dem Dateipfad suchen */
       Hits treffer = sucher.search(new TermQuery(new Term(
-          DateipfadMerkmal.FELDNAME, datei.getAbsolutePath())));
+          DateipfadMerkmal.FELDNAME, datei.toString())));
       sucher.close();
 
       /*
@@ -259,21 +239,8 @@ public class JPPCore implements CoreInterface {
     }
   }
 
-  /**
-   * Suche in allen importierten Bilder nach dem Suchtext und gibt eine
-   * entsprechende Trefferliste mit den Suchergebnissen zurueck.
-   * Fuehrt suche(String suchtext, 0, 20) aus.
-   * 
-   * @param suchtext Suchtext, nach dem gesucht wird
-   * @return Trefferliste mit den Suchergebnissen
-   * @throws SucheException wird geworfen, wenn die Suche nicht erfolgreich mit
-   *           einer erzeugten Trefferliste beendet werden kann
-   */
-  public Trefferliste suche(String suchtext) 
-      throws SucheException {
-    return suche(suchtext, 0, 20);
-  }
-  
+
+
   /**
    * Suche in allen importierten Bilder nach dem Suchtext und gibt eine
    * entsprechende Trefferliste mit den Suchergebnissen zurueck.
@@ -287,37 +254,37 @@ public class JPPCore implements CoreInterface {
    * @throws SucheException wird geworfen, wenn die Suche nicht erfolgreich mit
    *           einer erzeugten Trefferliste beendet werden kann
    */
-  public Trefferliste suche(String suchtext, int offset, int maxanzahl) 
+  public Trefferliste suche(String suchtext, int offset, int maxanzahl)
       throws SucheException {
 
     Trefferliste treffer;
     try {
-      /* wenn das Schluesselwort zur Anzeige aller Bilder angegeben wurde, */
-      if (suchtext.equalsIgnoreCase(Einstellungen.ALLEBILDER_SCHLUESSEL)) {
+//      Es darf so eine Moeglichkeit nicht geben, da so die maxanzahl 
+//      uebergangen wird.
+//      /* wenn das Schluesselwort zur Anzeige aller Bilder angegeben wurde, */
+//      if (suchtext.equalsIgnoreCase(Einstellungen.ALLEBILDER_SCHLUESSEL)) {
+//
+//        /* dann alle BildDokumente der Trefferliste uebergeben. */
+//        treffer = new Trefferliste(gibAlleDokumente());
+//      } else {
 
-        /* dann alle BildDokumente der Trefferliste uebergeben. */
-        treffer = new Trefferliste(gibAlleDokumente());
-      } else {
+      /* Anfrage aufbauen */
+      Query anfrage = parser.parse(suchtext);
 
-        /* Anfrage aufbauen */
-        Query anfrage = parser.parse(suchtext);
-
-        /* Suche durchfuehren */
-        Searcher sucher = new IndexSearcher(indexDir);
-        treffer = new Trefferliste(sucher.search(anfrage), offset, maxanzahl);
-        sucher.close();
-      }
+      /* Suche durchfuehren */
+      Searcher sucher = new IndexSearcher(indexDir);
+      treffer = new Trefferliste(sucher.search(anfrage), offset, maxanzahl);
+      sucher.close();
+      
     } catch (ParseException e) {
-       /* Bei einer ParseException ein leere Trefferliste zurueckgeben */
-       treffer = new Trefferliste();
+      /* Bei einer ParseException ein leere Trefferliste zurueckgeben */
+      // TODO Aussage verbessern
+      throw new SucheException("Die Anfrage ist nicht korrekt.", e);
     } catch (IOException e) {
       throw new SucheException("Konnte den Index nicht \u00d6ffnen.", e);
     } catch (ErzeugeException e) {
       throw new SucheException("Die Trefferliste konnte nicht erzeugt werden.",
           e);
-    } catch (ErzeugeBildDokumentException e) {
-      throw new SucheException("Ein BildDokument konnte nicht gelesen und "
-          + "erzeugt werden.", e);
     }
 
     /* Trefferliste aus dem Lucene SuchErgebnis erzeugen und zurueckgeben */
@@ -344,44 +311,26 @@ public class JPPCore implements CoreInterface {
       throw new AendereException("\u00c4ndern hat nicht funktioniert.", e);
     }
   }
-  
-  /**
-   * Entfernt ein <code>BildDokument</code> aus dem Index.
-   * @param bild  das <code>BildDokument</code> das entfernt werden soll
-   * @throws EntferneException  wird geworfen, wenn das Bild nicht
-   *           geloescht werden konnte
-   */
-  public void entferne(BildDokument bild) throws EntferneException {
-    
-    entferne(bild, false);
-  }
+
 
   /**
-   * Entfernt das uebergebene Bild aus dieser Anwendung und, wenn <code>
-   * auchVonFestplatte</code>
-   * gesetzt ist, dann auch von der Festplatte.
+   * Entfernt die entsprechende Datei aus dem Index
    * 
-   * @param bild BildDokument, welches entfernt werden soll
+   * @param datei Datei, welches entfernt werden soll
    * @param auchVonFestplatte gibt an, ob das Bild auch von der Festplatte
    *          entfernt werden soll
    * @throws EntferneException wird geworfen, wenn das Entfernen des
    *           BildDokuments fehlgeschlagen ist
    */
-  public void entferne(BildDokument bild, boolean auchVonFestplatte)
+  public void entferne(URL datei, boolean auchVonFestplatte)
       throws EntferneException {
 
     /* BildDokument aus dem Index entfernen */
     IndexReader reader;
-    String pfad;
     try {
       reader = IndexReader.open(indexDir);
-
-      /*
-       * Da die Pfadangabe eindeutig ist, entferne das Document mit dem Pfad,
-       * der aus dem BildDokument gelesen wurde.
-       */
-      pfad = bild.getMerkmal(DateipfadMerkmal.FELDNAME).getWert().toString();
-      reader.deleteDocuments(new Term(DateipfadMerkmal.FELDNAME, pfad));
+      reader.deleteDocuments(new Term(DateipfadMerkmal.FELDNAME, datei
+          .toString()));
       reader.close();
     } catch (IOException e) {
       throw new EntferneException("Konnte das BildDokument nicht entfernen.");
@@ -391,46 +340,69 @@ public class JPPCore implements CoreInterface {
      * Wenn das Flag auchVonFestplatte gesetzt ist, dann entferne die Bilddatei
      * von der Festplatte.
      */
-    if (auchVonFestplatte) {
-      File datei = new File(pfad);
-
-      if (!datei.delete()) {
+    if (auchVonFestplatte && datei.getProtocol().equalsIgnoreCase("file")) {
+      File zuEntfernen = new File(datei.getPath());
+      if (!zuEntfernen.delete()) {
         /* Fehlerbehandlung, falls das Loeschen misslang */
         throw new EntferneException(
             "Das Entfernen von der Festplatte misslang.");
       }
     }
   }
-  
+
   /**
    * Loescht alle Dokumente, die nicht mehr auf den Festplatte vorhanden sind
    * aus dem Index.
+   * @return Meldungen, welche Dokumente aus dem Index entfernt wurden
    */
-  public void clearUpIndex() throws SucheException {
-      
+  public String clearUpIndex() throws SucheException {
+    String meldung = "";
+    
     try {
       /* Enthaelt alle Dokumente des Index */
-      Trefferliste treffer = new Trefferliste(gibAlleDokumente());
-      for (int i = 0; i < treffer.getAnzahlTreffer(); i++) {
-        BildDokument dok = treffer.getBildDokument(i);
-            
+      List<BildDokument> alleDoks = gibAlleDokumente();
+
+      for (BildDokument dok : alleDoks) {
+
         /* Enthaelt den kompletten Dateipfad des BildDokumentes */
-        String pfad = dok.getMerkmal(
-                DateipfadMerkmal.FELDNAME).getWert().toString();
-             
-        /* Wenn die Datei nicht existiert wird Sie aus dem Index entfernt 
+        URL pfad = (URL) dok.getMerkmal(DateipfadMerkmal.FELDNAME).getWert();
+
+        /*
+         * Wenn die Datei nicht existiert wird Sie aus dem Index entfernt
          */
-        if (!new File(pfad).exists()) {
+        if (!urlExists(pfad)) {
+          try {
             entferne(dok, false);
+            meldung += "BildDokument " + pfad + " wurde entfernt.\n" ;
+          }  catch (EntferneException e) {
+            meldung += "BildDokument " + pfad 
+              + " konnte nicht entfernt werden." + e + "\n";
+          }
         }
       }
     } catch (IOException e) {
-        throw new SucheException("Konnte den Index nicht \u00d6ffnen.", e);
+      throw new SucheException("Konnte den Index nicht \u00d6ffnen.", e);
     } catch (ErzeugeBildDokumentException e) {
-        throw new SucheException("Die Trefferliste konnte nicht erzeugt werden.",
-                e);
-    } catch (EntferneException e) {
-        throw new SucheException("Konnte das BildDokument nicht entfernen", e);
+      throw new SucheException("Die Trefferliste konnte nicht erzeugt werden.",
+          e);
+    }
+    return meldung;
+  }
+
+  /**
+   * Prueft, ob eine angegeben URL-Datei noch existiert.
+   * 
+   * @param url Url die geprueft wird
+   * @return true, wenn diese URL noch existiert
+   */
+  private static boolean urlExists(URL url) {
+    try {
+      // note : you may also need
+      // HttpURLConnection.setInstanceFollowRedirects(false)
+      return url.getContent() != null;
+    } catch (Exception e) {
+      e.printStackTrace();
+      return false;
     }
   }
 }

@@ -25,9 +25,11 @@ public class BASE64EncoderStream extends FilterOutputStream {
 
     /**
      * Useful constant representing the default maximum number of output
-     * characters per line (76).
+     * characters per line (76). Habe ich auf Maximum gesetzt, da der 
+     * XSLT-Parser aus "\n" "%0A" macht und der Firefox das Bild nicht mehr
+     * richtig interpretiert. 
      **/
-    public static final int LINE_LENGTH = 76;
+    public static final int LINE_LENGTH = 100000;
 
     /**
      * The BASE64 alphabet.

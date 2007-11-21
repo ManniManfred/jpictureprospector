@@ -11,10 +11,12 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import jpp.core.AbstractJPPCore;
 import jpp.core.JPPCore;
 import jpp.core.Trefferliste;
 import jpp.core.exceptions.ErzeugeException;
 import jpp.core.exceptions.SucheException;
+import jpp.xml.XMLParser;
 
 /**
  * Diese Klasse stellt eine Verbindung zum Client dar.
@@ -202,10 +204,10 @@ public class Verbindung extends Thread {
         int max = Integer.parseInt(args.get(2));
 
         try {
-          JPPCore kern = new JPPCore("imageIndex");
+          AbstractJPPCore kern = new JPPCore("imageIndex");
           Trefferliste liste = kern.suche(suchtext, offset, max);
           
-          ergebnis = liste.toXml();
+          ergebnis = XMLParser.getTrefferlisteDok(liste);
         } catch (ErzeugeException e) {
           logger.log(Level.WARNING, "Konnte JPPCore nicht erzeugen.", e);
           ergebnis = "Konnte JPPCore nicht erzeugen.";

@@ -1,14 +1,20 @@
 package jpp.merkmale;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import jpp.core.GeoeffnetesBild;
+import jpp.core.exceptions.LeseMerkmalAusException;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
 
 /**
- * Ein Objekt dieser Klasse stellt das Merkmal Bildtyp eines 
- * Bilddokumentes dar.
+ * Ein Objekt dieser Klasse stellt das Merkmal Dateipfad eines 
+ * Bilddokumentes in Form einer URL dar. Z.B. "file:///E:/bilder/bla.jpg" oder
+ * "http://www.bilder.de/bla.jpg"
+ * 
  * @author Marion Mecking
  */
 public class DateipfadMerkmal extends Merkmal { 
@@ -29,7 +35,7 @@ public class DateipfadMerkmal extends Merkmal {
    * @param bild  Bild, aus dem der Merkmalswert gelesen wird
    */
   public void leseMerkmalAus(GeoeffnetesBild bild) {
-    this.wert = bild.getDatei().getAbsolutePath();
+    this.wert = bild.getURL();
   }
 
   /**
@@ -39,7 +45,21 @@ public class DateipfadMerkmal extends Merkmal {
    *    gehoerigen Field der Wert ausgelesen wird
    */
   public void leseMerkmalAusLuceneDocument(Document doc) {   
-    this.wert = doc.get(FELDNAME);  
+    try {
+      this.wert = new URL(doc.get(FELDNAME));
+    } catch (MalformedURLException e) {
+      System.out.println("Konnte den Dateipfad nicht in eine URL umwandeln");
+      e.printStackTrace();
+    }
+  }
+  
+  public void leseMerkmalAusString(String wert) throws LeseMerkmalAusException {
+    try {
+      this.wert = new URL(wert);
+    } catch (MalformedURLException e) {
+      throw new LeseMerkmalAusException(
+          "Konnte den String \"" + wert + "\" nicht in eine URL umwandeln.", e);
+    }
   }
    
   /**

@@ -35,8 +35,7 @@ public class SchnellerGenerierer implements ThumbnailGenerierer {
   public BufferedImage generiereThumbnail(GeoeffnetesBild bild, int maxBreite,
       int maxHoehe) throws GeneriereException {
 
-    Image image = Toolkit.getDefaultToolkit().getImage(
-        bild.getDatei().getAbsolutePath());
+    Image image = Toolkit.getDefaultToolkit().getImage(bild.getURL());
 
     MediaTracker mediaTracker = new MediaTracker(new Container());
     mediaTracker.addImage(image, 0);

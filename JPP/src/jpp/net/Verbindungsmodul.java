@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Member;
 import java.net.Socket;
+import java.net.URL;
 import java.net.UnknownHostException;
 
 import jpp.core.BildDokument;
@@ -118,7 +119,7 @@ public class Verbindungsmodul implements CoreInterface {
     }
   }
 
-  public BildDokument importiere(File f) throws ImportException {
+  public BildDokument importiere(URL f) throws ImportException {
     // TODO Auto-generated method stub
     return null;
   }
@@ -169,6 +170,17 @@ public class Verbindungsmodul implements CoreInterface {
    */
   public void setPort(int port) {
     this.port = port;
+  }
+
+  public String clearUpIndex() throws SucheException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+
+  public void entferne(URL datei, boolean auchVonFestplatte) throws EntferneException {
+    // TODO Auto-generated method stub
+    
   }
   
 }

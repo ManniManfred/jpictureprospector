@@ -20,41 +20,23 @@ import org.apache.lucene.search.Hits;
 public class Trefferliste {
 
   /** Gibt die Anzahl aller gefundenen Treffer zurueck. */
-  private int anzahlTreffer;
+  protected int anzahlTreffer;
 
   /** Enthaelt eine Liste mit allen Treffern dieser Trefferliste. */
-  private List<BildDokument> bildDokumente;
+  protected List<BildDokument> bildDokumente;
 
   /** Enthaelt zu jedem BildDokument die Treffergenauigkeit. */
-  private List<Float> score;
+  protected List<Float> score;
 
   /**
    * Erzeugt eine leere Trefferliste.
    */
-  public Trefferliste() {
+  protected Trefferliste() {
     bildDokumente = new ArrayList<BildDokument>();
     score = new ArrayList<Float>();
     anzahlTreffer = 0;
   }
 
-  /**
-   * Erzeugt eine neue Trefferliste, mit den uebergebenen BildDokumenten als
-   * Treffer. Der Score wird fuer jeden Treffer auf 1 gesetzt.
-   * 
-   * @param dokumente BildDokumente, die in dieser Trefferliste als Treffer
-   *          gesetzt werden
-   */
-  public Trefferliste(List<BildDokument> dokumente) {
-    this.bildDokumente = dokumente;
-    score = new ArrayList<Float>();
-
-    anzahlTreffer = bildDokumente.size();
-
-    /* Score fuer alle Dokumente auf 1 setzten. */
-    for (int i = 0; i < bildDokumente.size(); i++) {
-      score.add(1f);
-    }
-  }
 
   /**
    * Erzeugt eine neue Trefferliste aus der Lucene-Trefferliste.
@@ -138,15 +120,4 @@ public class Trefferliste {
         : -1;
   }
   
-  public String toXml() {
-    String ergebnis = "<Trefferliste Anzahl=\"" + getGesamtAnzahlTreffer() 
-      + "\">\n";
-    
-    for (int i = 0; i < this.getAnzahlTreffer(); i++) {
-      ergebnis += this.getBildDokument(i).toXml();
-    }
-    
-    ergebnis += "</Trefferliste>";
-    return ergebnis;
-  }
 }

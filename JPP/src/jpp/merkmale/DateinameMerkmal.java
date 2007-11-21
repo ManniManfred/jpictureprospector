@@ -26,17 +26,26 @@ public class DateinameMerkmal extends Merkmal {
    *          Bild, aus dem der Merkmalswert gelesen wird
    */
   public void leseMerkmalAus(GeoeffnetesBild bild) {
-    String dateiname = bild.getDatei().getName();
+    String dateipath = bild.getURL().getFile();
 
+
+    /* Die Ordnernamen von dem dateipath entfernen Es wird z.B. aus
+     * "/bla/blub/urlaubsbild01.jpg" "urlaubsbild01.jpg"
+     */
+    int slashpos = dateipath.lastIndexOf("/");
+    if (slashpos >= 0) {
+      dateipath = dateipath.substring(slashpos + 1);
+    }
+    
     /* Die Endung von dem Dateinamen entfernen Es wird z.B. aus
      * "urlaubsbild01.jpg" "urlaubsbild01"
      */
-    int punktpos = dateiname.lastIndexOf(".");
+    int punktpos = dateipath.lastIndexOf(".");
     if (punktpos >= 0) {
-      dateiname = dateiname.substring(0, punktpos);
+      dateipath = dateipath.substring(0, punktpos);
     }
     
-    this.wert = dateiname;
+    this.wert = dateipath;
   }
 
   /**
