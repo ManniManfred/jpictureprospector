@@ -2,12 +2,13 @@ package jpp.server.servlets;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -22,6 +23,8 @@ import jpp.core.JPPCore;
 import jpp.core.Trefferliste;
 import jpp.core.exceptions.SucheException;
 import jpp.xml.XMLParser;
+import benutzermanager.Benutzer;
+import benutzermanager.RechteManager;
 
 public class SucheServlet extends HttpServlet {
 
@@ -43,18 +46,37 @@ public class SucheServlet extends HttpServlet {
     handleRequest(req, resp);
   }
   
-  private void handleRequest(HttpServletRequest req, HttpServletResponse resp)
-    throws ServletException, IOException {
+  
 
-    
-    PrintStream out = new PrintStream(resp.getOutputStream());
-    
-    JPPCore kern = (JPPCore) getServletContext().getAttribute("JPPCore");
-    
-    if (kern == null) {
-      out.println("JPPCore ist nicht vorhanden. Es ist vermutlich beim start" +
-      		"ein Fehler aufgetreten. Überprüfen Sie die Logfiles.");
+  private void handleRequest(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+
+
+    PrintWriter out = resp.getWriter();
+
+    HttpSession session = req.getSession();
+
+    Benutzer user = (Benutzer) session.getAttribute("user");
+
+    if (user == null || !user.hatRecht(RechteManager.getRecht("suche"))) {
+      out.println("Sie haben nicht das Recht etwas zu suchen.");
+    } else {
+
+      JPPCore kern = (JPPCore) getServletContext().getAttribute("JPPCore");
+
+      if (kern == null) {
+        out.println("JPPCore ist nicht vorhanden. Es ist vermutlich beim start"
+            + "ein Fehler aufgetreten. Überprüfen Sie die Logfiles.");
+      } else {
+        suche(req, resp, kern);
+      }
     }
+
+  }
+
+  private void suche(HttpServletRequest req, HttpServletResponse resp, 
+      JPPCore kern) throws ServletException, IOException {
+    PrintWriter out = resp.getWriter();
     
     try {
       String suchtext = req.getParameter("suchtext");

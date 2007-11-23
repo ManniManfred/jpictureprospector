@@ -10,10 +10,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import jpp.core.Einstellungen;
 import jpp.core.JPPCore;
 import jpp.core.exceptions.ImportException;
+import benutzermanager.Benutzer;
+import benutzermanager.RechteManager;
 
 import com.oreilly.servlet.MultipartRequest;
 
@@ -28,20 +31,42 @@ public class ImportiereServlet extends HttpServlet {
     PrintWriter out = resp.getWriter(); 
     out.println("Hallo? Bist du sicher, dass du hier richtig bist?");
   }
+  
+  
+  
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
+
+
+    PrintWriter out = resp.getWriter();
+
+    HttpSession session = req.getSession();
+
+    Benutzer user = (Benutzer) session.getAttribute("user");
+
+    if (user == null || !user.hatRecht(RechteManager.getRecht("importiere"))) {
+      out.println("Sie haben nicht das Recht ein Bild zu importieren.");
+    } else {
+
+      JPPCore kern = (JPPCore) getServletContext().getAttribute("JPPCore");
+
+      if (kern == null) {
+        out.println("JPPCore ist nicht vorhanden. Es ist vermutlich beim start"
+            + "ein Fehler aufgetreten. Überprüfen Sie die Logfiles.");
+      } else {
+        importiere(req, resp, kern);
+      }
+    }
+
+  }
+
+  private void importiere(HttpServletRequest req, HttpServletResponse resp, 
+      JPPCore kern) throws ServletException, IOException {
     
     PrintWriter out = resp.getWriter(); 
-    
-    JPPCore kern = (JPPCore) getServletContext().getAttribute("JPPCore");
-    
-    if (kern == null) {
-      out.println("JPPCore ist nicht vorhanden. Es ist vermutlich beim start" +
-          "ein Fehler aufgetreten. Überprüfen Sie die Logfiles.");
-    }
-    
+        
     MultipartRequest multi = new MultipartRequest( req, Einstellungen.uploadOrdner ); 
     Enumeration files = multi.getFileNames(); 
     while ( files.hasMoreElements() ) 

@@ -18,6 +18,37 @@
     <url-pattern>/test</url-pattern>
   </servlet-mapping>
   
+  
+  
+  <servlet>
+    <servlet-name>anmelden</servlet-name>
+    <servlet-class>jpp.server.servlets.AnmeldenServlet</servlet-class>
+        
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>anmelden</servlet-name>
+    <url-pattern>/anmelden</url-pattern>
+  </servlet-mapping>
+  
+  
+  
+  
+  <servlet>
+    <servlet-name>abmelden</servlet-name>
+    <servlet-class>jpp.server.servlets.AbmeldenServlet</servlet-class>
+        
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>abmelden</servlet-name>
+    <url-pattern>/abmelden</url-pattern>
+  </servlet-mapping>
+  
+  
+  
+  
+  
   <servlet>
     <servlet-name>aendere</servlet-name>
     <servlet-class>jpp.server.servlets.AendereServlet</servlet-class>
