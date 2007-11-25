@@ -9,6 +9,8 @@ import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -27,6 +29,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -62,6 +65,7 @@ import settingsystem.reader.IniReader;
 import settingsystem.writer.IniWriter;
 
 import com.l2fprod.common.swing.JDirectoryChooser;
+import javax.swing.JComboBox;
 
 /**
  * Ein Objekt der Klasse stellt das Hauptanzeigefenster der Software zur
@@ -90,6 +94,10 @@ public class Hauptfenster extends JFrame {
 
   /** Enthaelt den Kern der Software mit dem operiert wird. */
   private AbstractJPPCore kern;
+  
+  private int lastOffset;
+  
+  private boolean endOfList;
   
   /**
    * Der SelectionManager, der dafuer verantwortlich ist, dass die Bilder
@@ -152,6 +160,16 @@ public class Hauptfenster extends JFrame {
   private JMenuItem miImportDir = null;
 
   private JMenuItem miAufraeumen = null;
+
+  private JComboBox cbMaxAnzahl = null;
+
+  private JLabel lMaxBilder = null;
+
+  private JLabel lPrevIco = null;
+
+  private JLabel lNextIco = null;
+
+  private JLabel lSeite = null;
   
   /**
    * Erstellt ein neues Objekt der Klasse.
@@ -325,10 +343,12 @@ public class Hauptfenster extends JFrame {
    * 
    * @param suchtext
    */
-  public void sucheNach(String suchtext) {
+  public void sucheNach(String suchtext, int offset) {
+    
+    int maxAnzahl = Integer.parseInt(cbMaxAnzahl.getSelectedItem().toString());
+    lastOffset = offset < 0 ? 0 : offset;
     try {
-      /* TODO offset ueber UI steuern */
-      Trefferliste trefferliste = kern.suche(suchtext, 0, Einstellungen.ANZAHL_ERGEBNISSE);
+      Trefferliste trefferliste = kern.suche(suchtext, lastOffset, maxAnzahl);
 
       /* Entferne alle vorher angezeigten TAPs */
       clearAnzeige();
@@ -337,7 +357,11 @@ public class Hauptfenster extends JFrame {
       for (int i = 0; i < trefferliste.getAnzahlTreffer(); i++) {
         erzeugeTAPundAdde(trefferliste.getBildDokument(i));
       }
-
+      endOfList = (lastOffset + trefferliste.getAnzahlTreffer()) 
+                  == trefferliste.getGesamtAnzahlTreffer() ? true : false; 
+      lSeite.setText("Seite " + (offset / maxAnzahl + 1) + "/" + 
+          (int) Math.ceil((double) trefferliste.getGesamtAnzahlTreffer() / 
+                           maxAnzahl));
     } catch (SucheException se) {
       verarbeiteFehler("Suche fehlgeschlagen", "Die Suche konnte "
           + "nicht erfolgreich ausgeführt werden.\n\n" + se.getMessage());
@@ -711,10 +735,48 @@ public class Hauptfenster extends JFrame {
    */
   private JToolBar getTbWerkzeugleiste() {
     if (tbWerkzeugleiste == null) {
+      lSeite = new JLabel();
+      lSeite.setText("");
+      lNextIco = new JLabel();
+      lNextIco.setText("");
+      lNextIco.setIcon(new ImageIcon(getClass().getResource("/jpp/ui/uiimgs/pfeilrechts.png")));
+      lNextIco.addMouseListener(new java.awt.event.MouseAdapter() {   
+      	public void mouseClicked(java.awt.event.MouseEvent e) {
+          if (!endOfList) {
+            sucheNach(pSuche.gibSuchtext(), lastOffset + Integer.parseInt(cbMaxAnzahl.getSelectedItem().toString()));
+          }
+      	}   
+      	public void mouseExited(java.awt.event.MouseEvent e) {    
+      		lNextIco.removeAll();
+          lNextIco.setIcon(new ImageIcon(getClass().getResource("/jpp/ui/uiimgs/pfeilrechts.png")));
+      	}
+        public void mouseEntered(java.awt.event.MouseEvent e) {
+          lNextIco.removeAll();
+          lNextIco.setIcon(new ImageIcon(getClass().getResource("/jpp/ui/uiimgs/pfeilrechtsKlick.png")));
+        }
+      });
+      lPrevIco = new JLabel();
+      lPrevIco.setText("");
+      lPrevIco.setIcon(new ImageIcon(getClass().getResource("/jpp/ui/uiimgs/pfeillinks.png")));
+      lPrevIco.addMouseListener(new java.awt.event.MouseAdapter() {   
+      	public void mouseClicked(java.awt.event.MouseEvent e) {    
+          sucheNach(pSuche.gibSuchtext(), lastOffset - Integer.parseInt(cbMaxAnzahl.getSelectedItem().toString()));
+      	}   
+      	public void mouseExited(java.awt.event.MouseEvent e) {    
+          lPrevIco.removeAll();
+          lPrevIco.setIcon(new ImageIcon(getClass().getResource("/jpp/ui/uiimgs/pfeillinks.png")));
+      	}
+        public void mouseEntered(java.awt.event.MouseEvent e) {
+          lPrevIco.removeAll();
+          lPrevIco.setIcon(new ImageIcon(getClass().getResource("/jpp/ui/uiimgs/pfeillinksKlick.png")));
+        }
+      });
+      lMaxBilder = new JLabel();
+      lMaxBilder.setText("max. Bilder: ");
       lLoeschen = new JLabel();
       lLoeschen.setText("");
       lLoeschen.setIcon(new ImageIcon(getClass().getResource(
-          "uiimgs/loeschenTrash.png")));
+          "/jpp/ui/uiimgs/loeschenTrash.png")));
       lLoeschen.setSize(new Dimension(32, 32));
       lLoeschen.addMouseListener(new java.awt.event.MouseAdapter() {
         public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -724,13 +786,13 @@ public class Hauptfenster extends JFrame {
         public void mouseExited(java.awt.event.MouseEvent e) {
           lLoeschen.removeAll();
           lLoeschen.setIcon(new ImageIcon(getClass().getResource(
-              "uiimgs/loeschenTrash.png")));
+              "/jpp/ui/uiimgs/loeschenTrash.png")));
         }
 
         public void mouseEntered(java.awt.event.MouseEvent e) {
           lLoeschen.removeAll();
           lLoeschen.setIcon(new ImageIcon(getClass().getResource(
-              "uiimgs/loeschenTrashKlick.png")));
+              "/jpp/ui/uiimgs/loeschenTrashKlick.png")));
         }
       });
       
@@ -739,6 +801,11 @@ public class Hauptfenster extends JFrame {
       tbWerkzeugleiste.add(lLoeschen);
       tbWerkzeugleiste.add(getSGroesze());
 
+      tbWerkzeugleiste.add(lMaxBilder);
+      tbWerkzeugleiste.add(getCbMaxAnzahl());
+      tbWerkzeugleiste.add(lPrevIco);
+      tbWerkzeugleiste.add(lNextIco);
+      tbWerkzeugleiste.add(lSeite);
     }
     return tbWerkzeugleiste;
   }
@@ -940,8 +1007,7 @@ public class Hauptfenster extends JFrame {
     if (spThumbnails == null) {
       spThumbnails = new JScrollPane();
       spThumbnails.setViewportView(getSManager());
-      
-      spThumbnails.getViewport().setBackground(new Color(240,240,240));
+      spThumbnails.getViewport().setBackground(Color.WHITE);
     }
     return spThumbnails;
   }
@@ -1030,7 +1096,26 @@ public class Hauptfenster extends JFrame {
     return miAuswahlAlle;
   }
 
-  
+  /**
+   * This method initializes cbMaxAnzahl	
+   * 	
+   * @return javax.swing.JComboBox	
+   */
+  private JComboBox getCbMaxAnzahl() {
+    if (cbMaxAnzahl == null) {
+      cbMaxAnzahl = new JComboBox();
+      cbMaxAnzahl.setMaximumSize(new Dimension(75, 25));
+      cbMaxAnzahl.addItem("20");
+      cbMaxAnzahl.addItem("50");
+      cbMaxAnzahl.addItem("80");
+      cbMaxAnzahl.addItemListener(new ItemListener() {
+        public void itemStateChanged(ItemEvent e) {
+          sucheNach(pSuche.gibSuchtext(), 0);
+        }
+      });
+    }
+    return cbMaxAnzahl;
+  }
 
   /**
    * Initialisiert das dieses Objekt.
