@@ -2,9 +2,8 @@
 - Erweiterte Suche
 - Wenn man mit den Pfeiltasten rauf und runter geht, sollen die Scrollbalken richtig reagieren
 - Wenn die Bildquelle nicht vorhanden ist (falscher Pfad) kommt es bei der Grossansicht zu einer Exception
-- graphische Darstellung von "Seiten" (Die ersten 20 Bilder auf der ersten Seite mit einem Button zur naechsten Seite gelangen usw.)
 
-- JPPCore welche Methoden oder Bereiche muessen synchronisiert werden, wenn z.B mehere Clients daraufzugreifen?
+- JPPCore welche Methoden oder Bereiche muessen synchronisiert werden, wenn z.B mehere Clients daraufzugreifen?- JPPCore welche Methoden oder Bereiche muessen synchronisiert werden, wenn z.B mehere Clients daraufzugreifen?
 
 - Warum wird die aendern-Methode doppelt aufgerufen?
 
