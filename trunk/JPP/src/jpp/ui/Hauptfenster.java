@@ -25,11 +25,11 @@ import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -41,20 +41,14 @@ import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
-import jpp.client.JPPClient;
 import jpp.core.AbstractJPPCore;
 import jpp.core.BildDokument;
-import jpp.core.CoreInterface;
 import jpp.core.Einstellungen;
-import jpp.core.JPPCore;
 import jpp.core.Trefferliste;
 import jpp.core.exceptions.EntferneException;
-import jpp.core.exceptions.ErzeugeException;
 import jpp.core.exceptions.SucheException;
 import jpp.ui.listener.AbortListener;
 import jpp.ui.listener.BildimportListener;
@@ -65,7 +59,6 @@ import settingsystem.reader.IniReader;
 import settingsystem.writer.IniWriter;
 
 import com.l2fprod.common.swing.JDirectoryChooser;
-import javax.swing.JComboBox;
 
 /**
  * Ein Objekt der Klasse stellt das Hauptanzeigefenster der Software zur
@@ -760,7 +753,10 @@ public class Hauptfenster extends JFrame {
       lPrevIco.setIcon(new ImageIcon(getClass().getResource("/jpp/ui/uiimgs/pfeillinks.png")));
       lPrevIco.addMouseListener(new java.awt.event.MouseAdapter() {   
       	public void mouseClicked(java.awt.event.MouseEvent e) {    
-          sucheNach(pSuche.gibSuchtext(), lastOffset - Integer.parseInt(cbMaxAnzahl.getSelectedItem().toString()));
+          int offset = Integer.parseInt(cbMaxAnzahl.getSelectedItem().toString()); 
+          if (lastOffset > 0) {
+            sucheNach(pSuche.gibSuchtext(), lastOffset - offset);
+          }
       	}   
       	public void mouseExited(java.awt.event.MouseEvent e) {    
           lPrevIco.removeAll();
