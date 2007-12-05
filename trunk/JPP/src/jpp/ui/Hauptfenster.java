@@ -44,6 +44,9 @@ import javax.swing.KeyStroke;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
+import jpp.components.ChangedValueEvent;
+import jpp.components.MyComboBox;
+import jpp.components.UserChangedValueListener;
 import jpp.core.AbstractJPPCore;
 import jpp.core.BildDokument;
 import jpp.core.Einstellungen;
@@ -162,7 +165,7 @@ public class Hauptfenster extends JFrame {
 
   private JLabel lNextIco = null;
 
-  private JLabel lSeite = null;
+  private MyComboBox cbSeiteAuswahl = null;
   
   /**
    * Erstellt ein neues Objekt der Klasse.
@@ -352,9 +355,16 @@ public class Hauptfenster extends JFrame {
       }
       endOfList = (lastOffset + trefferliste.getAnzahlTreffer()) 
                   == trefferliste.getGesamtAnzahlTreffer() ? true : false; 
-      lSeite.setText("Seite " + (offset / maxAnzahl + 1) + "/" + 
-          (int) Math.ceil((double) trefferliste.getGesamtAnzahlTreffer() / 
-                           maxAnzahl));
+      int seitenAnzahl = (int) Math.ceil((double) trefferliste.getGesamtAnzahlTreffer() / maxAnzahl);
+      int aktuelleSeite = offset / maxAnzahl;
+      
+      for (int i = seitenAnzahl; i < cbSeiteAuswahl.getItemCount(); i++) {
+        cbSeiteAuswahl.removeItemAt(i);
+      }
+      for (int i = cbSeiteAuswahl.getItemCount() + 1; i <= seitenAnzahl; i++) {
+        cbSeiteAuswahl.addItem(i);
+      }
+      cbSeiteAuswahl.setSelectedItem(aktuelleSeite + 1);
     } catch (SucheException se) {
       verarbeiteFehler("Suche fehlgeschlagen", "Die Suche konnte "
           + "nicht erfolgreich ausgeführt werden.\n\n" + se.getMessage());
@@ -728,8 +738,6 @@ public class Hauptfenster extends JFrame {
    */
   private JToolBar getTbWerkzeugleiste() {
     if (tbWerkzeugleiste == null) {
-      lSeite = new JLabel();
-      lSeite.setText("");
       lNextIco = new JLabel();
       lNextIco.setText("");
       lNextIco.setIcon(new ImageIcon(getClass().getResource("/jpp/ui/uiimgs/pfeilrechts.png")));
@@ -801,7 +809,7 @@ public class Hauptfenster extends JFrame {
       tbWerkzeugleiste.add(getCbMaxAnzahl());
       tbWerkzeugleiste.add(lPrevIco);
       tbWerkzeugleiste.add(lNextIco);
-      tbWerkzeugleiste.add(lSeite);
+      tbWerkzeugleiste.add(getCbSeiteAuswahl());
     }
     return tbWerkzeugleiste;
   }
@@ -1164,6 +1172,30 @@ public class Hauptfenster extends JFrame {
       cpInhalt.add(getSpAnzeige(), BorderLayout.CENTER);
     }
     return cpInhalt;
+  }
+
+  /**
+   * This method initializes jComboBox	
+   * 	
+   * @return javax.swing.JComboBox	
+   */
+  private MyComboBox getCbSeiteAuswahl() {
+    if (cbSeiteAuswahl == null) {
+      cbSeiteAuswahl = new MyComboBox();
+      cbSeiteAuswahl.setMaximumSize(new Dimension(50, 25));
+      cbSeiteAuswahl.addUserChangedValueListener(new UserChangedValueListener() {
+        public void userChangedValue(ChangedValueEvent e) {
+          if (cbSeiteAuswahl.getItemCount() > 0) {
+            int offset = 
+              (Integer.parseInt(cbSeiteAuswahl.getSelectedItem().toString())
+                  - 1)
+              * Integer.parseInt(cbMaxAnzahl.getSelectedItem().toString());
+            sucheNach(pSuche.gibSuchtext(), offset);
+          }
+        }
+      });
+    }
+    return cbSeiteAuswahl;
   }
 
 }

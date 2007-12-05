@@ -14,7 +14,6 @@ import java.awt.Point;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -160,11 +159,18 @@ public class BildGroszanzeige extends JFrame {
     if (!tbGroeszeAnpassen.isSelected()) {
       int skalierung = 100;
       if (cbGroesze.getSelectedItem().toString().matches("[0-9]+")) {
-        skalierung = Integer.parseInt(cbGroesze.getSelectedItem().toString());
+        try {
+          skalierung = Integer.parseInt(cbGroesze.getSelectedItem().toString());
+        } catch (NumberFormatException e) {
+        }
       } else if (cbGroesze.getSelectedItem().toString().matches("[0-9]+%")) {
-        skalierung = Integer
-            .parseInt(((String) cbGroesze.getSelectedItem()).substring(0,
-                ((String) cbGroesze.getSelectedItem()).lastIndexOf('%')).trim());
+        try {
+          
+          skalierung = Integer
+          .parseInt(((String) cbGroesze.getSelectedItem()).substring(0,
+              ((String) cbGroesze.getSelectedItem()).lastIndexOf('%')).trim());
+        } catch (NumberFormatException e) {
+        }
       }
       prefSizeImage.width = ((Integer) dok.getMerkmal(
           BildbreiteMerkmal.FELDNAME).getWert())
