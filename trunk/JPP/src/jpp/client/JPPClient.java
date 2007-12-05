@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.JSeparator;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -27,7 +28,6 @@ import jpp.core.exceptions.ImportException;
 import jpp.core.exceptions.SucheException;
 import jpp.merkmale.DateipfadMerkmal;
 import jpp.merkmale.Merkmal;
-import jpp.xml.TrefferlisteHandler;
 
 import org.xml.sax.SAXException;
 
@@ -42,14 +42,49 @@ public class JPPClient extends AbstractJPPCore {
   
   private String jppServer;
   
-  public JPPClient(String jppServer) throws ErzeugeException {
+  private String sessionId;
+  
+  public JPPClient(String jppServer, String user, String password) throws ErzeugeException {
     this.jppServer = jppServer;
+    
+    /* Beim JPPServer anmelden */
+    String anfrage = jppServer + "anmelden?" 
+      + "loginname=" + user 
+      + "&passwort=" + password;
+    
+    
+    try {
+      URL page = new URL(anfrage);
+      logger.log(Level.INFO, "Anfrage an Server: " + page);
+      
+      URLConnection conn = page.openConnection();
+      
+      InputStream in = conn.getInputStream();
+      String ergebnis = readText(in);
+      
+
+      if (ergebnis.indexOf("true") == 0) {
+        
+        /* Lese die Sessionid aus */
+        sessionId = ergebnis.substring(ergebnis.lastIndexOf("=") + 1).trim();
+      } else {
+        throw new ErzeugeException(ergebnis);
+      }
+      
+    } catch (MalformedURLException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    
   }
 
   @Override
   public void aendere(BildDokument bild) throws AendereException {
     /* Anfrage aufbauen */
-    String anfrage = jppServer + "aendere?bild=" 
+    String anfrage = "aendere?bild=" 
       + bild.getMerkmal(DateipfadMerkmal.FELDNAME).getWert();
     
     Collection<Merkmal> liste = bild.gibGrundMerkmale();
@@ -68,13 +103,7 @@ public class JPPClient extends AbstractJPPCore {
     
     /* Anfrage senden */
     try {
-      URL page = new URL(anfrage);
-      
-      logger.log(Level.INFO, "Anfrage an Server: " + page);
-      
-      URLConnection conn = page.openConnection();
-      
-      InputStream in = conn.getInputStream();
+      InputStream in = stelleAnfrage(anfrage);
       String ergebnis = readText(in);
       
       System.out.println("Ergebnis = " + ergebnis);
@@ -91,13 +120,9 @@ public class JPPClient extends AbstractJPPCore {
   public String clearUpIndex() throws SucheException {
     String ergebnis;
     try {
-      URL page = new URL(jppServer + "clearUpIndex");
+      String anfrage = "clearUpIndex";
       
-      logger.log(Level.INFO, "Anfrage an Server: " + page);
-      
-      URLConnection conn = page.openConnection();
-      
-      InputStream in = conn.getInputStream();
+      InputStream in = stelleAnfrage(anfrage);
       ergebnis = readText(in);
       
       System.out.println("Ergebnis = " + ergebnis);
@@ -117,14 +142,10 @@ public class JPPClient extends AbstractJPPCore {
   public void entferne(URL datei, boolean auchVonFestplatte) throws EntferneException {
 
     try {
-      URL page = new URL(jppServer + "entferne?bild=" + datei 
-          + "&vonPlatte=" + Boolean.toString(auchVonFestplatte));
+      String anfrage = "entferne?bild=" + datei 
+          + "&vonPlatte=" + Boolean.toString(auchVonFestplatte);
       
-      logger.log(Level.INFO, "Anfrage an Server: " + page);
-      
-      URLConnection conn = page.openConnection();
-      
-      InputStream in = conn.getInputStream();
+      InputStream in = stelleAnfrage(anfrage);
       String ergebnis = readText(in);
       
       System.out.println("Ergebnis = " + ergebnis);
@@ -147,6 +168,7 @@ public class JPPClient extends AbstractJPPCore {
       String boundary = MultiPartFormOutputStream.createBoundary();
       HttpURLConnection hpc = (HttpURLConnection) page.openConnection();
       hpc.setRequestMethod("POST");
+      hpc.setRequestProperty("Cookie", "JSESSIONID=" + sessionId);
       hpc.setRequestProperty("Accept", "*/*");
       hpc.setRequestProperty("Content-Type", MultiPartFormOutputStream
           .getContentType(boundary));
@@ -184,12 +206,10 @@ public class JPPClient extends AbstractJPPCore {
   public Trefferliste suche(String suchtext, int offset, int maxanzahl) throws SucheException {
     Trefferliste ergebnis;
     try {
-      URL page = new URL(jppServer + "suche?suchtext=" + suchtext + "&offset=" + offset 
-          + "&maxanzahl=" + maxanzahl + "&format=xml");
+      String anfrage = "suche?suchtext=" + suchtext + "&offset=" + offset 
+          + "&maxanzahl=" + maxanzahl + "&format=xml";
       
-      logger.log(Level.INFO, "Anfrage an Server: " + page);
-      
-      URLConnection conn = page.openConnection();
+      InputStream result = stelleAnfrage(anfrage);
       
       
       /* erhaltene XML Datei in eine Trefferliste parsen */
@@ -198,7 +218,7 @@ public class JPPClient extends AbstractJPPCore {
         SAXParser saxParser = factory.newSAXParser();
         
         TrefferlisteHandler handler = new TrefferlisteHandler();
-        saxParser.parse(conn.getInputStream(), handler );
+        saxParser.parse(result, handler );
         
         ergebnis = handler.getTrefferliste();
       } catch (ParserConfigurationException e) {
@@ -218,6 +238,24 @@ public class JPPClient extends AbstractJPPCore {
     return ergebnis;
   }
 
+  
+  private InputStream stelleAnfrage(String anfrage) throws IOException  {
+    InputStream ergebnis;
+    
+    URL page = new URL(jppServer + anfrage);
+    
+    
+    logger.log(Level.INFO, "Anfrage an Server: " + page);
+    
+    HttpURLConnection conn = (HttpURLConnection) page.openConnection();
+    
+    conn.setRequestProperty("Cookie", "JSESSIONID=" + sessionId);
+    
+    ergebnis = conn.getInputStream();  
+    
+    
+    return ergebnis;
+  }
   
   /**
    * Liest den komplett verfuegbaren Text vom Eingabestrom und gibt diesen 

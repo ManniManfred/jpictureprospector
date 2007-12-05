@@ -1,9 +1,7 @@
-package jpp.server.servlets;
+package jpp.webapp.servlets;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 
@@ -13,17 +11,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import benutzermanager.Benutzer;
-import benutzermanager.BenutzerManager;
-import benutzermanager.RechteManager;
-
-import jpp.core.AbstractJPPCore;
 import jpp.core.BildDokument;
 import jpp.core.JPPCore;
 import jpp.core.exceptions.AendereException;
 import jpp.core.exceptions.ErzeugeBildDokumentException;
 import jpp.merkmale.Merkmal;
-import jpp.server.Mapping;
+import jpp.webapp.Mapping;
+import benutzermanager.Benutzer;
+import benutzermanager.RechteManager;
 
 public class AendereServlet extends HttpServlet {
 

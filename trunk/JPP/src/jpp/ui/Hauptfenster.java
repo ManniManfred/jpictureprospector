@@ -15,7 +15,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,17 +48,16 @@ import jpp.components.MyComboBox;
 import jpp.components.UserChangedValueListener;
 import jpp.core.AbstractJPPCore;
 import jpp.core.BildDokument;
-import jpp.core.Einstellungen;
 import jpp.core.Trefferliste;
 import jpp.core.exceptions.EntferneException;
 import jpp.core.exceptions.SucheException;
+import jpp.settings.SettingsManager;
+import jpp.settings.UISettings;
 import jpp.ui.listener.AbortListener;
 import jpp.ui.listener.BildimportListener;
 import selectionmanager.ui.AuswaehlbaresJPanel;
 import selectionmanager.ui.SelectionManagerComponent;
 import settingsystem.core.SettingsDialog;
-import settingsystem.reader.IniReader;
-import settingsystem.writer.IniWriter;
 
 import com.l2fprod.common.swing.JDirectoryChooser;
 
@@ -76,6 +74,13 @@ public class Hauptfenster extends JFrame {
   /** Logger, der alle Fehler loggt. */
   Logger logger = Logger.getLogger("jpp.ui.Hauptfenster");
 
+  /**
+   * Enthaelt das UISettings Objekt mit allen wichtigen uiSettings des 
+   * UI dieser Anwendung.
+   */
+  private UISettings uiSettings = 
+    SettingsManager.getSettings(UISettings.class);
+  
   /**
    * Gibt an welche Breite die Komponenten minimal im Bereich der
    * Bildinformationen haben duerfen.
@@ -115,7 +120,7 @@ public class Hauptfenster extends JFrame {
 
   private JMenuItem miImport = null;
 
-  private JMenu mEinstellungen = null;
+  private JMenu muiSettings = null;
 
   private JMenu mHilfe = null;
 
@@ -185,38 +190,46 @@ public class Hauptfenster extends JFrame {
   }
 
   /**
-   * Laed alle Einstellungen aus der Datei settingFilename und speichert diese in
+   * Laed alle uiSettings aus der Datei settingFilename und speichert diese in
    * der Klasse Settings.
    */
   private void loadSettings() {
-    IniReader loader = new IniReader();
-    try {
-      loader.loadSettings(Einstellungen.SETTING_FILENAME, Einstellungen.class);
-    } catch (IOException e) {
-      System.out.println("Konnte Einstellungen aus der" + " Datei "
-          + Einstellungen.SETTING_FILENAME + " nicht laden.");
-    }
+    
+    
+//    //Wird nicht mehr benoetigt, da die uiSettings ueber den SettingsManager
+//    //geladen werden.
+//    IniReader loader = new IniReader();
+//    try {
+//      loader.loadSettings(uiSettings.SETTING_FILENAME, uiSettings.class);
+//    } catch (IOException e) {
+//      System.out.println("Konnte uiSettings aus der" + " Datei "
+//          + uiSettings.SETTING_FILENAME + " nicht laden.");
+//    }
   }
 
   /**
-   * Speichert alle Einstellungen aus der Klasse Settings.
+   * Speichert alle uiSettings aus der Klasse Settings.
    */
   private void saveSettings() {
-    IniWriter writer = new IniWriter();
-    try {
-      writer.writeSettings(Einstellungen.SETTING_FILENAME, new Einstellungen());
-    } catch (IOException e) {
-      System.out.println("Konnte Einstellungen in der " + " Datei "
-          + Einstellungen.SETTING_FILENAME + " nicht speichern.");
-    }
+    SettingsManager.saveSettings(uiSettings);
+    
+//    // Wird nicht mehr benoetig, da die uiSettings ueber den 
+//    // SettingsManager gespeichert werden.
+//    IniWriter writer = new IniWriter();
+//    try {
+//      writer.writeSettings(uiSettings.SETTING_FILENAME, new uiSettings());
+//    } catch (IOException e) {
+//      System.out.println("Konnte uiSettings in der " + " Datei "
+//          + uiSettings.SETTING_FILENAME + " nicht speichern.");
+//    }
   }
 
   /**
    * Oeffnent den Einstellungs-Dialog.
    */
   private void oeffneEinstellungsDialog() {
-    SettingsDialog settingsDialog = new SettingsDialog(this, "Einstellungen",
-        true, new Einstellungen());
+    SettingsDialog settingsDialog = new SettingsDialog(this, "uiSettings",
+        true, uiSettings);
     settingsDialog.setVisible(true);
 
     if (settingsDialog.wurdenSettingsGeaendert()) {
@@ -232,8 +245,8 @@ public class Hauptfenster extends JFrame {
   private void dialogImportFiles() {
     JFileChooser dateiauswahl;
     
-    if (Einstellungen.importStartOrdner != null) {
-      dateiauswahl = new JFileChooser(Einstellungen.importStartOrdner);
+    if (uiSettings.importStartOrdner != null) {
+      dateiauswahl = new JFileChooser(uiSettings.importStartOrdner);
     } else {
       dateiauswahl = new JFileChooser();
     }
@@ -249,7 +262,7 @@ public class Hauptfenster extends JFrame {
     if (ergebnis == JFileChooser.OPEN_DIALOG) {
       // Merke den Pfad zu Oberverzeichnis 
       if (files.length > 0) {
-        Einstellungen.importStartOrdner = files[0].getParent();
+        uiSettings.importStartOrdner = files[0].getParent();
       }
       importiere(files);
     }
@@ -263,8 +276,8 @@ public class Hauptfenster extends JFrame {
   private void dialogImportDirectorys() {
     
     JDirectoryChooser chooser;
-    if (Einstellungen.importStartOrdner != null) {
-      chooser = new JDirectoryChooser(Einstellungen.importStartOrdner);
+    if (uiSettings.importStartOrdner != null) {
+      chooser = new JDirectoryChooser(uiSettings.importStartOrdner);
     } else {
       chooser = new JDirectoryChooser();
     }
@@ -283,7 +296,7 @@ public class Hauptfenster extends JFrame {
     
     // Merke den Pfad zu Oberverzeichnis 
     if (dirs.length > 0) {
-      Einstellungen.importStartOrdner = dirs[0].getParent();
+      uiSettings.importStartOrdner = dirs[0].getParent();
     }
     
     for (int i = 0; i < dirs.length; i++) {
@@ -523,7 +536,7 @@ public class Hauptfenster extends JFrame {
     if (hauptmenu == null) {
       hauptmenu = new JMenuBar();
       hauptmenu.add(getMDatei());
-      hauptmenu.add(getMEinstellungen());
+      hauptmenu.add(getMuiSettings());
       hauptmenu.add(getMHilfe());
     }
     return hauptmenu;
@@ -550,20 +563,20 @@ public class Hauptfenster extends JFrame {
    * Beendet dieses Anwendung nach einer Nachfrage beim Benutzer.
    */
   private void beende() {
-    if (Einstellungen.SAVE_FENSTER_GROESSE) {
-      Einstellungen.FENSTER_BREITE = this.getWidth();
-      Einstellungen.FENSTER_HOEHE = this.getHeight();
+    if (uiSettings.SAVE_FENSTER_GROESSE) {
+      uiSettings.FENSTER_BREITE = this.getWidth();
+      uiSettings.FENSTER_HOEHE = this.getHeight();
     }
 
-    if (Einstellungen.SAVE_FENSTER_POSITION) {
-      Einstellungen.FENSTER_POSX = this.getX();
-      Einstellungen.FENSTER_POSY = this.getY();
+    if (uiSettings.SAVE_FENSTER_POSITION) {
+      uiSettings.FENSTER_POSX = this.getX();
+      uiSettings.FENSTER_POSY = this.getY();
     }
 
-    if (Einstellungen.SAVE_THUMB_SIZE) {
-      Einstellungen.THUMB_SIZE = getSGroesze().getValue();
+    if (uiSettings.SAVE_THUMB_SIZE) {
+      uiSettings.THUMB_SIZE = getSGroesze().getValue();
     }
-    /* Einstellungen speichern */
+    /* uiSettings speichern */
     saveSettings();
 
     System.exit(0);
@@ -630,23 +643,23 @@ public class Hauptfenster extends JFrame {
    * 
    * @return javax.swing.JMenu
    */
-  private JMenu getMEinstellungen() {
-    if (mEinstellungen == null) {
-      mEinstellungen = new JMenu();
-      mEinstellungen.setText("Bearbeiten");
-      mEinstellungen.setMnemonic(KeyEvent.VK_B);
-      mEinstellungen.add(getMiLoeschen());
-      mEinstellungen.add(getMiAuswahlAufheben());
-      mEinstellungen.add(getMiAufraeumen());
-      mEinstellungen.add(getMiAuswahlAlle());
-      mEinstellungen.add(new JSeparator());
-      mEinstellungen.add(getMiEinstellungen());
+  private JMenu getMuiSettings() {
+    if (muiSettings == null) {
+      muiSettings = new JMenu();
+      muiSettings.setText("Bearbeiten");
+      muiSettings.setMnemonic(KeyEvent.VK_B);
+      muiSettings.add(getMiLoeschen());
+      muiSettings.add(getMiAuswahlAufheben());
+      muiSettings.add(getMiAufraeumen());
+      muiSettings.add(getMiAuswahlAlle());
+      muiSettings.add(new JSeparator());
+      muiSettings.add(getMiuiSettings());
     }
-    return mEinstellungen;
+    return muiSettings;
   }
 
-  private JMenuItem getMiEinstellungen() {
-    JMenuItem einst = new JMenuItem("Einstellungen");
+  private JMenuItem getMiuiSettings() {
+    JMenuItem einst = new JMenuItem("uiSettings");
     einst.setMnemonic(KeyEvent.VK_E);
     einst.addActionListener(new ActionListener() {
 
@@ -909,13 +922,13 @@ public class Hauptfenster extends JFrame {
   private JSlider getSGroesze() {
     if (sGroesze == null) {
       sGroesze = new JSlider();
-      sGroesze.setMinimum(Einstellungen.SLIDER_MIN);
-      sGroesze.setMaximum(Einstellungen.SLIDER_MAX);
+      sGroesze.setMinimum(uiSettings.SLIDER_MIN);
+      sGroesze.setMaximum(uiSettings.SLIDER_MAX);
 
-      if (Einstellungen.SAVE_THUMB_SIZE) {
-        sGroesze.setValue(Einstellungen.THUMB_SIZE);
+      if (uiSettings.SAVE_THUMB_SIZE) {
+        sGroesze.setValue(uiSettings.THUMB_SIZE);
       } else {
-        sGroesze.setValue(Einstellungen.SLIDER_VALUE);
+        sGroesze.setValue(uiSettings.SLIDER_VALUE);
       }
       sGroesze.setMaximumSize(new Dimension(200, 16));
       sGroesze.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -1127,13 +1140,13 @@ public class Hauptfenster extends JFrame {
   private void initialize() {
 
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-    if (Einstellungen.FENSTER_BREITE == d.width && Einstellungen.FENSTER_HOEHE == d.height) {
+    if (uiSettings.FENSTER_BREITE == d.width && uiSettings.FENSTER_HOEHE == d.height) {
       this.setExtendedState(JFrame.MAXIMIZED_BOTH);
     } else { 
-      this.setSize(new Dimension(Einstellungen.FENSTER_BREITE,
-        Einstellungen.FENSTER_HOEHE));
+      this.setSize(new Dimension(uiSettings.FENSTER_BREITE,
+        uiSettings.FENSTER_HOEHE));
     }
-    this.setLocation(Einstellungen.FENSTER_POSX, Einstellungen.FENSTER_POSY);
+    this.setLocation(uiSettings.FENSTER_POSX, uiSettings.FENSTER_POSY);
     this.setJMenuBar(getHauptmenu());
     setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 

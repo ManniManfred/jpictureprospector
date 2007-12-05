@@ -11,13 +11,13 @@ import java.net.URL;
 
 import javax.imageio.ImageIO;
 
-import jpp.core.Einstellungen;
 import jpp.core.GeoeffnetesBild;
 import jpp.core.exceptions.GeneriereException;
 import jpp.core.exceptions.LeseMerkmalAusException;
 import jpp.core.thumbnail.SimpleThumbnailGeneriererFactory;
 import jpp.core.thumbnail.ThumbnailGenerierer;
-import jpp.net.BASE64EncoderStream;
+import jpp.settings.CoreSettings;
+import jpp.settings.SettingsManager;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -33,6 +33,13 @@ import org.apache.lucene.document.Field;
  */
 public class ThumbnailMerkmal extends Merkmal {
 
+  /**
+   * Enthaelt das coreSettings Objekt mit allen wichtigen Einstellungen des 
+   * JPP-Kerns.
+   */
+  private CoreSettings coreSettings = 
+    SettingsManager.getSettings(CoreSettings.class);
+  
   /** 
    * Name des Lucene-Feldes fuer dieses Merkmal. Sollte die Konstante
    * geaendert werden, muss auch in der Klasse
@@ -72,7 +79,7 @@ public class ThumbnailMerkmal extends Merkmal {
     /* Lasse das Thumbnail vom Generierer erzeugen */
     try {
       this.setWert(generierer.generiereThumbnail(bild, 
-                Einstellungen.THUMB_MAXBREITE, Einstellungen.THUMB_MAXHOEHE));
+                coreSettings.THUMB_MAXBREITE, coreSettings.THUMB_MAXHOEHE));
     } catch (GeneriereException e) {
       throw new LeseMerkmalAusException(
           "Konnte kein Thumbnail erzeugen.", e);
@@ -117,7 +124,7 @@ public class ThumbnailMerkmal extends Merkmal {
    * @return ein entsprechendes Lucene-Field
    */
   public Field erzeugeLuceneField() {
-    byte[] bildInBytes = getImageByteArray(false);
+    byte[] bildInBytes = getImageByteArray();
     
     return new Field(FELDNAME, bildInBytes, Field.Store.YES);
   }
@@ -127,24 +134,25 @@ public class ThumbnailMerkmal extends Merkmal {
    * 
    * @return bytearray, welches das Thumbnailbild entspricht
    */
-  private byte[] getImageByteArray(boolean base64) {
+  private byte[] getImageByteArray() {
     byte[] bildInBytes = null; 
     
     /* Thumbnail in ein Byte-Array schreiben */
     try {
       /* oeffnen */
       ByteArrayOutputStream baos = new ByteArrayOutputStream(1000);
-      OutputStream out;
+      OutputStream out = baos;
       
-      if (base64) {
-        out = new BASE64EncoderStream(baos);
-      } else {
-        out = baos;
-      }
+//      // Base64 Codierung wird nicht benoetigt; entfernt am 04.12.2007
+//      if (base64) {
+//        out = new BASE64EncoderStream(baos);
+//      } else {
+//        out = baos;
+//      }
       
       /* schreiben */
       ImageIO.write((BufferedImage) this.getWert(), 
-          Einstellungen.THUMB_FORMAT.getAusgewaehlt().toString(), 
+          coreSettings.THUMB_FORMAT.getAusgewaehlt().toString(), 
           out);
       
       baos.flush();

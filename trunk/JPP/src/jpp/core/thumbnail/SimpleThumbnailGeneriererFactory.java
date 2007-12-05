@@ -8,8 +8,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import jpp.core.Einstellungen;
 import jpp.core.GeoeffnetesBild;
+import jpp.settings.CoreSettings;
+import jpp.settings.SettingsManager;
 
 public class SimpleThumbnailGeneriererFactory {
 
@@ -22,7 +23,12 @@ public class SimpleThumbnailGeneriererFactory {
    */
   private static Map<String, ThumbnailGenerierer> thumbZuordnung;
 
-
+  /**
+   * Enthaelt das coreSettings Objekt mit allen wichtigen Einstellungen des 
+   * JPP-Kerns.
+   */
+  private static CoreSettings coreSettings = 
+    SettingsManager.getSettings(CoreSettings.class);
 
 
   public static ThumbnailGenerierer erzeugeThumbnailGenerierer(
@@ -70,8 +76,8 @@ public class SimpleThumbnailGeneriererFactory {
       String klassenname = "";
 
       try {
-        for (int i = 0; i < Einstellungen.THUMB_ZUORDUNGEN.length; i++) {
-          String zeile = Einstellungen.THUMB_ZUORDUNGEN[i];
+        for (int i = 0; i < coreSettings.THUMB_ZUORDUNGEN.length; i++) {
+          String zeile = coreSettings.THUMB_ZUORDUNGEN[i];
           int posGleich = zeile.indexOf("=");
           String formateStr = zeile.substring(0, posGleich);
 

@@ -1,7 +1,9 @@
-package jpp.server.servlets;
+
+package jpp.webapp.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -9,13 +11,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import jpp.core.JPPCore;
+import jpp.core.exceptions.EntferneException;
+import jpp.webapp.Mapping;
 import benutzermanager.Benutzer;
 import benutzermanager.RechteManager;
 
-import jpp.core.JPPCore;
-import jpp.core.exceptions.SucheException;
-
-public class ClearUpIndexServlet extends HttpServlet {
+public class EntferneServlet extends HttpServlet {
 
   private static final long serialVersionUID = 7017607629370760883L;
 
@@ -31,6 +33,7 @@ public class ClearUpIndexServlet extends HttpServlet {
     handleRequest(req, resp);
   }
   
+  
 
   private void handleRequest(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
@@ -42,8 +45,8 @@ public class ClearUpIndexServlet extends HttpServlet {
 
     Benutzer user = (Benutzer) session.getAttribute("user");
 
-    if (user == null || !user.hatRecht(RechteManager.getRecht("clearUpIndex"))) {
-      out.println("Sie haben nicht das Recht den Index aufzuraeumen.");
+    if (user == null || !user.hatRecht(RechteManager.getRecht("entferne"))) {
+      out.println("Sie haben nicht das Recht ein Bild zu entfernen.");
     } else {
 
       JPPCore kern = (JPPCore) getServletContext().getAttribute("JPPCore");
@@ -52,24 +55,38 @@ public class ClearUpIndexServlet extends HttpServlet {
         out.println("JPPCore ist nicht vorhanden. Es ist vermutlich beim start"
             + "ein Fehler aufgetreten. Überprüfen Sie die Logfiles.");
       } else {
-        clearUpIndex(req, resp, kern);
+        entferne(req, resp, kern);
       }
     }
 
   }
-  
-  private void clearUpIndex(HttpServletRequest req, HttpServletResponse resp,
+
+  private void entferne(HttpServletRequest req, HttpServletResponse resp, 
       JPPCore kern) throws ServletException, IOException {
 
 
     PrintWriter out = resp.getWriter(); 
     
-    try {
-      out.println(kern.clearUpIndex());
-      out.println("Der Index wurde aufgeraeumt.");
-    } catch (SucheException e) {
-      out.println("Der Index wurde nicht aufgeraeumt. Grund: " + e);
+    String bildurl = req.getParameter("bild");
+    if (bildurl == null) {
+      out.println("Bitte geben Sie ein Bild an, welches entfernt werden soll.");
+    } else {
+      
+      String vonFestplatte = req.getParameter("vonPlatte");
+      boolean auchVonPlatte;
+      if (vonFestplatte == null) {
+        auchVonPlatte = false;
+      } else {
+        auchVonPlatte = vonFestplatte.equals("true");
+      }
+      
+      try {
+        kern.entferne(Mapping.wandleInLokal(new URL(bildurl)), auchVonPlatte);
+        out.println("Die Datei \"" + bildurl + "\" wurde entfernt.");
+      } catch (EntferneException e) {
+        out.println("Die Datei \"" + bildurl + "\" konnte nicht entfernt werden."
+            + e);
+      }
     }
-    
   }
 }
