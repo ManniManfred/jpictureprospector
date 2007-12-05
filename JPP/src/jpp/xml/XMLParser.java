@@ -16,7 +16,7 @@ import jpp.core.Trefferliste;
 import jpp.merkmale.DateipfadMerkmal;
 import jpp.merkmale.Merkmal;
 import jpp.merkmale.ThumbnailMerkmal;
-import jpp.server.Mapping;
+import jpp.webapp.Mapping;
 
 public class XMLParser {
 

@@ -847,6 +847,12 @@ public class Hauptfenster extends JFrame {
                 (List<ThumbnailAnzeigePanel>) sManager.gibAlleAuswaehlbaren(),
                 markiertesTAP.gibBildDokument());
             anzeige.setVisible(true);
+            /* WICHTIG !!! updatePicture() muss von auszerhalb
+             * ausgefuehrt werden da ansonsten das Bild in der Groszanzeige
+             * nicht dargestellt wird da zu Beginn der Button zur 
+             * Anpassung der Groesze gedrueckt ist
+             */
+            anzeige.updatePicture();
           }
         }
       });
