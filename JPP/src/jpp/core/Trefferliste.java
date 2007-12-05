@@ -71,6 +71,11 @@ public class Trefferliste {
           + "BildDokument erzeugen", e);
     }
   }
+  
+  public Trefferliste(List<BildDokument> doks, int gesamtanzahl) {
+    bildDokumente = doks;
+    anzahlTreffer = gesamtanzahl;
+  }
 
   /**
    * Gibt die Anzahl aller Treffer zurueck.

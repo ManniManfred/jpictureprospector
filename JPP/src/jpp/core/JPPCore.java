@@ -42,7 +42,7 @@ public class JPPCore extends AbstractJPPCore {
 
   /** Enthaelt den Parser, der alle Such-Anfragen in eine Query parst. */
   private MultiFieldQueryParser parser;
-
+  
 
 
   /**
@@ -259,22 +259,21 @@ public class JPPCore extends AbstractJPPCore {
 
     Trefferliste treffer;
     try {
-//      Es darf so eine Moeglichkeit nicht geben, da so die maxanzahl 
-//      uebergangen wird.
-//      /* wenn das Schluesselwort zur Anzeige aller Bilder angegeben wurde, */
-//      if (suchtext.equalsIgnoreCase(Einstellungen.ALLEBILDER_SCHLUESSEL)) {
-//
-//        /* dann alle BildDokumente der Trefferliste uebergeben. */
-//        treffer = new Trefferliste(gibAlleDokumente());
-//      } else {
+      /* wenn das Schluesselwort zur Anzeige aller Bilder angegeben wurde, */
+      if (suchtext.equalsIgnoreCase(Einstellungen.ALLEBILDER_SCHLUESSEL)) {
 
-      /* Anfrage aufbauen */
-      Query anfrage = parser.parse(suchtext);
+        /* dann alle BildDokumente der Trefferliste uebergeben. */
+        treffer = gibAlleDokumentAdv(offset, maxanzahl);
+      } else {
 
-      /* Suche durchfuehren */
-      Searcher sucher = new IndexSearcher(indexDir);
-      treffer = new Trefferliste(sucher.search(anfrage), offset, maxanzahl);
-      sucher.close();
+        /* Anfrage aufbauen */
+        Query anfrage = parser.parse(suchtext);
+  
+        /* Suche durchfuehren */
+        Searcher sucher = new IndexSearcher(indexDir);
+        treffer = new Trefferliste(sucher.search(anfrage), offset, maxanzahl);
+        sucher.close();
+      }
       
     } catch (ParseException e) {
       /* Bei einer ParseException ein leere Trefferliste zurueckgeben */
@@ -284,6 +283,9 @@ public class JPPCore extends AbstractJPPCore {
       throw new SucheException("Konnte den Index nicht \u00d6ffnen.", e);
     } catch (ErzeugeException e) {
       throw new SucheException("Die Trefferliste konnte nicht erzeugt werden.",
+          e);
+    } catch (ErzeugeBildDokumentException e) {
+      throw new SucheException("Das BildDokument konnte nicht erzeugt werden.",
           e);
     }
 
@@ -404,5 +406,29 @@ public class JPPCore extends AbstractJPPCore {
       e.printStackTrace();
       return false;
     }
+  }
+  
+  private Trefferliste gibAlleDokumentAdv(int offset, int maxanzahl) 
+    throws IOException, ErzeugeBildDokumentException {
+    
+    List<BildDokument> ergebnis;
+    IndexReader reader = IndexReader.open(indexDir);
+
+    int anzahl = reader.maxDoc();
+    ergebnis = new ArrayList<BildDokument>(anzahl);
+
+    int anzahlBilder = 0;
+    
+    for (int i = 0; i < anzahl && (anzahlBilder < offset + maxanzahl); i++) {
+      /* Die Documente, die als geloescht markiert sind nicht mehr auslesen. */
+      if (!reader.isDeleted(i)) {
+        if (anzahlBilder >= offset) {
+          ergebnis.add(BildDokument.erzeugeAusLucene(reader.document(i)));
+        }
+        anzahlBilder++;
+      }
+    }
+    reader.close();
+    return new Trefferliste(ergebnis, anzahl);
   }
 }
