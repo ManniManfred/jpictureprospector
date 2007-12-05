@@ -2,10 +2,10 @@ package jpp;
 
 import javax.swing.UIManager;
 
-import jpp.client.JPPClient;
 import jpp.core.AbstractJPPCore;
-import jpp.core.JPPCore;
 import jpp.core.exceptions.ErzeugeException;
+import jpp.settings.SettingsManager;
+import jpp.settings.StarterSettings;
 import jpp.ui.Hauptfenster;
 import jpp.ui.StartDialog;
 
@@ -32,22 +32,35 @@ class Starter {
       e.printStackTrace();
     }
 
+    StarterSettings s = SettingsManager.getSettings(StarterSettings.class);
+    
     /* Abfrage Dialog starten */
     StartDialog dialog = new StartDialog(new javax.swing.JFrame(), true);
+    dialog.setStarterSettings(s);
+    
+    
     dialog.setVisible(true);
-
+    
     AbstractJPPCore kern = null;
     
     int result = dialog.getReturnStatus();
     if (result == StartDialog.RET_OK) {
-      if (dialog.arbeiteLokal()) {
-        kern = new JPPCore(dialog.getIndex());
+      kern = dialog.getJPPCore();
+      
+      /* Wenn gewollt, dann die StarterSettings speichern */
+      StarterSettings neueSettings = dialog.getStarterSettings();
+      if (neueSettings.saveStarterSettings) {
+        SettingsManager.saveSettings(neueSettings);
       } else {
-        kern = new JPPClient(dialog.getJPPServer());
+        /* Wenn die Einstellungen nicht gespeichert werden sollen, dies in 
+         * den alten Einstellungen setzten.
+         */
+        if (s.saveStarterSettings) {
+          s.saveStarterSettings = false;
+          SettingsManager.saveSettings(s);
+        }
       }
     }
-
-
 
     /* richtige Applikation starten */
     if (kern != null) {
@@ -57,5 +70,6 @@ class Starter {
       System.exit(0);
       return;
     }
+
   }
 }

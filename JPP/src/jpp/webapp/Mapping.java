@@ -1,12 +1,20 @@
-package jpp.server;
+package jpp.webapp;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import jpp.core.Einstellungen;
+import jpp.settings.ServerSettings;
+import jpp.settings.SettingsManager;
 
 public class Mapping {
 
+  /**
+   * Enthaelt das ServerSettings Objekt mit allen wichtigen serverSettings 
+   * dieser Anwendung.
+   */
+  private static ServerSettings serverSettings = 
+    SettingsManager.getSettings(ServerSettings.class);
+  
   
   /**
    * Wandelt den Pfad der lokalen Datei um in eine, auf die das www zugreifen
@@ -19,8 +27,8 @@ public class Mapping {
   public static URL wandleInWWW(URL lokal) throws MalformedURLException {
     
     String urlstring = lokal.toString().replaceAll(
-        Einstellungen.dateipfadSuchMapping, 
-        Einstellungen.dateipfadErsatzMapping);
+        serverSettings.dateipfadSuchMapping, 
+        serverSettings.dateipfadErsatzMapping);
     return new URL(urlstring);
   }
   
@@ -34,8 +42,8 @@ public class Mapping {
    */
   public static URL wandleInLokal(URL www) throws MalformedURLException {
     String urlstring = www.toString().replaceAll(
-        Einstellungen.dateipfadErsatzMapping,
-        Einstellungen.dateipfadSuchMapping);
+        serverSettings.dateipfadErsatzMapping,
+        serverSettings.dateipfadSuchMapping);
     return new URL(urlstring);
   }
   

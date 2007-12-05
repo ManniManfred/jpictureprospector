@@ -1,4 +1,4 @@
-package jpp.server.servlets;
+package jpp.webapp.servlets;
 
 
 import java.io.File;
@@ -12,9 +12,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import jpp.core.Einstellungen;
 import jpp.core.JPPCore;
 import jpp.core.exceptions.ImportException;
+import jpp.settings.ServerSettings;
+import jpp.settings.SettingsManager;
 import benutzermanager.Benutzer;
 import benutzermanager.RechteManager;
 
@@ -25,6 +26,13 @@ public class ImportiereServlet extends HttpServlet {
 
   private static final long serialVersionUID = 7017607629370760883L;
 
+  /**
+   * Enthaelt das ServerSettings Objekt mit allen wichtigen serverSettings 
+   * dieser Anwendung.
+   */
+  private ServerSettings serverSettings = 
+    SettingsManager.getSettings(ServerSettings.class);
+  
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
@@ -67,7 +75,7 @@ public class ImportiereServlet extends HttpServlet {
     
     PrintWriter out = resp.getWriter(); 
         
-    MultipartRequest multi = new MultipartRequest( req, Einstellungen.uploadOrdner ); 
+    MultipartRequest multi = new MultipartRequest( req, serverSettings.uploadOrdner ); 
     Enumeration files = multi.getFileNames(); 
     while ( files.hasMoreElements() ) 
     { 

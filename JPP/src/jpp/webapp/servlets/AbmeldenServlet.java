@@ -1,5 +1,4 @@
-
-package jpp.server.servlets;
+package jpp.webapp.servlets;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -10,10 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import benutzermanager.Benutzer;
-import benutzermanager.BenutzerManager;
-
-public class AnmeldenServlet extends HttpServlet {
+public class AbmeldenServlet extends HttpServlet {
 
   private static final long serialVersionUID = 7017607629370760883L;
 
@@ -37,22 +33,8 @@ public class AnmeldenServlet extends HttpServlet {
 
     HttpSession session = req.getSession();
     
-    /* Benutzer ueberpruefen */
-    String loginname = req.getParameter("loginname");
-    String passwort = req.getParameter("passwort");
+    session.setAttribute("user", null);
     
-    BenutzerManager manager = 
-      (BenutzerManager) getServletContext().getAttribute("BenutzerManager");
-    Benutzer user = manager.getBenutzer(loginname, passwort);
-    
-    if (user == null) {
-      out.println("false - Passwort-Benutzer Kombination falsch!");
-    } else {
-      out.println("true - Sie sind jetzt angemeldet.");
-      session.setAttribute("user", user);
-    }
-    
-    
-    
+    out.print("Sie sind jetzt abgemeldet.");
   }
 }

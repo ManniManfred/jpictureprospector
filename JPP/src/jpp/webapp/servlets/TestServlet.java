@@ -1,4 +1,4 @@
-package jpp.server.servlets;
+package jpp.webapp.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;

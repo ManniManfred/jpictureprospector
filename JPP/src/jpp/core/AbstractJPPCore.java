@@ -1,11 +1,15 @@
 package jpp.core;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
+import jpp.client.JPPClient;
 import jpp.core.exceptions.AendereException;
 import jpp.core.exceptions.EntferneException;
 import jpp.core.exceptions.ErzeugeException;
@@ -13,6 +17,7 @@ import jpp.core.exceptions.ImportException;
 import jpp.core.exceptions.SucheException;
 import jpp.merkmale.DateipfadMerkmal;
 import jpp.merkmale.Merkmal;
+import jpp.settings.StarterSettings;
 
 
 /**
@@ -30,6 +35,66 @@ public abstract class AbstractJPPCore {
   private static List<String> merkmalsNamen;
 
 
+  /**
+   * Faktory Methode, um ein {@link AbstractJPPCore} anhand der StarterSettings
+   * zu erstellen.
+   * 
+   * @param s StarterSettings, die benoetigt werden, um ein AbstractJPPCore
+   *  zu erzeugen
+   * @return das erzeugte AbstractJPPCore Object
+   */
+  public static AbstractJPPCore erzeugeAbstractJPPCore(StarterSettings s) 
+      throws ErzeugeException {
+
+    AbstractJPPCore kern;
+    
+    /* Eingaben ueberpruefen */
+    if (s.arbeitetLokal) {
+      File ordner = new File(s.imageIndex);
+      
+      if (ordner.exists()) {
+        if (!ordner.isDirectory()) {
+          throw new ErzeugeException(
+                "Bei der angegeben Datei handelt es sich nicht um "
+                  + "ein Verzeichnis."
+                  + "\nBitte waehlen Sie ein Verzeichnis aus.");
+        }
+      } else {
+        /* Falls der Ordner nicht existiert, versuch diesen automatisch 
+         * anzulegen
+         */
+        if (!ordner.mkdirs()) {
+          /* Der Ordner konnte nicht angelegt werden */
+          throw new ErzeugeException(
+              "Das angegebene Verzeichnis existiert nicht und konnte "
+                  + "nicht und konnte nicht erzeugt werden."
+                  + "\nBitte waehlen Sie ein anderes Verzeichnis aus.");
+        }
+      }
+      
+      /* Wenn kein Fehler auftrat, dann einen normalen JPPCore instanziieren
+       */
+      kern = new JPPCore(s.imageIndex);
+     
+    } else {
+       if (JPPClient.istJPPServerVerfuegbar(s.jppServer)) {
+         kern = new JPPClient(s.jppServer, s.user, s.password);
+       } else {
+          throw new ErzeugeException("Der angegebene Server ist "
+              + "nicht verfuegbar.\n Meldung vom Server: " 
+              + JPPClient.getMeldungVomServer()
+              + "\nBitte geben Sie einen verfügbaren Server an." 
+              + "\nBeachten Sie, dass die URL mit einem \"/\" schliessen" 
+              + " muss." 
+              + "\nBeispiel: http://localhost:8180/jpp/");
+       }
+       
+    }
+    
+    return kern;
+  }
+  
+  
 
   /**
    * Erstellt ein neues JPPCore-Objekt.

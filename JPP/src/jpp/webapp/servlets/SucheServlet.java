@@ -1,4 +1,4 @@
-package jpp.server.servlets;
+package jpp.webapp.servlets;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,7 +22,7 @@ import javax.xml.transform.stream.StreamSource;
 import jpp.core.JPPCore;
 import jpp.core.Trefferliste;
 import jpp.core.exceptions.SucheException;
-import jpp.xml.XMLParser;
+import jpp.webapp.TrefferlisteParser;
 import benutzermanager.Benutzer;
 import benutzermanager.RechteManager;
 
@@ -86,7 +86,7 @@ public class SucheServlet extends HttpServlet {
       try {
         Trefferliste liste = kern.suche(suchtext, offset, maxAnzahl);
 
-        String xml = XMLParser.getTrefferlisteDok(liste);
+        String xml = TrefferlisteParser.getTrefferlisteDok(liste);
         
         String format = req.getParameter("format");
         if (format != null && format.equals(FORMAT_XML)) {
@@ -105,7 +105,7 @@ public class SucheServlet extends HttpServlet {
             
           /* In HTML umwandeln */
           Source input = new StreamSource(new ByteArrayInputStream(xml.getBytes()));
-          Result output = new StreamResult(resp.getOutputStream());
+          Result output = new StreamResult(out);
           
           Transformer transformer = TransformerFactory.newInstance().newTransformer(
               new StreamSource(this.getServletContext().getRealPath(stylesheet)));

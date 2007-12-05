@@ -23,6 +23,7 @@ public class BenutzerManager {
   
   public void oeffne(String datenbankdatei) {
     this.dbDatei = datenbankdatei;
+    db = Db4o.openFile(dbDatei);
   }
   
   public void schliesse() {
@@ -42,10 +43,6 @@ public class BenutzerManager {
    *    Benutzer mit der Name-Passwort-Kombination existiert.
    */
   public Benutzer getBenutzer(String loginname, String passwort) {
-    if (db == null) {
-      db = Db4o.openFile(dbDatei);
-    }
-    
     if (loginname == null) {
       return null;
     }
@@ -60,6 +57,9 @@ public class BenutzerManager {
     return null;
   }
   
+  public boolean hatBenutzer(String loginname) {
+    return db.get(new Benutzer(loginname)).size() > 0;
+  }
   
   /**
    * Fuegt diesem Manager einen neuen Benutzer hinzu.
@@ -67,9 +67,6 @@ public class BenutzerManager {
    * @param benutzer
    */
   public void fuegeBenutzerHinzu(Benutzer benutzer) {
-    if (db == null) {
-      db = Db4o.openFile(dbDatei);
-    }
     
     /* Wenn es den Benutzer mit dem Loginname schon gibt eine Excpetion werfen 
      */
@@ -99,9 +96,6 @@ public class BenutzerManager {
    * @param benutzer Benutzer, der geaendert wird
    */
   public void aendereBenutzer(Benutzer benutzer) {
-    if (db == null) {
-      db = Db4o.openFile(dbDatei);
-    }
     
     ObjectSet<Benutzer> list = db.get(new Benutzer(benutzer.getLoginName()));
     
@@ -119,11 +113,7 @@ public class BenutzerManager {
    * 
    * @param benutzer Benutzer, der entfernt wird
    */
-  public void entferneBenutzer(Benutzer benutzer) {
-    if (db == null) {
-      db = Db4o.openFile(dbDatei);
-    }
-    
+  public void entferneBenutzer(Benutzer benutzer) {    
     db.delete(benutzer);
   }
   
@@ -134,9 +124,6 @@ public class BenutzerManager {
    * @return alle verfuegbaren Benutzer
    */
   public List<Benutzer> getAlleBenutzer() {
-    if (db == null) {
-      db = Db4o.openFile(dbDatei);
-    }
     
     List<Benutzer> ergebnis = new ArrayList<Benutzer>();
     

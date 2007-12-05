@@ -1,4 +1,4 @@
-package jpp.server;
+package jpp.webapp;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,6 +15,9 @@ import jpp.core.exceptions.ErzeugeException;
 
 public class ServletContext implements ServletContextListener {
 
+  private BenutzerManager manager;
+  
+  
   public void contextInitialized(ServletContextEvent event) {
     
     /* JPPCore initialisieren */
@@ -30,26 +33,31 @@ public class ServletContext implements ServletContextListener {
     }
     
     /* BenutzerManager initialisieren */
-    BenutzerManager manager = new BenutzerManager();
-    manager.oeffne("/tmp/webtmp/user.db");
+    manager = new BenutzerManager();
+    manager.oeffne("/tmp/user.db");
     
-    Benutzer admin = new Benutzer("admin");
-    admin.setPasswort("allohaa");
-    
-    
-    admin.addRecht(RechteManager.getRecht("suche"));
-    admin.addRecht(RechteManager.getRecht("importiere"));
-    admin.addRecht(RechteManager.getRecht("entferne"));
-    admin.addRecht(RechteManager.getRecht("aendere"));
+    if (!manager.hatBenutzer("admin")) {
+      Benutzer admin = new Benutzer("admin");
+      admin.setPasswort("allohaa");
+      
+      
+      admin.addRecht(RechteManager.getRecht("suche"));
+      admin.addRecht(RechteManager.getRecht("importiere"));
+      admin.addRecht(RechteManager.getRecht("entferne"));
+      admin.addRecht(RechteManager.getRecht("aendere"));
 
-    //manager.fuegeBenutzerHinzu(admin);
+      manager.fuegeBenutzerHinzu(admin);
+    }
     
     event.getServletContext().setAttribute("BenutzerManager", manager);
   }
 
+  
   public void contextDestroyed(ServletContextEvent event) {
-    BenutzerManager manager = (BenutzerManager) 
-      event.getServletContext().getAttribute("BenutzerManager");
-    manager.schliesse();
+    if (manager == null) {
+      System.out.println("Fehler");
+    } else {
+      manager.schliesse();
+    }
   }
 }

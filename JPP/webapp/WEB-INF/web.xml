@@ -9,7 +9,7 @@
 <web-app>
   <servlet>
     <servlet-name>test</servlet-name>
-    <servlet-class>jpp.server.servlets.TestServlet</servlet-class>
+    <servlet-class>jpp.webapp.servlets.TestServlet</servlet-class>
         
   </servlet>
   
@@ -22,7 +22,7 @@
   
   <servlet>
     <servlet-name>anmelden</servlet-name>
-    <servlet-class>jpp.server.servlets.AnmeldenServlet</servlet-class>
+    <servlet-class>jpp.webapp.servlets.AnmeldenServlet</servlet-class>
         
   </servlet>
   
@@ -36,7 +36,7 @@
   
   <servlet>
     <servlet-name>abmelden</servlet-name>
-    <servlet-class>jpp.server.servlets.AbmeldenServlet</servlet-class>
+    <servlet-class>jpp.webapp.servlets.AbmeldenServlet</servlet-class>
         
   </servlet>
   
@@ -51,7 +51,7 @@
   
   <servlet>
     <servlet-name>aendere</servlet-name>
-    <servlet-class>jpp.server.servlets.AendereServlet</servlet-class>
+    <servlet-class>jpp.webapp.servlets.AendereServlet</servlet-class>
         
   </servlet>
   
@@ -62,7 +62,7 @@
   
   <servlet>
     <servlet-name>entferne</servlet-name>
-    <servlet-class>jpp.server.servlets.EntferneServlet</servlet-class>
+    <servlet-class>jpp.webapp.servlets.EntferneServlet</servlet-class>
         
   </servlet>
   
@@ -73,7 +73,7 @@
   
   <servlet>
     <servlet-name>clearUpIndex</servlet-name>
-    <servlet-class>jpp.server.servlets.ClearUpIndexServlet</servlet-class>
+    <servlet-class>jpp.webapp.servlets.ClearUpIndexServlet</servlet-class>
         
   </servlet>
   
@@ -84,7 +84,7 @@
   
   <servlet>
     <servlet-name>importiere</servlet-name>
-    <servlet-class>jpp.server.servlets.ImportiereServlet</servlet-class>
+    <servlet-class>jpp.webapp.servlets.ImportiereServlet</servlet-class>
         
   </servlet>
   
@@ -95,7 +95,7 @@
   
   <servlet>
     <servlet-name>suche</servlet-name>
-    <servlet-class>jpp.server.servlets.SucheServlet</servlet-class>
+    <servlet-class>jpp.webapp.servlets.SucheServlet</servlet-class>
         
   </servlet>
   
@@ -113,7 +113,7 @@
     
   <listener>
     <listener-class>
-      jpp.server.ServletContext
+      jpp.webapp.ServletContext
     </listener-class>
   </listener>
 
