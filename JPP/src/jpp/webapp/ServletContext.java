@@ -10,6 +10,7 @@ import benutzermanager.Benutzer;
 import benutzermanager.BenutzerManager;
 import benutzermanager.RechteManager;
 
+import jpp.settings.SettingsManager;
 import jpp.core.JPPCore;
 import jpp.core.exceptions.ErzeugeException;
 
@@ -34,7 +35,7 @@ public class ServletContext implements ServletContextListener {
     
     /* BenutzerManager initialisieren */
     manager = new BenutzerManager();
-    manager.oeffne("/tmp/user.db");
+    manager.oeffne("user.yap");
     
     if (!manager.hatBenutzer("admin")) {
       Benutzer admin = new Benutzer("admin");

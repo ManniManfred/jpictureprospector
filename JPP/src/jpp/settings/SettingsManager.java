@@ -14,7 +14,7 @@ public class SettingsManager {
   private static Logger logger = Logger.getLogger("SettingsManager"); 
   
   /** Enthaelt den Pfad zur Datenbank-Datei. */
-  private static final String dbDatei = "settings.yap";
+  public static final String dbDatei = "settings.yap";
   
     
   /**

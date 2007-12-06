@@ -4,7 +4,3 @@
 - Wenn die Bildquelle nicht vorhanden ist (falscher Pfad) kommt es bei der Grossansicht zu einer Exception
 
 - JPPCore welche Methoden oder Bereiche muessen synchronisiert werden, wenn z.B mehere Clients daraufzugreifen?- JPPCore welche Methoden oder Bereiche muessen synchronisiert werden, wenn z.B mehere Clients daraufzugreifen?
-
-- Warum wird die aendern-Methode doppelt aufgerufen?
-
-- Im StartDialog die Moeglichkeit geben die Einstellungen zu speichern. 

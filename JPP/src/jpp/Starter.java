@@ -16,7 +16,7 @@ import jpp.ui.StartDialog;
  * 
  * @author Manfred Rosskamp
  */
-class Starter {
+public class Starter {
   
   /**
    * Startet die Applikation JPictureProspector
