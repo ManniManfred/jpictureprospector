@@ -71,7 +71,7 @@
   <!--
       Server-Anwendung ausfuehren
       -->
-  <target name="run-server" depends="war">
+  <target name="run-server" depends="compile">
     <java classname="${mainServerClass}" classpath="${binDir}" fork="true">
       <classpath>
         <fileset dir="${libDir}">

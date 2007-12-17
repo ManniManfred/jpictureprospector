@@ -1,15 +1,11 @@
 package jpp;
 
-import java.io.IOException;
+import java.net.URL;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jpp.settings.ServerSettings;
+import jpp.settings.SettingsManager;
 
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Server;
-import org.mortbay.jetty.handler.AbstractHandler;
 import org.mortbay.jetty.webapp.WebAppContext;
 
 /**
@@ -26,8 +22,21 @@ public class ServerStarter {
    */
   public static void main(String[] args) throws Exception {
     
-    WebAppContext ctx = new WebAppContext("jpp.war", "/jpp");
-    Server server = new Server(8080);
+    
+    ServerSettings serverSettings = 
+      SettingsManager.getSettings(ServerSettings.class);
+    
+    
+    
+
+
+    
+    /* Den Webserver Jetty starten */
+    WebAppContext ctx = new WebAppContext("webapp/",
+        serverSettings.contextPath);
+    
+    
+    Server server = new Server(serverSettings.port);
     server.setHandler(ctx);
     server.start();
   }

@@ -11,6 +11,7 @@ import benutzermanager.BenutzerManager;
 import benutzermanager.RechteManager;
 
 import jpp.settings.SettingsManager;
+import jpp.settings.ServerSettings;
 import jpp.core.JPPCore;
 import jpp.core.exceptions.ErzeugeException;
 
@@ -18,12 +19,19 @@ public class ServletContext implements ServletContextListener {
 
   private BenutzerManager manager;
   
+  /**
+   * Enthaelt das ServerSettings Objekt mit allen wichtigen serverSettings 
+   * dieser Anwendung.
+   */
+  private static ServerSettings serverSettings = 
+    SettingsManager.getSettings(ServerSettings.class);
+  
   
   public void contextInitialized(ServletContextEvent event) {
     
     /* JPPCore initialisieren */
-    String indexDir = event.getServletContext().getInitParameter("indexDir");
-    
+    String indexDir = serverSettings.indexDir;
+    System.out.println("IndexDir = " + indexDir);
     try {
       event.getServletContext().setAttribute("JPPCore", new JPPCore(indexDir));
     } catch (ErzeugeException e) {
