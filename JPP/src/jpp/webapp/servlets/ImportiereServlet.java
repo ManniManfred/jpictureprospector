@@ -4,6 +4,7 @@ package jpp.webapp.servlets;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.Enumeration;
 
 import javax.servlet.ServletException;
@@ -75,7 +76,7 @@ public class ImportiereServlet extends HttpServlet {
     
     PrintWriter out = resp.getWriter(); 
         
-    MultipartRequest multi = new MultipartRequest( req, serverSettings.uploadOrdner ); 
+    MultipartRequest multi = new MultipartRequest(req, serverSettings.uploadOrdner); 
     Enumeration files = multi.getFileNames(); 
     while ( files.hasMoreElements() ) 
     { 

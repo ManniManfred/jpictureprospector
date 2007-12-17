@@ -3,6 +3,7 @@ package jpp.webapp.servlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +15,7 @@ public class TestServlet extends HttpServlet {
 
   private static final long serialVersionUID = 7017607629370760883L;
 
+  
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
@@ -29,8 +31,10 @@ public class TestServlet extends HttpServlet {
   private void handleRequest(HttpServletRequest req, HttpServletResponse resp)
     throws ServletException, IOException {
 
+    
 
     PrintWriter out = resp.getWriter(); 
+    
     
     JPPCore kern = (JPPCore) getServletContext().getAttribute("JPPCore");
     

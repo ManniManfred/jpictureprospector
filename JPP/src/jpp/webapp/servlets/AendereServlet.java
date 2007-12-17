@@ -41,7 +41,7 @@ public class AendereServlet extends HttpServlet {
 
 
     PrintWriter out = resp.getWriter();
-
+    
     HttpSession session = req.getSession();
 
     Benutzer user = (Benutzer) session.getAttribute("user");
