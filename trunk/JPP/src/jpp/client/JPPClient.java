@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.JSeparator;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -61,7 +60,8 @@ public class JPPClient extends AbstractJPPCore {
       
       InputStream in = conn.getInputStream();
       String ergebnis = readText(in);
-      
+
+      logger.log(Level.INFO, "Ergebnis: " + ergebnis);
 
       if (ergebnis.indexOf("true") == 0) {
         
@@ -72,11 +72,9 @@ public class JPPClient extends AbstractJPPCore {
       }
       
     } catch (MalformedURLException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      logger.log(Level.WARNING, "Verbindungsfehler.", e);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      logger.log(Level.WARNING, "Verbindungsfehler.", e);
     }
     
   }
@@ -106,12 +104,14 @@ public class JPPClient extends AbstractJPPCore {
       InputStream in = stelleAnfrage(anfrage);
       String ergebnis = readText(in);
       
-      System.out.println("Ergebnis = " + ergebnis);
+      logger.log(Level.INFO, "Ergebnis: " + ergebnis);
       
       
     } catch (MalformedURLException e) {
+      logger.log(Level.WARNING, "Verbindungsfehler.", e);
       throw new AendereException("Die URL ist ungueltig.", e);
     } catch (IOException e) {
+      logger.log(Level.WARNING, "Verbindungsfehler.", e);
       throw new AendereException("Verbindungsfehler.", e);
     }
   }
@@ -125,12 +125,14 @@ public class JPPClient extends AbstractJPPCore {
       InputStream in = stelleAnfrage(anfrage);
       ergebnis = readText(in);
       
-      System.out.println("Ergebnis = " + ergebnis);
+      logger.log(Level.INFO, "Ergebnis: " + ergebnis);
       
       
     } catch (MalformedURLException e) {
+      logger.log(Level.WARNING, "Verbindungsfehler.", e);
       throw new SucheException("Die URL ist ungueltig.", e);
     } catch (IOException e) {
+      logger.log(Level.WARNING, "Verbindungsfehler.", e);
       throw new SucheException("Verbindungsfehler.", e);
     }
     
@@ -148,11 +150,13 @@ public class JPPClient extends AbstractJPPCore {
       InputStream in = stelleAnfrage(anfrage);
       String ergebnis = readText(in);
       
-      System.out.println("Ergebnis = " + ergebnis);
+      logger.log(Level.INFO, "Ergebnis: " + ergebnis);
       
     } catch (MalformedURLException e) {
+      logger.log(Level.WARNING, "Verbindungsfehler.", e);
       throw new EntferneException("Die URL ist ungueltig.", e);
     } catch (IOException e) {
+      logger.log(Level.WARNING, "Verbindungsfehler.", e);
       throw new EntferneException("Verbindungsfehler.", e);
     }
   }
@@ -190,14 +194,17 @@ public class JPPClient extends AbstractJPPCore {
       out.close();
       
       
-      // read response from server
-      System.out.println("ergebnis = " + readText(hpc.getInputStream()));    
-
+      // read response from server 
+      logger.log(Level.INFO, "Ergebnis: " + readText(hpc.getInputStream()));
+      
     } catch (MalformedURLException e) {
+      logger.log(Level.WARNING, "Die URL ist nicht korrekt.", e);
       throw new ImportException("Die URL ist ungueltig.", e);
     } catch (ProtocolException e) {
+      logger.log(Level.WARNING, "Verbindungsfehler.", e);
       throw new ImportException("Verbindungsfehler.", e);
     } catch (IOException e) {
+      logger.log(Level.WARNING, "Verbindungsfehler.", e);
       throw new ImportException("Verbindungsfehler.", e);
     }
   }
@@ -229,8 +236,10 @@ public class JPPClient extends AbstractJPPCore {
       
       
     } catch (MalformedURLException e) {
+      logger.log(Level.WARNING, "Verbindungsfehler.", e);
       throw new SucheException("Die URL ist ungueltig.", e);
     } catch (IOException e) {
+      logger.log(Level.WARNING, "Verbindungsfehler.", e);
       throw new SucheException("Verbindungsfehler.", e);
     }
     
