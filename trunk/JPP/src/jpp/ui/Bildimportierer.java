@@ -82,14 +82,14 @@ public class Bildimportierer extends Thread {
 
     /* Import der Dateien */
     if (dateien != null) {
-
+      
       List<Exception> fehler = new ArrayList<Exception>();
 
       for (int i = 0; i < dateien.length && !abort; i++) {
         try {
           /* Zeit die verwendet wurde zum Import. */
           long zeit = Calendar.getInstance().getTimeInMillis();
-          kern.importiere(new URL("file://" + dateien[i].getAbsolutePath()));
+          kern.importiere(dateien[i].toURL());
           System.out.println("Datei importiert: "
               + dateien[i].getAbsolutePath());
           System.out.println("Benoetigte Zeit:  "
