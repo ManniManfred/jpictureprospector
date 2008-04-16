@@ -13,7 +13,10 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseWheelEvent;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -163,14 +166,6 @@ public class BildGroszanzeige extends JFrame {
           skalierung = Integer.parseInt(cbGroesze.getSelectedItem().toString());
         } catch (NumberFormatException e) {
         }
-      } else if (cbGroesze.getSelectedItem().toString().matches("[0-9]+%")) {
-        try {
-          
-          skalierung = Integer
-          .parseInt(((String) cbGroesze.getSelectedItem()).substring(0,
-              ((String) cbGroesze.getSelectedItem()).lastIndexOf('%')).trim());
-        } catch (NumberFormatException e) {
-        }
       }
       prefSizeImage.width = ((Integer) dok.getMerkmal(
           BildbreiteMerkmal.FELDNAME).getWert())
@@ -212,6 +207,19 @@ public class BildGroszanzeige extends JFrame {
       public void keyReleased(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
           dispose();
+        }
+      }
+    });
+    this.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseWheelMoved(MouseWheelEvent e) {
+        int unitsToScroll = e.getUnitsToScroll();
+        double curScalingRate = Double.parseDouble(
+            (String) cbGroesze.getSelectedItem());
+        if (e.getWheelRotation() < 0) {
+          cbGroesze.setSelectedItem(curScalingRate + unitsToScroll);
+        } else {
+          cbGroesze.setSelectedItem(curScalingRate - unitsToScroll);
         }
       }
     });
@@ -331,6 +339,7 @@ public class BildGroszanzeige extends JFrame {
       pToolbar.setLayout(flowLayout);
       pToolbar.add(lLetztesBild, null);
       pToolbar.add(lNaechstesBild, null);
+      pToolbar.add(new JLabel("Groeße in %:"), null);
       pToolbar.add(getCbGroesze(), null);
       pToolbar.add(getTbGroeszeAnpassen(), null);
       pToolbar.add(getBSchlieszen(), null);
@@ -384,11 +393,6 @@ public class BildGroszanzeige extends JFrame {
 
         skalierungPro = Double
             .parseDouble((String) cbGroesze.getSelectedItem());
-      } else if (((String) cbGroesze.getSelectedItem()).matches("[0-9]+(%)?")) {
-
-        String skalierung = (String) cbGroesze.getSelectedItem();
-        skalierungPro = Double.parseDouble(skalierung.substring(0, skalierung
-            .length() - 1));
       }
       pGroszanzeige = new BildGroszanzeigeZeichner(dok, skalierungPro,
           tbGroeszeAnpassen.isEnabled());
@@ -480,27 +484,22 @@ public class BildGroszanzeige extends JFrame {
       cbGroesze = new JComboBox();
       cbGroesze.setEditable(true);
       cbGroesze.setPreferredSize(new Dimension(75, 20));
-      cbGroesze.addItem("50%");
-      cbGroesze.addItem("100%");
-      cbGroesze.addItem("200%");
-      cbGroesze.setSelectedItem("100%");
+      cbGroesze.addItem("50");
+      cbGroesze.addItem("100");
+      cbGroesze.addItem("200");
+      cbGroesze.setSelectedItem("100");
       cbGroesze.addItemListener(new java.awt.event.ItemListener() {
         public void itemStateChanged(java.awt.event.ItemEvent e) {
-          if (!cbGroesze.getSelectedItem().toString().matches("[0-9]+%?")) {
 
-            cbGroesze.setSelectedItem("100%");
+          if (cbGroesze.getSelectedItem().toString().trim().matches("[0-9]+")) {
+
+            pGroszanzeige.setzeSkalierung(Double.parseDouble(cbGroesze
+                .getSelectedItem().toString()));
           } else {
 
-            if (cbGroesze.getSelectedItem().toString().trim().matches("[0-9]+")) {
-
-              pGroszanzeige.setzeSkalierung(Double.parseDouble(cbGroesze
-                  .getSelectedItem().toString()));
-            } else {
-
-              String skalierung = cbGroesze.getSelectedItem().toString().trim();
-              pGroszanzeige.setzeSkalierung(Double.parseDouble(skalierung
-                  .substring(0, skalierung.length() - 1)));
-            }
+            String skalierung = cbGroesze.getSelectedItem().toString().trim();
+            pGroszanzeige.setzeSkalierung(Double.parseDouble(skalierung
+                .substring(0, skalierung.length() - 1)));
           }
           updatePicture();
         }

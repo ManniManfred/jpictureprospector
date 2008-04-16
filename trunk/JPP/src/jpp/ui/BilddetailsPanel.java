@@ -21,6 +21,7 @@ import javax.swing.text.JTextComponent;
 import jpp.core.AbstractJPPCore;
 import jpp.core.BildDokument;
 import jpp.core.exceptions.AendereException;
+import jpp.ui.listener.AenderungsListener;
 import selectionmanager.Auswaehlbar;
 import selectionmanager.AuswahlListener;
 
@@ -66,6 +67,8 @@ public class BilddetailsPanel extends JPanel implements AuswahlListener {
 
   /** Tabelle, die die uebrigen Merkmale anzeigt. */
   private MerkmaleJTable tabelle;
+  
+  private List<AenderungsListener> aenderungsListener;
 
   /**
    * Erzeugt ein neues Panel fuer die Bilddetails. Es wird davon ausgegangen,
@@ -78,6 +81,7 @@ public class BilddetailsPanel extends JPanel implements AuswahlListener {
     initialize();
     this.tabelle = tabelle;
     this.kern = kern;
+    this.aenderungsListener = new ArrayList<AenderungsListener>();
   }
 
   /**
@@ -283,6 +287,7 @@ public class BilddetailsPanel extends JPanel implements AuswahlListener {
         }
         
         this.kern.aendere(bilddok.get(j));
+        fireAenderungDurchgefuehrt();
       }
     } catch (AendereException e) {
       System.out.println("Fehler beim Aendern der Merkmale");
@@ -326,6 +331,22 @@ public class BilddetailsPanel extends JPanel implements AuswahlListener {
       this.aktualisiereDaten();
     }
 
+  }
+  
+  private void fireAenderungDurchgefuehrt() {
+    for (AenderungsListener l : aenderungsListener) {
+      l.valueChanged();
+    }
+  }
+  
+  public void addAenderungsListener(AenderungsListener listener) {
+    this.aenderungsListener.add(listener);
+  }
+  
+  public void removeAenderungsListener(AenderungsListener listener) {
+    if (this.aenderungsListener.contains(listener)) {
+      this.aenderungsListener.remove(listener);
+    }
   }
 
   public void markierungWurdeBewegt(Auswaehlbar neueMarkierung) {

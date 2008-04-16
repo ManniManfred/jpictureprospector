@@ -54,6 +54,8 @@ import jpp.core.exceptions.SucheException;
 import jpp.settings.SettingsManager;
 import jpp.settings.UISettings;
 import jpp.ui.listener.AbortListener;
+import jpp.ui.listener.AenderungsListener;
+import jpp.ui.listener.AlbumListener;
 import jpp.ui.listener.BildimportListener;
 import selectionmanager.ui.AuswaehlbaresJPanel;
 import selectionmanager.ui.SelectionManagerComponent;
@@ -171,6 +173,12 @@ public class Hauptfenster extends JFrame {
   private JLabel lNextIco = null;
 
   private MyComboBox cbSeiteAuswahl = null;
+
+  private AlbumPanel pAlbum;
+
+  private JMenu mAnsicht;
+
+  private JMenuItem miAlben;
   
   /**
    * Erstellt ein neues Objekt der Klasse.
@@ -338,6 +346,7 @@ public class Hauptfenster extends JFrame {
       }
       public void ladevorgangAbgeschlossen() {
         ladebalken.dispose();
+        pAlbum.refreshUI();
       }
     });
     
@@ -536,6 +545,7 @@ public class Hauptfenster extends JFrame {
     if (hauptmenu == null) {
       hauptmenu = new JMenuBar();
       hauptmenu.add(getMDatei());
+      hauptmenu.add(getMAnsicht());
       hauptmenu.add(getMuiSettings());
       hauptmenu.add(getMHilfe());
     }
@@ -557,6 +567,36 @@ public class Hauptfenster extends JFrame {
       mDatei.add(getMiBeenden());
     }
     return mDatei;
+  }
+  
+  private JMenu getMAnsicht() {
+    if (mAnsicht == null) {
+      mAnsicht = new JMenu();
+      mAnsicht.setText("Ansicht");
+      mAnsicht.setMnemonic(KeyEvent.VK_A);
+      mAnsicht.add(getMiAlben());
+    }
+    return mAnsicht;
+  }
+
+  private JMenuItem getMiAlben() {
+    if (miAlben == null) {
+      miAlben = new JMenuItem();
+      miAlben.setText("Alben");
+      miAlben.setMnemonic(KeyEvent.VK_B);
+      miAlben.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B,
+          Event.CTRL_MASK, false));
+      miAlben.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          if (pAlbum.isVisible()) {
+            pAlbum.setVisible(false);
+          } else {
+            pAlbum.setVisible(true);
+          }
+        }
+      });
+    }
+    return miAlben;
   }
 
   /**
@@ -871,7 +911,7 @@ public class Hauptfenster extends JFrame {
       pThumbnailSteuerung.setLayout(new BorderLayout());
       pThumbnailSteuerung.add(getTbWerkzeugleiste(), BorderLayout.NORTH);
       pThumbnailSteuerung.add(getSpThumbnails(), BorderLayout.CENTER);
-
+      pThumbnailSteuerung.add(getPAlbum(), BorderLayout.SOUTH);
     }
     return pThumbnailSteuerung;
   }
@@ -986,6 +1026,11 @@ public class Hauptfenster extends JFrame {
     if (pBilddetails == null) {
 
       pBilddetails = new BilddetailsPanel(this.getTBilddetails(), kern);
+      pBilddetails.addAenderungsListener(new AenderungsListener() {
+        public void valueChanged() {
+          pAlbum.refreshUI();
+        }
+      });
     }
     return pBilddetails;
   }
@@ -1215,6 +1260,19 @@ public class Hauptfenster extends JFrame {
       });
     }
     return cbSeiteAuswahl;
+  }
+  
+  private AlbumPanel getPAlbum() {
+    if (pAlbum == null) {
+      pAlbum = new AlbumPanel(kern);
+      pAlbum.addAlbumListener(new AlbumListener() {
+        public void albumSucheDurchgefuehrt(String albumName) {
+          pSuche.setSuchtext(albumName);
+          sucheNach(albumName, 0);
+        }
+      });
+    }
+    return pAlbum;
   }
 
 }
