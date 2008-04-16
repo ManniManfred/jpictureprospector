@@ -47,7 +47,8 @@ public class Einstellungen {
     "jpp.merkmale.LetzterZugriffMerkmal",
     "jpp.merkmale.SchluesselWoerterMerkmal",
     "jpp.merkmale.ThumbnailMerkmal",
-    "jpp.merkmale.OrtMerkmal"
+    "jpp.merkmale.OrtMerkmal",
+    "jpp.merkmale.AlbumMerkmal"
   };
   
   

@@ -169,8 +169,8 @@ public class MyComboBox extends JComboBox {
             if (userChangedValueListenerList == null) return;
             list = (java.util.ArrayList)userChangedValueListenerList.clone();
         }
-        System.out.println(event.getOldValue());
-        System.out.println(event.getNewValue());
+//        System.out.println(event.getOldValue());
+//        System.out.println(event.getNewValue());
         for (int i = 0; i < list.size (); i++) {
             ((jpp.components.UserChangedValueListener)list.get (i))
                 .userChangedValue(event);

@@ -44,6 +44,10 @@ public class SuchPanel extends JPanel {
   public String gibSuchtext() {
     return tfSuchFeld.getText();
   }
+  
+  public void setSuchtext(String suchtext) {
+    tfSuchFeld.setText(suchtext);
+  }
 
   /**
    * Erzeugt alle Objekte, die dieses Panel beinhaltet und ordnet Sie
