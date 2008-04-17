@@ -380,9 +380,7 @@ public class Hauptfenster extends JFrame {
       int seitenAnzahl = (int) Math.ceil((double) trefferliste.getGesamtAnzahlTreffer() / maxAnzahl);
       int aktuelleSeite = offset / maxAnzahl;
       
-      for (int i = seitenAnzahl; i < cbSeiteAuswahl.getItemCount(); i++) {
-        cbSeiteAuswahl.removeItemAt(i);
-      }
+      cbSeiteAuswahl.removeAllItems();
       for (int i = cbSeiteAuswahl.getItemCount() + 1; i <= seitenAnzahl; i++) {
         cbSeiteAuswahl.addItem(i);
       }
