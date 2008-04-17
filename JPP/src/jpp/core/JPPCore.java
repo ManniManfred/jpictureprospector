@@ -263,9 +263,9 @@ public class JPPCore extends AbstractJPPCore {
       if (suchtext.equalsIgnoreCase(Einstellungen.ALLEBILDER_SCHLUESSEL)) {
 
         /* dann alle BildDokumente der Trefferliste uebergeben. */
-//        treffer = gibAlleDokumentAdv(offset, maxanzahl);
-        List<BildDokument> doks = gibAlleDokumente();
-        treffer = new Trefferliste(doks, doks.size());
+        treffer = gibAlleDokumentAdv(offset, maxanzahl);
+//        List<BildDokument> doks = gibAlleDokumente();
+//        treffer = new Trefferliste(doks, offset, maxanzahl);
       } else {
 
         /* Anfrage aufbauen */

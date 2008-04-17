@@ -285,10 +285,9 @@ public class BilddetailsPanel extends JPanel implements AuswahlListener {
                 aktTextKomponente.getText());
           }
         }
-        
         this.kern.aendere(bilddok.get(j));
-        fireAenderungDurchgefuehrt();
       }
+      fireAenderungDurchgefuehrt();
     } catch (AendereException e) {
       System.out.println("Fehler beim Aendern der Merkmale");
     }

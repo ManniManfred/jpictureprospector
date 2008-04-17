@@ -8,11 +8,17 @@ public class UISettings {
   /******************* Einstellungen fuer die Suche ****************/
 
   /** Maximale Anzahl angezeigter Such-Ergebnisse */
-  @Property(name = "Anzahl Ergebnisse",
-      desc = "Gibt die Anzahl der Suchergebnisse an",
-      constraint = "[1;100]",
+//  @Property(name = "Anzahl Ergebnisse",
+//      desc = "Gibt die Anzahl der Suchergebnisse an",
+//      constraint = "[1;100]",
+//      group = "Suche")
+//  public int ANZAHL_ERGEBNISSE = 20;
+  
+  @Property(name = "Schluesselwort",
+      desc = "Schuesselwort, welches bei der Suche eingegeben werden "
+        + "kann, um alle Bilder als Treffer zu erhalten.",
       group = "Suche")
-  public int ANZAHL_ERGEBNISSE = 20;
+  public String ALLEBILDER_SCHLUESSEL = "ALLEBILDER"; 
   
   
   
