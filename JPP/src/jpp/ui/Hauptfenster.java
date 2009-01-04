@@ -617,6 +617,8 @@ public class Hauptfenster extends JFrame {
     /* uiSettings speichern */
     saveSettings();
 
+    SettingsManager.close();
+    
     System.exit(0);
   }
 
@@ -1265,8 +1267,9 @@ public class Hauptfenster extends JFrame {
       pAlbum = new AlbumPanel(kern);
       pAlbum.addAlbumListener(new AlbumListener() {
         public void albumSucheDurchgefuehrt(String albumName) {
-          pSuche.setSuchtext(albumName);
-          sucheNach(albumName, 0);
+          String suchtext = "Album:" + albumName;
+          pSuche.setSuchtext(suchtext);
+          sucheNach(suchtext, 0);
         }
       });
     }

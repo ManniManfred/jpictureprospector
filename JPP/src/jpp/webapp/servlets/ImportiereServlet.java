@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import jpp.core.JPPCore;
+import jpp.core.LuceneJPPCore;
 import jpp.core.exceptions.ImportException;
 import jpp.settings.ServerSettings;
 import jpp.settings.SettingsManager;
@@ -59,7 +59,7 @@ public class ImportiereServlet extends HttpServlet {
       out.println("Sie haben nicht das Recht ein Bild zu importieren.");
     } else {
 
-      JPPCore kern = (JPPCore) getServletContext().getAttribute("JPPCore");
+      LuceneJPPCore kern = (LuceneJPPCore) getServletContext().getAttribute("JPPCore");
 
       if (kern == null) {
         out.println("JPPCore ist nicht vorhanden. Es ist vermutlich beim start"
@@ -72,11 +72,11 @@ public class ImportiereServlet extends HttpServlet {
   }
 
   private void importiere(HttpServletRequest req, HttpServletResponse resp, 
-      JPPCore kern) throws ServletException, IOException {
+      LuceneJPPCore kern) throws ServletException, IOException {
     
     PrintWriter out = resp.getWriter(); 
         
-    MultipartRequest multi = new MultipartRequest(req, serverSettings.uploadOrdner); 
+    MultipartRequest multi = new MultipartRequest(req, serverSettings.getUploadOrdner(), serverSettings.maxContentSize); 
     Enumeration files = multi.getFileNames(); 
     while ( files.hasMoreElements() ) 
     { 

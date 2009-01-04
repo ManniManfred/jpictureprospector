@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import jpp.core.exceptions.ErzeugeBildDokumentException;
 import jpp.core.exceptions.LeseMerkmalAusException;
@@ -16,6 +18,7 @@ import jpp.merkmale.BildtypMerkmal;
 import jpp.merkmale.DateipfadMerkmal;
 import jpp.merkmale.ExifMerkmal;
 import jpp.merkmale.Merkmal;
+import jpp.utils.URLUtils;
 
 import org.apache.lucene.document.Document;
 
@@ -34,6 +37,9 @@ import com.drew.metadata.Tag;
  */
 public class BildDokument {
 
+  private static Logger logger = 
+    Logger.getLogger("jpp.core.BildDokument");
+  
   /**
    * Zuordnung des Merkmalsnamen zu einem Merkmal dieses BildDokumentes, wie z.B
    * die Bildhoehe oder Bildbreite.
@@ -178,7 +184,7 @@ public class BildDokument {
       }
 
       /* Alle Merkmale aus der Merkmalsliste durchgehen */
-      for (Class klasse : JPPCore.getMerkmalsKlassen()) {
+      for (Class klasse : LuceneJPPCore.getMerkmalsKlassen()) {
 
         /* Nur zu Informationszwecken bei einer Exception */
         merkmalsKlassenname = klasse.getName();
@@ -263,7 +269,8 @@ public class BildDokument {
 
       /* Den Pfad holen */
       URL url = (URL) this.getMerkmal(DateipfadMerkmal.FELDNAME).getWert();
-
+      url = URLUtils.getEncodedURL(url);
+      
       /* Mit dem JpegMetadataReader die Metadaten aus dem jpegFile lesen */
       try {
         Metadata metadata = JpegMetadataReader.readMetadata(url.openStream());
@@ -288,11 +295,9 @@ public class BildDokument {
 
             } catch (MetadataException e) {
               /*
-               * Nichts, falls ein Exifmerkmal nicht gelesen werden konnte. Fuer
-               * eine Version 2, koennt man hier z.B wenigstens eine Log-Ausgabe
-               * machen.
+               * Nichts, falls ein Exifmerkmal nicht gelesen werden konnte. 
                */
-              System.out.println("Es konnte eine Metainformation der "
+              logger.log(Level.INFO, "Es konnte eine Metainformation der "
                   + "Exif-Merkmale nicht ausgelesen werden.");
             }
           }
@@ -300,18 +305,14 @@ public class BildDokument {
       } catch (JpegProcessingException e) {
         /*
          * Nichts weiter, da es fuer die Anwendung nicht weiter tragisch ist.
-         * Fuer eine Version 2, koennt man hier auch wenigstens eine Log-Ausgabe
-         * machen.
          */
-        System.out.println("Es konnten keine Metainformation zu dem Bild \""
+        logger.log(Level.INFO, "Es konnten keine Metainformation zu dem Bild \""
             + url + "\" ausgelesen werden.");
       } catch (IOException e) {
         /*
          * Nichts weiter, da es fuer die Anwendung nicht weiter tragisch ist.
-         * Fuer eine Version 2, koennt man hier auch wenigstens eine Log-Ausgabe
-         * machen.
          */
-        System.out.println("Das Bild \"" + url 
+        logger.log(Level.INFO, "Das Bild \"" + url 
             + "\" konnte nicht gelesen werden.");
       }
 

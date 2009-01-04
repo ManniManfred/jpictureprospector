@@ -7,7 +7,7 @@ import javax.swing.table.DefaultTableModel;
 
 import jpp.core.AbstractJPPCore;
 import jpp.core.BildDokument;
-import jpp.core.JPPCore;
+import jpp.core.LuceneJPPCore;
 import jpp.core.exceptions.ErzeugeException;
 import jpp.merkmale.Merkmal;
 

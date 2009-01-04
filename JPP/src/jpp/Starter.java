@@ -32,6 +32,8 @@ public class Starter {
       e.printStackTrace();
     }
 
+    SettingsManager.open();
+    
     StarterSettings s = SettingsManager.getSettings(StarterSettings.class);
     
     /* Abfrage Dialog starten */
@@ -67,9 +69,10 @@ public class Starter {
       Hauptfenster hauptfenster = new Hauptfenster(kern);
       hauptfenster.setVisible(true);
     } else {
+      SettingsManager.close();
       System.exit(0);
       return;
     }
-
+    
   }
 }

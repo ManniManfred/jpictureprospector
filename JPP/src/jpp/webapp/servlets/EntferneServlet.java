@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import jpp.core.JPPCore;
+import jpp.core.LuceneJPPCore;
 import jpp.core.exceptions.EntferneException;
 import jpp.webapp.Mapping;
 import benutzermanager.Benutzer;
@@ -49,7 +49,7 @@ public class EntferneServlet extends HttpServlet {
       out.println("Sie haben nicht das Recht ein Bild zu entfernen.");
     } else {
 
-      JPPCore kern = (JPPCore) getServletContext().getAttribute("JPPCore");
+      LuceneJPPCore kern = (LuceneJPPCore) getServletContext().getAttribute("JPPCore");
 
       if (kern == null) {
         out.println("JPPCore ist nicht vorhanden. Es ist vermutlich beim start"
@@ -62,7 +62,7 @@ public class EntferneServlet extends HttpServlet {
   }
 
   private void entferne(HttpServletRequest req, HttpServletResponse resp, 
-      JPPCore kern) throws ServletException, IOException {
+      LuceneJPPCore kern) throws ServletException, IOException {
 
 
     PrintWriter out = resp.getWriter(); 

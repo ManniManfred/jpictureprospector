@@ -27,8 +27,8 @@ public class Mapping {
   public static URL wandleInWWW(URL lokal) throws MalformedURLException {
     
     String urlstring = lokal.toString().replaceAll(
-        serverSettings.dateipfadSuchMapping, 
-        serverSettings.dateipfadErsatzMapping);
+        serverSettings.getDateipfadSuchMapping(), 
+        serverSettings.getDateipfadErsatzMapping());
     return new URL(urlstring);
   }
   
@@ -42,8 +42,8 @@ public class Mapping {
    */
   public static URL wandleInLokal(URL www) throws MalformedURLException {
     String urlstring = www.toString().replaceAll(
-        serverSettings.dateipfadErsatzMapping,
-        serverSettings.dateipfadSuchMapping);
+        serverSettings.getDateipfadErsatzMapping(),
+        serverSettings.getDateipfadSuchMapping());
     return new URL(urlstring);
   }
   

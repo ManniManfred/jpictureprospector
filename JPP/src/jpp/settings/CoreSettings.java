@@ -30,7 +30,8 @@ public class CoreSettings {
     "jpp.merkmale.SchluesselWoerterMerkmal",
     "jpp.merkmale.ThumbnailMerkmal",
     "jpp.merkmale.OrtMerkmal",
-    "jpp.merkmale.AlbumMerkmal"
+    "jpp.merkmale.AlbumMerkmal",
+    "jpp.merkmale.GruppeMerkmal"
   };
   
   
@@ -44,7 +45,7 @@ public class CoreSettings {
           "verwendeter werden sollen.")
   public String[] THUMB_ZUORDUNGEN = new String[]{
     "jpg, gif, png = jpp.core.thumbnail.SchnellerGenerierer",
-     "* = jpp.core.thumbnail.AlleFormateGenerierer"};
+     "* = jpp.core.thumbnail.ExternalGenerierer"};
   
   
   

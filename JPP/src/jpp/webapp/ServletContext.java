@@ -12,28 +12,25 @@ import benutzermanager.RechteManager;
 
 import jpp.settings.SettingsManager;
 import jpp.settings.ServerSettings;
-import jpp.core.JPPCore;
+import jpp.core.LuceneJPPCore;
 import jpp.core.exceptions.ErzeugeException;
 
 public class ServletContext implements ServletContextListener {
 
   private BenutzerManager manager;
   
-  /**
-   * Enthaelt das ServerSettings Objekt mit allen wichtigen serverSettings 
-   * dieser Anwendung.
-   */
-  private static ServerSettings serverSettings = 
-    SettingsManager.getSettings(ServerSettings.class);
-  
   
   public void contextInitialized(ServletContextEvent event) {
+    SettingsManager.open();
+    
+    ServerSettings serverSettings 
+      = SettingsManager.getSettings(ServerSettings.class);
     
     /* JPPCore initialisieren */
-    String indexDir = serverSettings.indexDir;
+    String indexDir = serverSettings.getIndexDir();
     System.out.println("IndexDir = " + indexDir);
     try {
-      event.getServletContext().setAttribute("JPPCore", new JPPCore(indexDir));
+      event.getServletContext().setAttribute("JPPCore", new LuceneJPPCore(indexDir));
     } catch (ErzeugeException e) {
       event.getServletContext().setAttribute("JPPCore", null);
       System.out.println("Konnte den JPPCore nicht erzeugen." + e);
@@ -68,5 +65,7 @@ public class ServletContext implements ServletContextListener {
     } else {
       manager.schliesse();
     }
+    
+    SettingsManager.close();
   }
 }

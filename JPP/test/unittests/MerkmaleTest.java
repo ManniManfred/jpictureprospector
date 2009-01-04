@@ -11,7 +11,7 @@ import java.io.File;
 
 import jpp.core.AbstractJPPCore;
 import jpp.core.BildDokument;
-import jpp.core.JPPCore;
+import jpp.core.LuceneJPPCore;
 import jpp.core.exceptions.ImportException;
 import jpp.merkmale.BildbreiteMerkmal;
 import jpp.merkmale.BildhoeheMerkmal;

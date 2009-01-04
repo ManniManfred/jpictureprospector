@@ -19,7 +19,7 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import jpp.core.JPPCore;
+import jpp.core.LuceneJPPCore;
 import jpp.core.Trefferliste;
 import jpp.core.exceptions.SucheException;
 import jpp.webapp.TrefferlisteParser;
@@ -62,7 +62,7 @@ public class SucheServlet extends HttpServlet {
       out.println("Sie haben nicht das Recht etwas zu suchen.");
     } else {
 
-      JPPCore kern = (JPPCore) getServletContext().getAttribute("JPPCore");
+      LuceneJPPCore kern = (LuceneJPPCore) getServletContext().getAttribute("JPPCore");
 
       if (kern == null) {
         out.println("JPPCore ist nicht vorhanden. Es ist vermutlich beim start"
@@ -75,7 +75,7 @@ public class SucheServlet extends HttpServlet {
   }
 
   private void suche(HttpServletRequest req, HttpServletResponse resp, 
-      JPPCore kern) throws ServletException, IOException {
+      LuceneJPPCore kern) throws ServletException, IOException {
     PrintWriter out = resp.getWriter();
     
     try {
