@@ -4,8 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -15,6 +18,7 @@ import jpp.merkmale.BildbreiteMerkmal;
 import jpp.merkmale.BildhoeheMerkmal;
 import jpp.merkmale.DateipfadMerkmal;
 import jpp.ui.listener.VorschauBildListener;
+import jpp.utils.URLUtils;
 import selectionmanager.Auswaehlbar;
 import selectionmanager.AuswahlListener;
 
@@ -23,6 +27,9 @@ public class Vorschaupanel extends JPanel implements AuswahlListener {
 
   private static final long serialVersionUID = 1L;
 
+  /** Logger, der alle Fehler loggt. */
+  private Logger logger = Logger.getLogger("jpp.ui.Vorschaupanel");
+  
   /** Enthaelt das Bild, was anzeigt werden soll. */
   private Image bild = null;
 
@@ -159,7 +166,8 @@ public class Vorschaupanel extends JPanel implements AuswahlListener {
       
       URL dateipfad = (URL) tap.gibBildDokument().getMerkmal(
                           DateipfadMerkmal.FELDNAME).getWert();
-      
+
+      dateipfad = URLUtils.getEncodedURL(dateipfad);
       bildLader.startLadeBild(dateipfad, this.getWidth(), this.getHeight());
     }
   }

@@ -15,7 +15,7 @@ import javax.imageio.ImageIO;
 
 import jpp.core.AbstractJPPCore;
 import jpp.core.BildDokument;
-import jpp.core.JPPCore;
+import jpp.core.LuceneJPPCore;
 import jpp.core.Trefferliste;
 import jpp.core.exceptions.AendereException;
 import jpp.core.exceptions.EntferneException;
@@ -66,7 +66,7 @@ public class JPPCoreTest {
    */
   @Before
   public void setUp() throws Exception {
-    core = new JPPCore("imageIndex");
+    core = new LuceneJPPCore("imageIndex");
   }
 
   /**

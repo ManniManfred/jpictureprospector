@@ -6,8 +6,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 import javax.imageio.ImageIO;
 
@@ -18,9 +16,11 @@ import jpp.core.thumbnail.SimpleThumbnailGeneriererFactory;
 import jpp.core.thumbnail.ThumbnailGenerierer;
 import jpp.settings.CoreSettings;
 import jpp.settings.SettingsManager;
+import jpp.utils.URLUtils;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+
 
 
 
@@ -108,10 +108,7 @@ public class ThumbnailMerkmal extends Merkmal {
   
   public void leseMerkmalAusString(String wert) throws LeseMerkmalAusException {
     try {
-      setWert(ImageIO.read(new URL(wert)));
-    } catch (MalformedURLException e) {
-      throw new LeseMerkmalAusException(
-          "Konnte kein Thumbnail erzeugen.", e);
+      setWert(ImageIO.read(URLUtils.getEncodedURL(wert)));
     } catch (IOException e) {
       throw new LeseMerkmalAusException(
           "Konnte kein Thumbnail erzeugen.", e);

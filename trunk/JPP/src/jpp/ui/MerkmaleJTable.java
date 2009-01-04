@@ -13,8 +13,8 @@ import selectionmanager.AuswahlListener;
 
 import jpp.core.AbstractJPPCore;
 import jpp.core.BildDokument;
-import jpp.core.CoreInterface;
 import jpp.core.JPPCore;
+import jpp.core.LuceneJPPCore;
 
 
 /**

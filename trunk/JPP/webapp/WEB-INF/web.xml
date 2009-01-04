@@ -6,13 +6,12 @@
     <!--ENTITY % classpath-ent SYSTEM "classpath.ent"> %classpath-ent;-->
 ]>
 
-<web-app>
+<web-app>  
   <servlet>
     <servlet-name>test</servlet-name>
     <servlet-class>jpp.webapp.servlets.TestServlet</servlet-class>
         
   </servlet>
-  
   <servlet-mapping>
     <servlet-name>test</servlet-name>
     <url-pattern>/test</url-pattern>
@@ -102,6 +101,17 @@
   <servlet-mapping>
     <servlet-name>suche</servlet-name>
     <url-pattern>/suche</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>getAlben</servlet-name>
+    <servlet-class>jpp.webapp.servlets.GetAlbenServlet</servlet-class>
+        
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>getAlben</servlet-name>
+    <url-pattern>/getAlben</url-pattern>
   </servlet-mapping>
   
   <listener>

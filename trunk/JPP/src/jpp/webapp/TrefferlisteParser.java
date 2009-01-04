@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 
 import javax.imageio.ImageIO;
 
@@ -96,7 +97,7 @@ public class TrefferlisteParser {
         String thumbName = "th_" + url.getPath().replaceAll("/", "_") + "." 
           + coreSettings.THUMB_FORMAT.getAusgewaehlt();
         
-        File thumbFile = new File(serverSettings.thumbnailOrdner + thumbName);
+        File thumbFile = new File(serverSettings.getThumbnailOrdner() + thumbName);
         
         if (!thumbFile.exists()) {
           /* Speichere Thumbnail */

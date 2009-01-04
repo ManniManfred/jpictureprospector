@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import jpp.core.BildDokument;
-import jpp.core.JPPCore;
+import jpp.core.LuceneJPPCore;
 import jpp.core.exceptions.AendereException;
 import jpp.core.exceptions.ErzeugeBildDokumentException;
 import jpp.merkmale.Merkmal;
@@ -50,7 +50,7 @@ public class AendereServlet extends HttpServlet {
       out.println("Sie haben nicht das Recht etwas zu aendern");
     } else {
 
-      JPPCore kern = (JPPCore) getServletContext().getAttribute("JPPCore");
+      LuceneJPPCore kern = (LuceneJPPCore) getServletContext().getAttribute("JPPCore");
 
       if (kern == null) {
         out.println("JPPCore ist nicht vorhanden. Es ist vermutlich beim start"
@@ -63,7 +63,7 @@ public class AendereServlet extends HttpServlet {
   }
 
   private void aendere(HttpServletRequest req, HttpServletResponse resp, 
-      JPPCore kern) throws ServletException, IOException {
+      LuceneJPPCore kern) throws ServletException, IOException {
 
     PrintWriter out = resp.getWriter();
     

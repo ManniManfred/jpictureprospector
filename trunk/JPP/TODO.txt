@@ -2,5 +2,7 @@
 - Erweiterte Suche
 - Wenn man mit den Pfeiltasten rauf und runter geht, sollen die Scrollbalken richtig reagieren
 - Wenn die Bildquelle nicht vorhanden ist (falscher Pfad) kommt es bei der Grossansicht zu einer Exception
+- Kernerweiterung um Alben. Damit soll verhindert werden, dass der Client alle Dokumente holen muss, nur um die Liste der Alben zu erstellen.
 
-- JPPCore welche Methoden oder Bereiche muessen synchronisiert werden, wenn z.B mehere Clients daraufzugreifen?- JPPCore welche Methoden oder Bereiche muessen synchronisiert werden, wenn z.B mehere Clients daraufzugreifen?
+- JPPCore welche Methoden oder Bereiche muessen synchronisiert werden, wenn z.B mehere Clients daraufzugreifen?
+

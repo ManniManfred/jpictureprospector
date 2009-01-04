@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import jpp.core.JPPCore;
+import jpp.core.LuceneJPPCore;
 
 public class TestServlet extends HttpServlet {
 
@@ -36,7 +36,7 @@ public class TestServlet extends HttpServlet {
     PrintWriter out = resp.getWriter(); 
     
     
-    JPPCore kern = (JPPCore) getServletContext().getAttribute("JPPCore");
+    LuceneJPPCore kern = (LuceneJPPCore) getServletContext().getAttribute("JPPCore");
     
     if (kern == null) {
       out.println("JPPCore ist nicht vorhanden. Es ist vermutlich beim start" +

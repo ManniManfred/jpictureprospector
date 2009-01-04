@@ -11,31 +11,56 @@ import com.db4o.ObjectSet;
 public class SettingsManager {
 
   /** Der zu verwendene Logger */
-  private static Logger logger = Logger.getLogger("SettingsManager"); 
-  
+  private static Logger logger = Logger.getLogger("SettingsManager");
+
   /** Enthaelt den Pfad zur Datenbank-Datei. */
   public static final String dbDatei = "settings.yap";
-  
-    
+
+  /** db4o Datenbank */
+  private static ObjectContainer db;
+
+
+  /**
+   * Bevor die Settingsobjekte mit der Methode getSettings geholt werden können,
+   * muss diese Methode aufgerufen werden, und am die Methode close aufgerufen
+   * werden.
+   */
+  public static void open() {
+    if (db == null) {
+      db = Db4o.openFile(dbDatei);
+    }
+  }
+
+  public static void close() {
+    if (db != null) {
+      db.rollback();
+      db.close();
+      db = null;
+    }
+  }
+
   /**
    * Gibt die die StarterSettings zurueck.
    * 
    * @param klasse Klasse, der Setting, welche zurueckgegeben wird
    * @return Settings-Object des Angegeben Typs
    */
-  public static <T>T getSettings(Class<T> klasse) {
+  public static <T> T getSettings(Class<T> klasse) {
     T ergebnis;
 
-    ObjectContainer db = Db4o.openFile(dbDatei);
+    if (db == null) {
+      throw new IllegalStateException("Es muss zuerst open aufgerufen werden.");
+    }
+    
     try {
       ObjectSet<T> ssettings = db.get(klasse);
-      
+
       if (ssettings.size() > 0) {
         ergebnis = ssettings.get(0);
-        
+
         if (ssettings.size() > 1) {
-          logger.log(Level.WARNING, "Es sind in der Datenbank mehrere " +
-          		"StarterSetting Objekte vorhanden.");
+          logger.log(Level.WARNING, "Es sind in der Datenbank mehrere "
+              + "StarterSetting Objekte vorhanden.");
         }
       } else {
         ergebnis = klasse.newInstance();
@@ -43,43 +68,37 @@ public class SettingsManager {
       }
       db.commit();
     } catch (InstantiationException e) {
-      logger.log(Level.SEVERE, "Die Klasse " + klasse.getName() 
+      logger.log(Level.SEVERE, "Die Klasse " + klasse.getName()
           + " konnte nicht instanziiert werden.");
       ergebnis = null;
     } catch (IllegalAccessException e) {
-      logger.log(Level.SEVERE, "Die Klasse " + klasse.getName() 
+      logger.log(Level.SEVERE, "Die Klasse " + klasse.getName()
           + " konnte nicht instanziiert werden.");
       ergebnis = null;
-    } finally {
-      db.close();
     }
-    
+
     return ergebnis;
   }
-  
+
   /**
    * Speichert die uebergebenen Settings.
    * 
    * @param settings Settings, die gespeichert werden
    */
   public static void saveSettings(Object settings) {
-
-    ObjectContainer db = Db4o.openFile(dbDatei);
-    try {
-      /* Alle bisherigen Settings entfernen */
-      ObjectSet ssettings = db.get(settings.getClass());
-      
-      for (Object alteSettings : ssettings) {
-        if (alteSettings != settings) {
-          db.delete(alteSettings);
-        }
-      }
-      
-      db.set(settings);
-      db.commit();
-    } finally {
-      db.close();
+    if (db == null) {
+      throw new IllegalStateException("Es muss zuerst open aufgerufen werden.");
     }
     
+    /* Alle bisherigen Settings entfernen */
+    ObjectSet ssettings = db.get(settings.getClass());
+
+    for (Object alteSettings : ssettings) {
+      if (alteSettings != settings) {
+        db.delete(alteSettings);
+      }
+    }
+    db.set(settings);
+    db.commit();
   }
 }

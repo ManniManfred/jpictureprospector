@@ -9,7 +9,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import jpp.client.JPPClient;
+import jpp.client.ClientJPPCore;
 import jpp.core.exceptions.AendereException;
 import jpp.core.exceptions.EntferneException;
 import jpp.core.exceptions.ErzeugeException;
@@ -17,6 +17,8 @@ import jpp.core.exceptions.ImportException;
 import jpp.core.exceptions.SucheException;
 import jpp.merkmale.DateipfadMerkmal;
 import jpp.merkmale.Merkmal;
+import jpp.settings.CoreSettings;
+import jpp.settings.SettingsManager;
 import jpp.settings.StarterSettings;
 
 
@@ -26,7 +28,7 @@ import jpp.settings.StarterSettings;
  * 
  * @author Manfred Rosskamp
  */
-public abstract class AbstractJPPCore {
+public abstract class AbstractJPPCore implements JPPCore{
 
   /** Enthaelt eine Liste mit den Klassen aller zu verwendenen Merkmale. */
   private static List<Class> merkmalsklassen;
@@ -34,6 +36,9 @@ public abstract class AbstractJPPCore {
   /** Enthaelt eine Liste mit den Namen aller zu verwendenen Merkmale. */
   private static List<String> merkmalsNamen;
 
+
+  protected static CoreSettings coreSettings = 
+    SettingsManager.getSettings(CoreSettings.class);
 
   /**
    * Faktory Methode, um ein {@link AbstractJPPCore} anhand der StarterSettings
@@ -74,15 +79,15 @@ public abstract class AbstractJPPCore {
       
       /* Wenn kein Fehler auftrat, dann einen normalen JPPCore instanziieren
        */
-      kern = new JPPCore(s.imageIndex);
+      kern = new LuceneJPPCore(s.imageIndex);
      
     } else {
-       if (JPPClient.istJPPServerVerfuegbar(s.jppServer)) {
-         kern = new JPPClient(s.jppServer, s.user, s.password);
+       if (ClientJPPCore.istJPPServerVerfuegbar(s.jppServer)) {
+         kern = new ClientJPPCore(s.jppServer, s.user, s.password);
        } else {
           throw new ErzeugeException("Der angegebene Server ist "
               + "nicht verfuegbar.\n Meldung vom Server: " 
-              + JPPClient.getMeldungVomServer()
+              + ClientJPPCore.getMeldungVomServer()
               + "\nBitte geben Sie einen verfügbaren Server an." 
               + "\nBeachten Sie, dass die URL mit einem \"/\" schliessen" 
               + " muss." 
@@ -122,12 +127,11 @@ public abstract class AbstractJPPCore {
       merkmalsklassen = new ArrayList<Class>();
 
 
-
       String merkmalsKlassenname;
 
       /* Alle Merkmale aus der Merkmalsliste durchgehen */
-      for (int i = 0; i < Einstellungen.MERKMALE.length; i++) {
-        merkmalsKlassenname = Einstellungen.MERKMALE[i];
+      for (int i = 0; i < coreSettings.MERKMALE.length; i++) {
+        merkmalsKlassenname = coreSettings.MERKMALE[i];
         merkmalsklassen.add(Class.forName(merkmalsKlassenname));
       }
     }
@@ -239,6 +243,26 @@ public abstract class AbstractJPPCore {
         auchVonFestplatte);
   }
 
+  /**
+   * Gibt eine Liste aller im Index vorhandenen Alben zurück.
+   * 
+   * @return eine Liste aller Alben
+   */
+  public List<String> getAlben() {
+    return this.getAlben(null);
+  }
+  
+  
+  /**
+   * Gibt eine Liste aller im Index vorhandenen Alben zurück, die zu einer 
+   * bestimmten Gruppe gehört oder zu wenn die übergebene Gruppe null ist zu
+   * allen Gruppen gehört.
+   * @param gruppe Gruppe zu der alle Alben zurückgegeben werden. Wenn dieser
+   *  Wert <code>null</code> ist, werden alle Alben zurückgegeben.
+   * @return eine Liste aller Alben
+   */
+  public abstract List<String> getAlben(String gruppe);
+  
   /**
    * Entfernt die entsprechende Datei aus dem Index
    * 

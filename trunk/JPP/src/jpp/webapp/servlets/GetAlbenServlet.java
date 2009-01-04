@@ -2,6 +2,7 @@ package jpp.webapp.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -15,7 +16,7 @@ import benutzermanager.RechteManager;
 import jpp.core.LuceneJPPCore;
 import jpp.core.exceptions.SucheException;
 
-public class ClearUpIndexServlet extends HttpServlet {
+public class GetAlbenServlet extends HttpServlet {
 
   private static final long serialVersionUID = 7017607629370760883L;
 
@@ -42,8 +43,8 @@ public class ClearUpIndexServlet extends HttpServlet {
 
     Benutzer user = (Benutzer) session.getAttribute("user");
 
-    if (user == null || !user.hatRecht(RechteManager.getRecht("clearUpIndex"))) {
-      out.println("Sie haben nicht das Recht den Index aufzuraeumen.");
+    if (user == null || !user.hatRecht(RechteManager.getRecht("suche"))) {
+      out.println("Sie haben nicht das Recht die Alben auszulesen.");
     } else {
 
       LuceneJPPCore kern = (LuceneJPPCore) getServletContext().getAttribute("JPPCore");
@@ -52,24 +53,28 @@ public class ClearUpIndexServlet extends HttpServlet {
         out.println("JPPCore ist nicht vorhanden. Es ist vermutlich beim start"
             + "ein Fehler aufgetreten. Überprüfen Sie die Logfiles.");
       } else {
-        clearUpIndex(req, resp, kern);
+        getAlben(req, resp, kern);
       }
     }
 
   }
   
-  private void clearUpIndex(HttpServletRequest req, HttpServletResponse resp,
+  private void getAlben(HttpServletRequest req, HttpServletResponse resp,
       LuceneJPPCore kern) throws ServletException, IOException {
 
-
+    String gruppe = req.getParameter("gruppe");
+    
     PrintWriter out = resp.getWriter(); 
+    //out.print("Weihnachtsfeier");
     
-    try {
-      out.println(kern.clearUpIndex());
-      out.println("Der Index wurde aufgeraeumt.");
-    } catch (SucheException e) {
-      out.println("Der Index wurde nicht aufgeraeumt. Grund: " + e);
+    List<String> alben = kern.getAlben(gruppe);
+    int size = alben.size();
+    for (int i = 0; i < size; i++) {
+      out.print(alben.get(i));
+      if (i < size - 1) {
+        out.print(";");
+      }
     }
-    
+    out.println();
   }
 }
