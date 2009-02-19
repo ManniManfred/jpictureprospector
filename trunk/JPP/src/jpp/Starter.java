@@ -32,7 +32,7 @@ public class Starter {
       e.printStackTrace();
     }
 
-    SettingsManager.open();
+    SettingsManager.open(false);
     
     StarterSettings s = SettingsManager.getSettings(StarterSettings.class);
     
