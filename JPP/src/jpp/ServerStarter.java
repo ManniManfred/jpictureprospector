@@ -134,7 +134,7 @@ public class ServerStarter {
    * @throws Exception
    */
   public static void main(String[] args) {
-    SettingsManager.open();
+    SettingsManager.open(true);
     ServerSettings serverSettings = null;
 
     boolean startGui = false;

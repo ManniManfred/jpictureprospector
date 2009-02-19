@@ -13,8 +13,14 @@ public class SettingsManager {
   /** Der zu verwendene Logger */
   private static Logger logger = Logger.getLogger("SettingsManager");
 
-  /** Enthaelt den Pfad zur Datenbank-Datei. */
-  public static final String dbDatei = "settings.yap";
+  /** Enthaelt den Pfad zur Datenbank-Datei, in der server Einstellungen
+   * gespeichert werden. */
+  public static final String serverDbDatei = "serverSettings.yap";
+
+  /** Enthaelt den Pfad zur Datenbank-Datei, in der server Einstellungen
+   * gespeichert werden. */
+  public static final String clientDbDatei = "settings.yap";
+  
 
   /** db4o Datenbank */
   private static ObjectContainer db;
@@ -25,9 +31,13 @@ public class SettingsManager {
    * muss diese Methode aufgerufen werden, und am die Methode close aufgerufen
    * werden.
    */
-  public static void open() {
+  public static void open(boolean isServer) {
     if (db == null) {
-      db = Db4o.openFile(dbDatei);
+      if (isServer) {
+        db = Db4o.openFile(serverDbDatei);
+      } else {
+        db = Db4o.openFile(clientDbDatei);
+      }
     }
   }
 

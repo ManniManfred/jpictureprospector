@@ -21,7 +21,7 @@ public class ServletContext implements ServletContextListener {
   
   
   public void contextInitialized(ServletContextEvent event) {
-    SettingsManager.open();
+    SettingsManager.open(true);
     
     ServerSettings serverSettings 
       = SettingsManager.getSettings(ServerSettings.class);
