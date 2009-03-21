@@ -3,6 +3,7 @@ package jpp;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,7 +15,10 @@ import jpp.settings.SettingsManager;
 import jpp.ui.ServerStartDialog;
 
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.servlet.Context;
+import org.mortbay.jetty.servlet.DefaultServlet;
 import org.mortbay.jetty.webapp.WebAppContext;
+
 
 /**
  * Starter-Klasse fuer den Jetty-Server, indem dann der JPP-Webapplikation
@@ -30,13 +34,18 @@ public class ServerStarter {
   public void startServer(ServerSettings serverSettings) {
 
     /* Den Webserver Jetty starten */
-    WebAppContext ctx = new WebAppContext("webapp/", serverSettings.contextPath);
+    WebAppContext mainCtx = new WebAppContext("webapp/", serverSettings.contextPath);
 
-
+    Context resCtx = new Context();
+    resCtx.setContextPath("/jppdata");
+    resCtx.setResourceBase(serverSettings.jppDataDir);
+    resCtx.addServlet(DefaultServlet.class, "/");
+    //ctx.setResourceBase(serverSettings.jppDataDir);
+    
 
     server = new Server(serverSettings.port);
-    server.setHandler(ctx);
-    
+    server.addHandler(mainCtx);
+    server.addHandler(resCtx);
     try {
       server.start();
     } catch (Exception e) {
