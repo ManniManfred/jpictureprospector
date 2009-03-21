@@ -330,7 +330,7 @@ public class BildGroszanzeige extends JFrame {
       pToolbar.setLayout(flowLayout);
       pToolbar.add(lLetztesBild, null);
       pToolbar.add(lNaechstesBild, null);
-      pToolbar.add(new JLabel("Groeße in %:"), null);
+      pToolbar.add(new JLabel("Größe in %:"), null);
       pToolbar.add(getCbGroesze(), null);
       pToolbar.add(getTbGroeszeAnpassen(), null);
       pToolbar.add(getBSchlieszen(), null);

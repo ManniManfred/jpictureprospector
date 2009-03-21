@@ -21,7 +21,7 @@ public class ServerSettings {
    * Index)
    */
   public String jppDataDir = "/opt/jppdata/";
-
+  
   /**
    * URL unter der die Bilder zu finden sind.
    */
@@ -50,7 +50,7 @@ public class ServerSettings {
    * Hier kann angegeben werden, wo Thumbnailbilder abgelegt sind.
    */
   public String getThumbnailOrdner() {
-    return concatFolder(jppDataDir, "thumbs/");
+    return concatFolder(jppDataDir, "thumbs" + File.separator);
   }
 
 
@@ -59,7 +59,7 @@ public class ServerSettings {
    * werden sollen.
    */
   public String getUploadOrdner() {
-    return concatFolder(jppDataDir, "images/");
+    return concatFolder(jppDataDir, "images" + File.separator);
   }
 
   /**
@@ -67,10 +67,10 @@ public class ServerSettings {
    * sollen.
    */
   public String getIndexDir() {
-    return concatFolder(jppDataDir, "imageIndex/");
+    return concatFolder(jppDataDir, "imageIndex" + File.separator);
   }
   
-  private String concatFolder(String part1, String part2) {
+  public static String concatFolder(String part1, String part2) {
     String result;
     if (part1.endsWith(File.separator)) {
       result = part1 + part2;
