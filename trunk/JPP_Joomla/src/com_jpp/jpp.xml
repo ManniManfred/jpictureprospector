@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<install version="1.5.0" type="component">
+  <name>JPP</name>
+  <author>Manfred Rosskamp</author>
+  <creationDate>December 2007</creationDate>
+  <copyright>(C) 2005 Open Source Matters. All rights reserved.</copyright>
+  <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+  <authorEmail>admin@joomla.org</authorEmail>
+  <authorUrl>www.joomla.org</authorUrl>
+  <version>1.5.0</version>
+  <description>Eine Photogallery, die JPictureProspector verwendet</description>
+
+  <files>
+    <filename>jpp.php</filename>
+    <folder>jpp/</folder>
+  </files>
+
+  <administration>
+  </administration>
+
+  <params>
+    <param name="jppserver" type="text" default="http://localhost:8080/jpp/" label="JPPServer" description='Gibt die URL des JPPServer an. Die URL muss mit einem "/" schliessen.'/>
+    <param name="@spacer" type="spacer" default="" label="" description="" />
+    <param name="user" type="text" default="Karl" label="Benutzername" description="Benutzername mit dem man sich an den Server anmeldet" />
+    <param name="password" type="password" default="xxxx" label="Passwort" description="Passwort zum dem Benutzernamen" />
+    <param name="gruppe" type="text" default="Main" label="JPP-Gruppe" description="Es werden nur Bilder verwendet, die in dieser Gruppe sind." />
+    <param name="sizeindex" type="text" default="1" label="SizeIndex" description="Gibt den Index der Groesse an, in dem die Bilder anzeigt werden." />
+    <param name="countPerPage" type="text" default="20" label="Anzahl je Seite" description="Gibt die Anzahl der Bilder an, die auf einer Seite angezeigt werden sollen." />
+    <param name="thumbWidth" type="text" default="200" label="Breite eine Thumbs" description="Breite auf die das Vorschaubild browserseitig skalliert wird." />
+  </params>
+</install>
