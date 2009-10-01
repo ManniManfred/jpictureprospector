@@ -17,6 +17,7 @@
   </files>
 
   <administration>
+    <menu>JPP</menu>
   </administration>
 
   <params>
@@ -28,5 +29,7 @@
     <param name="sizeindex" type="text" default="1" label="SizeIndex" description="Gibt den Index der Groesse an, in dem die Bilder anzeigt werden." />
     <param name="countPerPage" type="text" default="20" label="Anzahl je Seite" description="Gibt die Anzahl der Bilder an, die auf einer Seite angezeigt werden sollen." />
     <param name="thumbWidth" type="text" default="200" label="Breite eine Thumbs" description="Breite auf die das Vorschaubild browserseitig skalliert wird." />
+    <param name="countCols" type="text" default="3" label="Anzahl Spalten" description="Anzahl der Spalten." />
+    
   </params>
 </install>
