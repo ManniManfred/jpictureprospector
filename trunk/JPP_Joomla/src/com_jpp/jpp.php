@@ -54,6 +54,7 @@
     $item = $menu->getActive();
     
     $countPerPage = $params->get('countPerPage');
+    $countCols = $params->get('countCols');
     $thumbWidth = $params->get('thumbWidth');
     $backLink = JRoute::_('index.php?option=com_jpp&Itemid=' . $item->id );
     
@@ -88,7 +89,7 @@
     echo '&gt;</font></p>';
 
 
-    echo "\n\n<div>";
+    echo "\n\n<table><tr>";
     
 
     // print thumbs
@@ -97,16 +98,22 @@
       $thumbUrl = $doc->getMerkmal("JPP.MERKMALE.THUMBNAILMERKMAL");
       $imgUrl = $doc->getMerkmal("JPP.MERKMALE.DATEIPFADMERKMAL");
 
-      echo '<div style="float: left; margin: 10px; padding: 10px; background-color: #CCEEEE">';
+
+      if ($i % $countCols == 0) {
+	echo "</tr><tr>\n";
+      }
+
+      echo '<td><div style="margin: 10px; padding: 10px; background-color: #CCEEEE">';
       echo '<a href="' . $imgUrl->getWert() . '" rel="lightbox[' . $album . ']">';
       echo '<img width="' . $thumbWidth .'" src="' . $thumbUrl->getWert() . '" border="0"/>';
-      echo '</a></div>';
+      echo '</a></div></td>';
+
     }
 
 
-    echo "</div>";
+    echo "</tr></table>";
      
-    echo "\n\n<div style=\"clear:both;\"><p><a href=\"$backLink\">zurück</a></p></div>";
+    echo "\n\n<p><a href=\"$backLink\">zurück</a></p>";
   }
    
    
