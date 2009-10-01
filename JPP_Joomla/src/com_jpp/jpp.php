@@ -46,6 +46,8 @@
    
    
   function showAlbum($client, $album, $page = 0) {
+    LoadLightBox();
+
     global $mainframe;
     $params = &$mainframe->getParams();
     $menu = & JSite::getMenu();
@@ -96,7 +98,7 @@
       $imgUrl = $doc->getMerkmal("JPP.MERKMALE.DATEIPFADMERKMAL");
 
       echo '<div style="float: left; margin: 10px; padding: 10px; background-color: #CCEEEE">';
-      echo '<a href="' . $imgUrl->getWert() . '">';
+      echo '<a href="' . $imgUrl->getWert() . '" rel="lightbox[' . $album . ']">';
       echo '<img width="' . $thumbWidth .'" src="' . $thumbUrl->getWert() . '" border="0"/>';
       echo '</a></div>';
     }
@@ -127,3 +129,60 @@
   }
   //require(JModuleHelper::getLayoutPath('mod_photo'));
    
+
+
+
+
+
+
+//****************    Lightbox       **********************/
+
+function LoadLightBox() {
+  // Load style Image Browser style sheet
+  //HTML_imagebrowser::attachCSS();
+
+  // Load the relevant scripts in each mode
+  //HTML_imagebrowser::attachPopupScripts();
+  attachLightBoxScripts();
+}
+
+function attachCSS() {
+      ?>
+<link rel="stylesheet" href="components/com_imagebrowser/styles.css" type="text/css" media="screen" />
+      <?php
+}
+
+function attachLightBoxScripts() {
+      ?>
+      <script type="text/javascript" src="components/com_jpp/lib/lightbox2.03.3/js/prototype.js"></script>
+      <script type="text/javascript" src="components/com_jpp/lib/lightbox2.03.3/js/scriptaculous.js?load=effects"></script>
+      <script type="text/javascript" src="components/com_jpp/lib/lightbox2.03.3/js/lightbox.js"></script>
+
+      <link rel="stylesheet" href="components/com_jpp/lib/lightbox2.03.3/css/lightbox.css" type="text/css" media="screen" />
+      <?php
+}
+
+
+
+
+function attachPopupScripts() {
+  ?>
+  <script language="javascript" type="text/javascript">
+  var popUpWin=0;
+  function popUpWindow(URLStr, left, top, width, height) {
+    if(popUpWin) {
+      if(!popUpWin.closed) popUpWin.close();
+    }
+    popUpWinAttributes = 'toolbar=no,location=no,directories=no,status=no,menubar=no';
+    popUpWinAttributes += ',scrollbars=no,resizable=no,copyhistory=yes,width='+width;
+    popUpWinAttributes += ',height='+height+',left='+left+',top='+top+',screenX='+left+',screenY='+top;
+    popUpWin = open(URLStr, 'popUpWin', popUpWinAttributes);
+  }
+  </script>
+  <?php
+}
+
+
+
+?>
+

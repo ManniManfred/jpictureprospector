@@ -13,6 +13,7 @@
   <files>
     <filename>jpp.php</filename>
     <folder>jpp/</folder>
+    <folder>lib/</folder>
   </files>
 
   <administration>
