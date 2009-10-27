@@ -283,4 +283,5 @@ public abstract class AbstractJPPCore implements JPPCore{
    */
   public abstract String clearUpIndex() throws SucheException;
 
+  public abstract void rotate(BildDokument dok, double degree);
 }

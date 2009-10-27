@@ -135,6 +135,10 @@ public class Hauptfenster extends JFrame {
   private JToolBar tbWerkzeugleiste = null;
 
   private JButton bGroszanzeige = null;
+  
+  private JButton btRotateLeft = null;
+  
+  private JButton btRotateRight = null;
 
   private JPanel pThumbnailSteuerung = null;
 
@@ -863,10 +867,41 @@ public class Hauptfenster extends JFrame {
       tbWerkzeugleiste.add(lPrevIco);
       tbWerkzeugleiste.add(lNextIco);
       tbWerkzeugleiste.add(getCbSeiteAuswahl());
+      
+      tbWerkzeugleiste.add(getBtRotateLeft());
+      tbWerkzeugleiste.add(getBtRotateRight());
     }
     return tbWerkzeugleiste;
   }
 
+  private JButton getBtRotateLeft() {
+	  if (btRotateLeft == null) {
+		  btRotateLeft = new JButton("Rotiere linksrum");
+		  btRotateLeft.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//kern.rotate(90);
+			}
+		});
+	  }
+	  return btRotateLeft;
+  }
+  
+  private JButton getBtRotateRight() {
+	  if (btRotateRight == null) {
+		  btRotateRight = new JButton("rechtsrum");
+		  btRotateLeft.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//kern.rotate(90);
+				}
+		  });
+	  }
+	  return btRotateRight;
+  }
+  
   /**
    * This method initializes bGroszanzeige
    * 

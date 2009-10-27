@@ -1,133 +1,134 @@
-<?xml version='1.0'?>
+<?xml version='1.0'?>                       
 <project name="JPP-webapp" default="run" basedir=".">
-  
-  <!-- Spezielle Ordner diese Projekts -->
-  <property name="binDir" location="bin" />
-  <property name="srcDir" location="src" />
-  <property name="libDir" location="lib" />
-  <property name="testDir" location="src" />
-  <property name="webappDir" location="src" />
-  
-  
+
+  <!-- Spezielle Ordner diese Projekts -->           
+  <property name="binDir" location="bin" />          
+  <property name="srcDir" location="src" />          
+  <property name="libDir" location="lib" />          
+  <property name="testDir" location="src" />         
+  <property name="webappDir" location="src" />       
+  <property name="deployDir" location="/srv/tomcat6/webapps" />  
+
   <!-- Starter-Klassen -->
   <property name="mainClass" value="jpp.Starter" />
   <property name="mainServerClass" value="jpp.ServerStarter" />
-  
-  
-  <property name="fjepPath" value="${libDir}/fatjar.jar"/>
-  
-  
-  <!--
-      Alles Aufraeumen
-      -->
-  <target name="clean" description="Aufraeumen">
-    <delete dir="${binDir}" />
-    <delete file="jpp.war" />
-    <delete file="jpp.jar" />
-  </target>
-  
-  
-  
-  <!--
-      compilieren
-      -->
-  <target name="compile" depends="copy-images">
+
+
+  <property name="fjepPath" value="${libDir}/fatjar.jar"/>     
+
+
+  <!--                                                         
+      Alles Aufraeumen                                         
+      -->                                                      
+  <target name="clean" description="Aufraeumen">               
+    <delete dir="${binDir}" />                                 
+    <delete file="jpp.war" />                                  
+    <delete file="jpp.jar" />                                  
+    <delete file="jpp-server.jar" />                           
+  </target>                                                    
+
+
+
+  <!--                                                         
+      compilieren                                              
+      -->                                                      
+  <target name="compile" depends="copy-images">                
     <javac srcdir="${srcDir}" destdir="${binDir}" debug="true">
-      <classpath>
-        <fileset dir="${libDir}">
-          <include name="**.jar" />
-        </fileset>
-      </classpath>
-    </javac>
-  </target>
-  <target name="copy-images">
-    <mkdir dir="${binDir}" />
-    <copy todir="${binDir}">
-      <fileset dir="${srcDir}">
-        <include name="**/*.jpg" />
-        <include name="**/*.png" />
-        <include name="**/*.gif" />
-      </fileset>
-    </copy>
-  </target>
-  
-  
-  
-  <!--
-      JPP-Starter ausfuehren
-      -->
-  <target name="run" depends="compile">
+      <classpath>                                              
+        <fileset dir="${libDir}">                              
+          <include name="**.jar" />                            
+        </fileset>                                             
+      </classpath>                                             
+    </javac>                                                   
+  </target>                                                    
+  <target name="copy-images">                                  
+    <mkdir dir="${binDir}" />                                  
+    <copy todir="${binDir}">                                   
+      <fileset dir="${srcDir}">                                
+        <include name="**/*.jpg" />                            
+        <include name="**/*.png" />                            
+        <include name="**/*.gif" />                            
+      </fileset>                                               
+    </copy>                                                    
+  </target>                                                    
+
+
+
+  <!--                                                         
+      JPP-Starter ausfuehren                                   
+      -->                                                      
+  <target name="run" depends="compile">                        
     <java classname="${mainClass}" classpath="${binDir}" fork="true">
-      <classpath>
-        <fileset dir="${libDir}">
-          <include name="**.jar" />
-        </fileset>
-      </classpath>
-      <arg line="${application.args}" />
-    </java>
-  </target>
-  
-  
-  <!--
-      Server-Anwendung ausfuehren
-      -->
-  <target name="run-server" depends="compile">
+      <classpath>                                                    
+        <fileset dir="${libDir}">                                    
+          <include name="**.jar" />                                  
+        </fileset>                                                   
+      </classpath>                                                   
+      <arg line="${application.args}" />                             
+    </java>                                                          
+  </target>                                                          
+
+
+  <!--                                                               
+      Server-Anwendung ausfuehren                                    
+      -->                                                            
+  <target name="run-server" depends="compile">                       
     <java classname="${mainServerClass}" classpath="${binDir}" fork="true">
-      <classpath>
-        <fileset dir="${libDir}">
-          <include name="**.jar" />
-        </fileset>
-      </classpath>
-    </java>
-  </target>
-  
-  
-  <!--
+      <classpath>                                                          
+        <fileset dir="${libDir}">                                          
+          <include name="**.jar" />                                        
+        </fileset>                                                         
+      </classpath>                                                         
+    </java>                                                                
+  </target>                                                                
+
+
+  <!--                                                                     
       Ein FAT-jar builden, welches den Client mit allen benötigten Bibliotheken enthält.
-      -->
-  <!--       http://sourceforge.net/projects/fjep       -->
-  <taskdef name="fatjar.build" classname="net.sf.fjep.anttask.FJBuildTask" classpath="${fjepPath}" loaderref="${fjepPath}" />
-  <typedef name="fatjar.manifest" classname="net.sf.fjep.anttask.FJManifestType" classpath="${fjepPath}" loaderref="${fjepPath}" />
-  <typedef name="fatjar.exclude" classname="net.sf.fjep.anttask.FJExcludeType" classpath="${fjepPath}" loaderref="${fjepPath}" />
-  <typedef name="fatjar.jarsource" classname="net.sf.fjep.anttask.FJJarSourceType" classpath="${fjepPath}" loaderref="${fjepPath}" />
-  <typedef name="fatjar.filesource" classname="net.sf.fjep.anttask.FJFileSourceType" classpath="${fjepPath}" loaderref="${fjepPath}" />
-  
-  
-  <target name="fatjar" depends="compile">
-    <fatjar.build output="jpp.jar">
-      <fatjar.manifest mainclass="${mainClass}" />
-      <fatjar.filesource path="${binDir}" relpath="" />
-      <fatjar.jarsource file="${libDir}/db4o-6.4.14.8131-java5.jar" relpath="" />
-      <fatjar.jarsource file="${libDir}/SettingSystem.jar" relpath="" />
-      <fatjar.jarsource file="${libDir}/SelectionManager.jar" relpath="" />
-      <fatjar.jarsource file="${libDir}/metadata-extractor-2.3.1.jar" relpath="" />
-      <fatjar.jarsource file="${libDir}/l2fprod-common-directorychooser.jar" relpath="" />
-      <fatjar.jarsource file="${libDir}/lipstikLF-RC2.jar" relpath="" />
-      <fatjar.jarsource file="${libDir}/lucene-analyzers-2.2.0.jar" relpath="" />
+      -->                                                                               
+  <!--       http://sourceforge.net/projects/fjep       -->                             
+  <taskdef name="fatjar.build" classname="net.sf.fjep.anttask.FJBuildTask" classpath="${fjepPath}" loaderref="${fjepPath}" />                                                                       
+  <typedef name="fatjar.manifest" classname="net.sf.fjep.anttask.FJManifestType" classpath="${fjepPath}" loaderref="${fjepPath}" />                                                                 
+  <typedef name="fatjar.exclude" classname="net.sf.fjep.anttask.FJExcludeType" classpath="${fjepPath}" loaderref="${fjepPath}" />                                                                   
+  <typedef name="fatjar.jarsource" classname="net.sf.fjep.anttask.FJJarSourceType" classpath="${fjepPath}" loaderref="${fjepPath}" />                                                               
+  <typedef name="fatjar.filesource" classname="net.sf.fjep.anttask.FJFileSourceType" classpath="${fjepPath}" loaderref="${fjepPath}" />                                                             
+
+
+  <target name="fatjar" depends="compile">                                                        
+    <fatjar.build output="jpp.jar">                                                               
+      <fatjar.manifest mainclass="${mainClass}" />                                                
+      <fatjar.filesource path="${binDir}" relpath="" />                                           
+      <fatjar.jarsource file="${libDir}/db4o-6.4.14.8131-java5.jar" relpath="" />                 
+      <fatjar.jarsource file="${libDir}/SettingSystem.jar" relpath="" />                          
+      <fatjar.jarsource file="${libDir}/SelectionManager.jar" relpath="" />                       
+      <fatjar.jarsource file="${libDir}/metadata-extractor-2.3.1.jar" relpath="" />               
+      <fatjar.jarsource file="${libDir}/l2fprod-common-directorychooser.jar" relpath="" />        
+      <fatjar.jarsource file="${libDir}/lipstikLF-RC2.jar" relpath="" />                          
+      <fatjar.jarsource file="${libDir}/lucene-analyzers-2.2.0.jar" relpath="" />                 
+      <fatjar.jarsource file="${libDir}/lucene-core-2.2.0.jar" relpath="" />                      
+    </fatjar.build>                                                                               
+  </target>                                                                                       
+
+
+  <target name="fatjar-server" depends="compile">                                                 
+    <fatjar.build output="jpp-server.jar">                                                        
+      <fatjar.manifest mainclass="${mainServerClass}" />                                          
+      <fatjar.filesource path="${binDir}" relpath="" />                                           
+      <fatjar.jarsource file="${libDir}/db4o-6.4.14.8131-java5.jar" relpath="" />                 
+      <fatjar.jarsource file="${libDir}/SettingSystem.jar" relpath="" />                          
+      <fatjar.jarsource file="${libDir}/SelectionManager.jar" relpath="" />                       
+      <fatjar.jarsource file="${libDir}/metadata-extractor-2.3.1.jar" relpath="" />               
+      <fatjar.jarsource file="${libDir}/l2fprod-common-directorychooser.jar" relpath="" />        
+      <fatjar.jarsource file="${libDir}/lipstikLF-RC2.jar" relpath="" />                          
+      <fatjar.jarsource file="${libDir}/lucene-analyzers-2.2.0.jar" relpath="" />                 
       <fatjar.jarsource file="${libDir}/lucene-core-2.2.0.jar" relpath="" />
-    </fatjar.build>
-  </target>
-  
-  
-  <target name="fatjar-server" depends="compile">
-    <fatjar.build output="jpp-server.jar">
-      <fatjar.manifest mainclass="${mainServerClass}" />
-      <fatjar.filesource path="${binDir}" relpath="" />
-      <fatjar.jarsource file="${libDir}/db4o-6.4.14.8131-java5.jar" relpath="" />
-      <fatjar.jarsource file="${libDir}/SettingSystem.jar" relpath="" />
-      <fatjar.jarsource file="${libDir}/SelectionManager.jar" relpath="" />
-      <fatjar.jarsource file="${libDir}/metadata-extractor-2.3.1.jar" relpath="" />
-      <fatjar.jarsource file="${libDir}/l2fprod-common-directorychooser.jar" relpath="" />
-      <fatjar.jarsource file="${libDir}/lipstikLF-RC2.jar" relpath="" />
-      <fatjar.jarsource file="${libDir}/lucene-analyzers-2.2.0.jar" relpath="" />
-      <fatjar.jarsource file="${libDir}/lucene-core-2.2.0.jar" relpath="" />
-	  
+      <fatjar.jarsource file="${libDir}/cos.jar" relpath="" />
       <fatjar.jarsource file="${libDir}/jetty-6.1.3.jar" relpath="" />
       <fatjar.jarsource file="${libDir}/jetty-util-6.1.3.jar" relpath="" />
       <fatjar.jarsource file="${libDir}/servlet-api-2.5-6.1.3.jar" relpath="" />
     </fatjar.build>
   </target>
-  
+
   <!--
       Erzeugt die WebApplikation gepackt in einem war-File
       -->

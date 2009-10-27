@@ -229,6 +229,9 @@ public class ClientJPPCore extends AbstractJPPCore {
     return ergebnis;
   }
   
+  public void rotate(BildDokument dok, double degree) {
+	  // @TODO: implement
+  }
   
   /**
    * Stellt eine HTTP Anfrage der Methode POST an die Adresse <code>to</code>
