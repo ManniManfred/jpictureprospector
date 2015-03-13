@@ -1,0 +1,3 @@
+Innerhalb dieses Projektes wird eine Software zur flexiblen und effizienten Recherche nach Bildern auf dem eigenen System erstellt. Bilddaten sollen anhand Namen, Schlüsselwörtern etc. gesucht werden können. Über Konfigurationen soll die Software erweiterbar sein. Schlüsselwörter können bei der Suche als einzelne Wörter auftreten, allerdings auch als komplette Suchtexte.
+
+Mit Hilfe einer grafischen Benutzeroberfläche werden Thumbnails der gesuchten Bilder angezeigt. Die Erstellung der Thumbnails wird mit Hilfe zusätzlicher API's über Java realisiert. Über Apache Lucene werden die Bilddaten verwaltet und die Suche realisiert.
